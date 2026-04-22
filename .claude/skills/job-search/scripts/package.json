@@ -1,0 +1,8 @@
+{
+  "name": "job-search-scripts",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}

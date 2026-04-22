@@ -1,0 +1,19 @@
+{
+  "name": "@dashboard/cv",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "tsx src/generate.tsx",
+    "dev": "tsx watch src/generate.tsx"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^4",
+    "react": "^18"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "filtered-single-board-scan",
+  "prompt": "Only check jobstash.xyz today — I want to see if there are any new founding engineer or tech lead roles in Web3 that pay at least $120k.",
+  "assertions": [
+    "Output mentions jobstash.xyz as the source scanned",
+    "Output does NOT mention fetching from Wellfound or web3.career as sources for this run",
+    "Results are filtered to founding engineer and/or tech lead roles",
+    "Any listed salary below $120k is filtered out or explicitly noted as below threshold",
+    "Web3/DeFi positions rank higher than non-Web3 positions",
+    "Output ends with a prompt to select positions or notes no results were found"
+  ]
+}

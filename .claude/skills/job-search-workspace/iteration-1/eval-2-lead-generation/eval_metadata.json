@@ -1,0 +1,17 @@
+{
+  "eval_id": 2,
+  "eval_name": "direct-lead-file-generation",
+  "prompt": "I just got referred to a role at a DeFi protocol called Ambient Finance — they're looking for a founding engineer, fully remote, TypeScript + React + smart contract integrations, no salary listed but well-funded Series A. Generate a lead file for it. The job posting is at https://jobs.lever.co/ambient-finance/founding-engineer",
+  "assertions": [
+    "A file is created in the leads/ directory",
+    "File name follows the YYYY-MM-DD_company_role slug pattern",
+    "Frontmatter contains status, company, role, source, score, domain fields",
+    "Match breakdown table is present with all four scoring categories",
+    "Cover letter section is present and is 3-4 paragraphs",
+    "Cover letter does NOT start with 'I am excited to apply' or similar filler phrases",
+    "Cover letter references at least one specific metric from Ivan's CV (TVL, DAU, SDK integrators, or funding)",
+    "Cover letter references TypeScript or React or Web3 stack in context of the role",
+    "Domain is set to 'web3' in frontmatter",
+    "Score is between 75-100 given the strong DeFi + founding engineer + TypeScript match"
+  ]
+}

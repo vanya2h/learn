@@ -1,0 +1,52 @@
+{
+  "skill_name": "job-search",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run the job search — check all three boards and show me what's new.",
+      "expected_output": "A ranked list of top 10 job positions fetched from Wellfound, web3.career, and jobstash.xyz. Each entry should have a score out of 100 with domain/role/stack/salary breakdown. The list should be sorted by score descending, filtered to remote-only positions, and presented in the defined format with a prompt asking which ones to pursue.",
+      "files": [],
+      "assertions": [
+        "Output contains a ranked list of at least 5 job positions",
+        "Each position includes a score out of 100",
+        "Score breakdown is shown (domain + role + stack + salary components)",
+        "Output mentions at least one of the three job boards (wellfound, web3.career, jobstash.xyz)",
+        "Output ends with a prompt asking Ivan which positions to pursue",
+        "Web3/DeFi positions appear higher in the ranking than non-Web3 positions of similar seniority",
+        "No junior or entry-level roles are included in the results"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I just got referred to a role at a DeFi protocol called Ambient Finance — they're looking for a founding engineer, fully remote, TypeScript + React + smart contract integrations, no salary listed but well-funded Series A. Generate a lead file for it. The job posting is at https://jobs.lever.co/ambient-finance/founding-engineer",
+      "expected_output": "A complete lead file saved to leads/YYYY-MM-DD_ambient-finance_founding-engineer.md containing: frontmatter with all fields filled, match breakdown table, job description section, and a tailored 3-4 paragraph cover letter that references Ivan's specific metrics (e.g. $200M TVL, 100K DAU, $17M raised) and matches the DeFi/TypeScript/founding-engineer context. No hollow opener phrases.",
+      "files": [],
+      "assertions": [
+        "A file is created in the leads/ directory",
+        "File name follows the YYYY-MM-DD_company_role slug pattern",
+        "Frontmatter contains status, company, role, source, score, domain fields",
+        "Match breakdown table is present with all four scoring categories",
+        "Cover letter section is present and is 3-4 paragraphs",
+        "Cover letter does NOT start with 'I am excited to apply' or similar filler phrases",
+        "Cover letter references at least one specific metric from Ivan's CV (TVL, DAU, SDK integrators, or funding)",
+        "Cover letter references TypeScript or React or Web3 stack in context of the role",
+        "Domain is set to 'web3' in frontmatter",
+        "Score is between 75-100 given the strong DeFi + founding engineer + TypeScript match"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Only check jobstash.xyz today — I want to see if there are any new founding engineer or tech lead roles in Web3 that pay at least $120k.",
+      "expected_output": "Results fetched specifically from jobstash.xyz (not the other boards), filtered to founding engineer or tech lead roles, filtered by $120k+ salary where listed. Positions scored and ranked. If fewer than 10 results meet criteria, show all qualifying ones. Header should note that only jobstash was scanned.",
+      "files": [],
+      "assertions": [
+        "Output mentions jobstash.xyz as the source scanned",
+        "Output does NOT mention fetching from Wellfound or web3.career as sources for this run",
+        "Results are filtered to founding engineer and/or tech lead roles",
+        "Any listed salary below $120k is filtered out or explicitly noted as below threshold",
+        "Web3/DeFi positions rank higher than non-Web3 positions",
+        "Output ends with a prompt to select positions or notes no results were found"
+      ]
+    }
+  ]
+}

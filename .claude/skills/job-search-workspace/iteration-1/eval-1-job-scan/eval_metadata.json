@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "full-job-scan-all-boards",
+  "prompt": "Run the job search — check all three boards and show me what's new.",
+  "assertions": [
+    "Output contains a ranked list of at least 5 job positions",
+    "Each position includes a score out of 100",
+    "Score breakdown is shown (domain + role + stack + salary components)",
+    "Output mentions at least one of the three job boards (wellfound, web3.career, jobstash.xyz)",
+    "Output ends with a prompt asking Ivan which positions to pursue",
+    "Web3/DeFi positions appear higher in the ranking than non-Web3 positions of similar seniority",
+    "No junior or entry-level roles are included in the results"
+  ]
+}
