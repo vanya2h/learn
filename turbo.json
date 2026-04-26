@@ -10,6 +10,13 @@
     },
     "typecheck": {
       "outputs": []
+    },
+    "fetch": {
+      "cache": false
+    },
+    "count": {
+      "cache": false
     }
-  }
+  },
+  "globalEnv": ["THEIRSTACK_API_KEY"]
 }

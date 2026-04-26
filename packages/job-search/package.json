@@ -1,0 +1,20 @@
+{
+  "name": "@dashboard/job-search",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fetch": "dotenv -e ../../.env -- tsx src/cli.ts",
+    "count": "dotenv -e ../../.env -- tsx src/cli.ts --count",
+    "next-job": "tsx src/scripts/next-job.ts",
+    "approve": "tsx src/scripts/set-status.ts approved",
+    "reject": "tsx src/scripts/set-status.ts rejected",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "dotenv-cli": "^8.0.0",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}
