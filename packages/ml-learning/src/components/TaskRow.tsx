@@ -1,39 +1,41 @@
 import type { Task } from "../data/curriculum";
 import { useStore } from "../store";
 
-type Props = { task: Task };
+type Props = { task: Task; curriculumId: string };
 
-export function TaskRow({ task }: Props) {
+export function TaskRow({ task, curriculumId }: Props) {
   const completedTaskIds = useStore((s) => s.completedTaskIds);
-  const toggleTask = useStore((s) => s.toggleTask);
+  const startTopic = useStore((s) => s.startTopic);
   const checked = !!completedTaskIds[task.id];
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") toggleTask(task.id);
-  }
-
   return (
-    <label
-      className="flex items-start gap-3 py-1.5 px-2 rounded cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 group"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={() => toggleTask(task.id)}
-        className="mt-0.5 h-4 w-4 shrink-0 accent-green-600"
-      />
-      <span
-        className={`text-sm leading-snug ${checked ? "line-through text-neutral-400 dark:text-neutral-600" : "text-neutral-800 dark:text-neutral-200"}`}
-      >
-        {task.title}
-        {task.estMinutes && (
-          <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
-            ~{task.estMinutes >= 60 ? `${Math.round(task.estMinutes / 60)}h` : `${task.estMinutes}m`}
-          </span>
-        )}
-      </span>
-    </label>
+    <div className="group flex items-start gap-3 py-1.5 px-2 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800">
+      <label className="flex items-start gap-3 flex-1 min-w-0 cursor-default">
+        <input
+          type="checkbox"
+          checked={checked}
+          readOnly
+          className="mt-0.5 h-4 w-4 shrink-0 accent-green-600 pointer-events-none"
+        />
+        <span
+          className={`text-sm leading-snug ${checked ? "line-through text-neutral-400 dark:text-neutral-600" : "text-neutral-800 dark:text-neutral-200"}`}
+        >
+          {task.title}
+          {task.estMinutes && (
+            <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
+              ~{task.estMinutes >= 60 ? `${Math.round(task.estMinutes / 60)}h` : `${task.estMinutes}m`}
+            </span>
+          )}
+        </span>
+      </label>
+      {!checked && (
+        <button
+          onClick={() => startTopic(task.id, curriculumId)}
+          className="opacity-0 group-hover:opacity-100 shrink-0 text-xs px-2 py-0.5 rounded bg-green-600 text-white hover:bg-green-700 transition-opacity"
+        >
+          Start
+        </button>
+      )}
+    </div>
   );
 }

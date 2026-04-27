@@ -5,7 +5,7 @@ import { useStore } from "../store";
 import { SpecializationPicker } from "./SpecializationPicker";
 import { TaskRow } from "./TaskRow";
 
-type Props = { phase: Phase };
+type Props = { phase: Phase; curriculumId: string };
 
 function phaseProgress(tasks: Task[], completedTaskIds: Record<string, string>) {
   const total = tasks.reduce((s, t) => s + (t.estMinutes ?? 60), 0);
@@ -14,10 +14,11 @@ function phaseProgress(tasks: Task[], completedTaskIds: Record<string, string>) 
   return Math.round((done / total) * 100);
 }
 
-export function PhaseCard({ phase }: Props) {
+export function PhaseCard({ phase, curriculumId }: Props) {
   const [open, setOpen] = useState(true);
   const completedTaskIds = useStore((s) => s.completedTaskIds);
-  const specialization = useStore((s) => s.specialization);
+  const specialization = useStore((s) => s.specializations[curriculumId] ?? null);
+  const clearSpecialization = useStore((s) => s.clearSpecialization);
 
   const isPhase3 = phase.id === "phase-3";
   const visibleTasks = isPhase3
@@ -30,7 +31,7 @@ export function PhaseCard({ phase }: Props) {
 
   function handleChangePath(e: MouseEvent) {
     e.stopPropagation();
-    useStore.setState({ specialization: null });
+    clearSpecialization(curriculumId);
   }
 
   return (
@@ -64,7 +65,7 @@ export function PhaseCard({ phase }: Props) {
 
       {open && (
         <div className="px-4 pb-3">
-          {isPhase3 && !specialization && <SpecializationPicker />}
+          {isPhase3 && !specialization && <SpecializationPicker curriculumId={curriculumId} />}
           {isPhase3 && specialization && (
             <div className="py-1">
               <button
@@ -76,7 +77,7 @@ export function PhaseCard({ phase }: Props) {
             </div>
           )}
           {visibleTasks.map((task) => (
-            <TaskRow key={task.id} task={task} />
+            <TaskRow key={task.id} task={task} curriculumId={curriculumId} />
           ))}
         </div>
       )}

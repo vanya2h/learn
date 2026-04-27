@@ -1,11 +1,13 @@
-import { CURRICULUM } from "../data/curriculum";
+import type { CurriculumDef } from "../data/curriculum";
 import { PhaseCard } from "./PhaseCard";
 
-export function Curriculum() {
+type Props = { curriculum: CurriculumDef };
+
+export function Curriculum({ curriculum }: Props) {
   return (
     <section className="px-6 py-4 flex flex-col gap-3">
-      {CURRICULUM.map((phase) => (
-        <PhaseCard key={phase.id} phase={phase} />
+      {curriculum.phases.map((phase) => (
+        <PhaseCard key={phase.id} phase={phase} curriculumId={curriculum.id} />
       ))}
     </section>
   );

@@ -2,7 +2,9 @@ import type { SpecializationId } from "../data/curriculum";
 import { SPECIALIZATION_INFO } from "../data/curriculum";
 import { useStore } from "../store";
 
-export function SpecializationPicker() {
+type Props = { curriculumId: string };
+
+export function SpecializationPicker({ curriculumId }: Props) {
   const setSpecialization = useStore((s) => s.setSpecialization);
 
   return (
@@ -19,7 +21,7 @@ export function SpecializationPicker() {
             {info.tasks} tasks · ~{info.hours} hrs
           </div>
           <button
-            onClick={() => setSpecialization(id)}
+            onClick={() => setSpecialization(curriculumId, id)}
             className="mt-auto rounded bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
           >
             Choose this path

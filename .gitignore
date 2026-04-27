@@ -1,7 +1,8 @@
 node_modules
 .turbo
 dist
-.env*
+.env
+.env.local
 *.local
 .DS_Store
 .playwright/profiles/
