@@ -11,6 +11,13 @@
     "typecheck": {
       "outputs": []
     },
+    "lint": {
+      "outputs": []
+    },
+    "lint:fix": {
+      "cache": false,
+      "outputs": []
+    },
     "fetch": {
       "cache": false
     },

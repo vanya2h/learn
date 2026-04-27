@@ -9,7 +9,9 @@
     "next-job": "tsx src/scripts/next-job.ts",
     "approve": "tsx src/scripts/set-status.ts approved",
     "reject": "tsx src/scripts/set-status.ts rejected",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

@@ -7,7 +7,9 @@
     "generate": "tsx src/generate.tsx",
     "generate:cover-letter": "tsx src/generate-cover-letter.tsx",
     "dev": "tsx watch src/generate.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4",
