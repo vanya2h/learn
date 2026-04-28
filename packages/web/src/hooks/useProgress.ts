@@ -34,11 +34,6 @@ export function useProgress() {
     revalidate();
   }
 
-  async function logMinutes(minutes: number) {
-    await apiClient.api.progress.activity["log-minutes"].$post({ json: { minutes } });
-    revalidate();
-  }
-
   async function setSpecialization(curriculumId: string, s: SpecializationId) {
     await apiClient.api.progress.specializations[":curriculumId"].$put({
       param: { curriculumId },
@@ -52,5 +47,5 @@ export function useProgress() {
     revalidate();
   }
 
-  return { ...progress, toggleTask, logMinutes, setSpecialization, clearSpecialization };
+  return { ...progress, toggleTask, setSpecialization, clearSpecialization };
 }

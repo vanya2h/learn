@@ -1,7 +1,6 @@
 import { useParams } from "react-router";
 import { CURRICULUMS } from "../data/curriculum";
 import { Curriculum } from "./Curriculum";
-import { SessionLogger } from "./SessionLogger";
 
 export function CurriculumView() {
   const { curriculumId } = useParams<{ curriculumId: string }>();
@@ -9,10 +8,5 @@ export function CurriculumView() {
 
   if (!curriculum) return null;
 
-  return (
-    <>
-      <Curriculum curriculum={curriculum} />
-      <SessionLogger />
-    </>
-  );
+  return <Curriculum curriculum={curriculum} />;
 }

@@ -8,12 +8,11 @@ const ROWS = 7;
 const LABEL_W = 28;
 const LABEL_H = 18;
 
-function intensity(minutes: number, taskCount: number) {
-  const effective = minutes === 0 && taskCount > 0 ? 1 : minutes;
-  if (effective === 0) return 0;
-  if (effective < 30) return 1;
-  if (effective < 60) return 2;
-  if (effective < 120) return 3;
+function intensity(taskCount: number) {
+  if (taskCount === 0) return 0;
+  if (taskCount === 1) return 1;
+  if (taskCount === 2) return 2;
+  if (taskCount === 3) return 3;
   return 4;
 }
 
@@ -87,9 +86,8 @@ export function Heatmap() {
         ))}
         {grid.map(({ date, col, row }) => {
           const entry = activity[date];
-          const mins = entry?.minutes ?? 0;
           const tasks = entry?.taskIds?.length ?? 0;
-          const level = intensity(mins, tasks);
+          const level = intensity(tasks);
           const x = LABEL_W + col * (CELL + GAP);
           const y = LABEL_H + row * (CELL + GAP);
           return (
@@ -102,9 +100,9 @@ export function Heatmap() {
               rx={2}
               ry={2}
               fill={colors[level]}
-              aria-label={`${date}: ${mins} min, ${tasks} tasks`}
+              aria-label={`${date}: ${tasks} tasks`}
             >
-              <title>{`${date}: ${mins} min, ${tasks} tasks`}</title>
+              <title>{`${date}: ${tasks} tasks`}</title>
             </rect>
           );
         })}

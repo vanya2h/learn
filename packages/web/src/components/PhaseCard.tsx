@@ -45,7 +45,7 @@ export function PhaseCard({ phase, curriculumId }: Props) {
             <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">{phase.title}</span>
             {isPhase3 && specialization && (
               <span className="text-xs text-green-700 dark:text-green-400 font-medium">
-                {SPECIALIZATION_INFO[specialization].label}
+                {SPECIALIZATION_INFO[specialization as keyof typeof SPECIALIZATION_INFO].label}
               </span>
             )}
           </div>

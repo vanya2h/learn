@@ -71,25 +71,6 @@ export const progressRoute = new Hono<AuthEnv>()
     return c.json({ completed: true, completedAt: completion.completedAt.toISOString() });
   })
 
-  // ─── POST /progress/activity/log-minutes ─────────────────────────────────────
-  .post(
-    "/progress/activity/log-minutes",
-    zValidator("json", z.object({ minutes: z.number().int().min(1) })),
-    async (c) => {
-      const userId = c.var.user.id;
-      const { minutes } = c.req.valid("json");
-      const date = today();
-
-      const activity = await db.dailyActivity.upsert({
-        where: { date_userId: { date, userId } },
-        update: { minutes: { increment: minutes } },
-        create: { date, userId, taskIds: [], minutes },
-      });
-
-      return c.json({ date: activity.date, minutes: activity.minutes });
-    },
-  )
-
   // ─── PUT /progress/specializations/:curriculumId ──────────────────────────────
   .put(
     "/progress/specializations/:curriculumId",
