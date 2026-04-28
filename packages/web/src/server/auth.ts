@@ -1,11 +1,13 @@
+import { dash } from "@better-auth/infra";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./db";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, { provider: "postgresql" }),
-  trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:5173"],
+  trustedOrigins: [process.env.BETTER_AUTH_URL!],
   emailAndPassword: { enabled: true },
+  plugins: [dash()],
   session: {
     expiresIn: 60 * 60 * 24 * 365, // 1 year
     updateAge: 60 * 60 * 24 * 7, // refresh expiry weekly on activity
