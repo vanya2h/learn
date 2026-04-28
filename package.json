@@ -5,7 +5,6 @@
   "scripts": {
     "generate": "turbo run generate",
     "dev": "turbo run dev",
-    "dev:ml": "pnpm --filter ml-learning dev",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck"
