@@ -25,6 +25,12 @@
       "skillPath": "better-auth/emailAndPassword/SKILL.md",
       "computedHash": "747d7f73bd9e2ec5317b8ef88dc70f97df716d00e3d02de4051feebaa48b062d"
     },
+    "form-builder": {
+      "source": "danielmeppiel/form-builder",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "a7fdee41da2e5c63c3863592389135dd8f56235f5835b74242440e05e88552e8"
+    },
     "hono": {
       "source": "yusukebe/hono-skill",
       "sourceType": "github",

@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
 import { CURRICULUMS } from "../data/curriculum";
 import { useProgress } from "../hooks/useProgress";
+import { authClient } from "../lib/authClient";
 import type { AuthUser } from "../server/auth";
 
 function hashToHue(id: string): number {
@@ -78,6 +79,9 @@ export function Header() {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const { completedTaskIds, activity, specializations } = useProgress();
 
@@ -171,9 +175,37 @@ export function Header() {
           {streak === 1 ? " day" : " days"} streak
         </span>
         {user && (
-          <div className="flex items-center gap-2">
-            <UserAvatar user={user} />
-            <span className="text-neutral-700 dark:text-neutral-300 font-medium">{user.name}</span>
+          <div
+            ref={userMenuRef}
+            className="relative"
+            onBlur={(e) => {
+              if (!userMenuRef.current?.contains(e.relatedTarget as Node)) setUserMenuOpen(false);
+            }}
+          >
+            <button
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="rounded-full focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+            >
+              <UserAvatar user={user} />
+            </button>
+
+            {userMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 z-50 w-48 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg py-1">
+                <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-800">
+                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">{user.name}</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{user.email}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    authClient.signOut().then(() => navigate("/sign-in"));
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
