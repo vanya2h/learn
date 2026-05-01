@@ -45,7 +45,6 @@ export default function StudyPage() {
 
   const [material, setMaterial] = useState<Material | null>(loaderData.name === "study" ? loaderData.material : null);
   const [partIdx, setPartIdx] = useState(loaderData.name === "study" ? loaderData.partIdx : 0);
-  const [planStream, setPlanStream] = useState("");
   const [partStream, setPartStream] = useState("");
 
   function newAbort() {
@@ -121,19 +120,10 @@ export default function StudyPage() {
       : `Plan a study session for: "${task.title}"\nCurriculum: ${curriculumName}`;
 
     try {
-      const text = await streamAI(
-        PLAN_SYSTEM,
-        userMsg,
-        (acc) => {
-          if (!ctrl.signal.aborted) setPlanStream(acc);
-        },
-        TOKENS_PLAN,
-        ctrl.signal,
-      );
+      const text = await streamAI(PLAN_SYSTEM, userMsg, () => {}, TOKENS_PLAN, ctrl.signal);
       if (ctrl.signal.aborted) return;
 
       const plan = parsePlan(text);
-      setPlanStream("");
 
       const newMaterial: Material = {
         plan,
@@ -143,7 +133,11 @@ export default function StudyPage() {
 
       setMaterial(newMaterial);
       setPartIdx(0);
-      void saveSession({ name: "study", material: newMaterial, partIdx: 0 });
+      void saveSession({
+        name: "study",
+        material: newMaterial,
+        partIdx: 0,
+      });
       void loadPart(0, newMaterial, ctrl);
     } catch (err) {
       if (!ctrl.signal.aborted) console.error(err);
@@ -186,15 +180,20 @@ export default function StudyPage() {
     void navigate("../hands-on", { relative: "path" });
   }
 
-  // Still generating the plan
   if (!material) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <Loader size="sm" />
-        <p className="text-sm text-muted-foreground">Building your study plan…</p>
-        {planStream && (
-          <p className="text-xs text-foreground/40 max-w-sm text-center italic">{planStream.slice(0, 120)}</p>
-        )}
+      <div className="max-w-2xl mx-auto px-6 py-8 animate-pulse">
+        <div className="h-3 w-16 bg-muted rounded mb-2" />
+        <div className="h-7 w-1/2 bg-muted rounded mb-8" />
+        <div className="space-y-3">
+          <div className="h-4 bg-muted rounded" />
+          <div className="h-4 bg-muted rounded w-11/12" />
+          <div className="h-4 bg-muted rounded w-4/5" />
+          <div className="h-4 bg-muted rounded" />
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-4 bg-muted rounded w-11/12" />
+          <div className="h-4 bg-muted rounded w-5/6" />
+        </div>
       </div>
     );
   }

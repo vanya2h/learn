@@ -16,15 +16,25 @@ export default function ChoicePage() {
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
         <LayerCard
-          render={<button onClick={() => void navigate("../assess", { relative: "path" })} className="text-left" />}
-          className="flex flex-col items-start gap-2 rounded-xl p-5"
+          render={
+            <button
+              onClick={() => void navigate("../assess", { relative: "path" })}
+              className="text-left cursor-pointer"
+            />
+          }
+          className="flex flex-col items-start gap-2 rounded-xl p-5 hover:bg-muted/50 transition-colors"
         >
           <span className="font-semibold text-foreground">Quick assessment first</span>
           <span className="text-xs text-muted-foreground">Answer 4 questions so the AI can focus on your gaps</span>
         </LayerCard>
         <LayerCard
-          render={<button onClick={() => void navigate("../study", { relative: "path" })} className="text-left" />}
-          className="flex flex-col items-start gap-2 rounded-xl p-5"
+          render={
+            <button
+              onClick={() => void navigate("../study", { relative: "path" })}
+              className="text-left cursor-pointer"
+            />
+          }
+          className="flex flex-col items-start gap-2 rounded-xl p-5 hover:bg-muted/50 transition-colors"
         >
           <span className="font-semibold text-foreground">Start from scratch</span>
           <span className="text-xs text-muted-foreground">Full comprehensive material from the beginning</span>
