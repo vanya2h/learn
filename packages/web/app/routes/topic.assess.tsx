@@ -1,6 +1,7 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { Loader } from "@cloudflare/kumo/components/loader";
+import { Text } from "@cloudflare/kumo/components/text";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
@@ -88,7 +89,7 @@ export default function AssessPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Loader size="sm" />
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Preparing assessment questions…</p>
+        <p className="text-sm text-muted-foreground">Preparing assessment questions…</p>
       </div>
     );
   }
@@ -98,18 +99,20 @@ export default function AssessPage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Quick Assessment</h2>
+        <Text variant="heading2" as="h2">
+          Quick Assessment
+        </Text>
         <Button size="xs" variant="secondary" onClick={() => void generateQuestions()} disabled={loading}>
           Regenerate
         </Button>
       </div>
-      <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-8">
+      <p className="text-xs text-muted-foreground mb-8">
         Answer each question in 2–4 sentences. Honest answers get more useful material.
       </p>
       <div className="flex flex-col gap-6">
         {questions.map((q, i) => (
           <div key={i}>
-            <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
+            <p className="text-sm font-medium text-foreground mb-2">
               {i + 1}. {q}
             </p>
             <InputArea

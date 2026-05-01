@@ -78,11 +78,9 @@ export default function HandsOnPage() {
         {part.handsOn.map((t, i) => (
           <div key={i} className="flex flex-col gap-3">
             <LayerCard className="p-4">
-              <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">
-                Task {i + 1}
-              </p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Task {i + 1}</p>
               <Markdown>{t.task}</Markdown>
-              {t.hint && <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-600 italic">Hint: {t.hint}</p>}
+              {t.hint && <p className="mt-2 text-xs text-foreground/40 italic">Hint: {t.hint}</p>}
               <div className="mt-3 flex items-center gap-2">
                 <Button
                   size="xs"

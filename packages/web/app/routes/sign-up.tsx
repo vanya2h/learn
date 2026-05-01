@@ -49,8 +49,8 @@ export default function SignUp() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-neutral-100 tracking-tight">ML Learning</h1>
-          <p className="mt-2 text-sm text-neutral-400">Create your account</p>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight">ML Learning</h1>
+          <p className="mt-2 text-sm text-foreground/40">Create your account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -132,7 +132,7 @@ export default function SignUp() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-neutral-500">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link to="/sign-in" className="text-neutral-300 hover:text-white transition-colors">
             Sign in

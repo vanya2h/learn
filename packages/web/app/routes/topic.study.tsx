@@ -1,5 +1,8 @@
 import { Loader } from "@cloudflare/kumo/components/loader";
+import { Text } from "@cloudflare/kumo/components/text";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import clsx from "clsx";
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
@@ -11,6 +14,29 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.study";
 import type { loader as layoutLoader } from "./topic-layout";
+
+function NavButton({
+  onClick,
+  align = "left",
+  children,
+}: {
+  onClick: () => void;
+  align?: "left" | "right";
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={clsx(
+        "flex flex-col gap-1 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden",
+        align === "right" ? "items-end text-right" : "text-left",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
 
 const TOKENS_PLAN = 600;
 const TOKENS_PART = 3000;
@@ -195,11 +221,9 @@ export default function StudyPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Loader size="sm" />
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Building your study plan…</p>
+        <p className="text-sm text-muted-foreground">Building your study plan…</p>
         {planStream && (
-          <p className="text-xs text-neutral-400 dark:text-neutral-600 max-w-sm text-center italic">
-            {planStream.slice(0, 120)}
-          </p>
+          <p className="text-xs text-foreground/40 max-w-sm text-center italic">{planStream.slice(0, 120)}</p>
         )}
       </div>
     );
@@ -215,16 +239,20 @@ export default function StudyPage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
+        <p className="text-xs text-muted-foreground mb-2">
           Part {partIdx + 1} of {plan.partPlans.length}
         </p>
       </div>
 
-      <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-6">{partPlan?.title ?? ""}</h2>
+      <div className="mb-6">
+        <Text variant="heading2" as="h2">
+          {partPlan?.title ?? ""}
+        </Text>
+      </div>
 
       {!part && (
         <>
-          <div className="flex items-center gap-2 mb-6 text-neutral-400 dark:text-neutral-600">
+          <div className="flex items-center gap-2 mb-6 text-foreground/40">
             <Loader size="sm" />
             <p className="text-sm">Preparing study material…</p>
           </div>
@@ -237,44 +265,28 @@ export default function StudyPage() {
           <Markdown>{part.study}</Markdown>
           <div className="mt-8 grid grid-cols-2 gap-3">
             {prevPlan && parts[partIdx - 1] ? (
-              <button
-                type="button"
-                onClick={() => handleGoToPart(partIdx - 1)}
-                className="flex flex-col gap-1 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 text-left hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer"
-              >
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              <NavButton onClick={() => handleGoToPart(partIdx - 1)}>
+                <span className="text-xs text-muted-foreground">
                   <ArrowLeftIcon className="inline" /> previous
                 </span>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate">
-                  {prevPlan.title}
-                </span>
-              </button>
+                <span className="text-sm font-medium text-foreground">{prevPlan.title}</span>
+              </NavButton>
             ) : (
               <div />
             )}
 
             {isLastPart ? (
-              <button
-                type="button"
-                onClick={handleMoveToHandsOn}
-                className="flex flex-col items-end gap-1 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 text-right hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer"
-              >
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">next</span>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate">Practice</span>
-              </button>
+              <NavButton onClick={handleMoveToHandsOn} align="right">
+                <span className="text-xs text-muted-foreground">next</span>
+                <span className="text-sm font-medium text-foreground">Practice</span>
+              </NavButton>
             ) : (
-              <button
-                type="button"
-                onClick={handleNextPart}
-                className="flex flex-col items-end gap-1 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 text-right hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors cursor-pointer"
-              >
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              <NavButton onClick={handleNextPart} align="right">
+                <span className="text-xs text-muted-foreground">
                   next <ArrowRightIcon className="inline" />
                 </span>
-                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate">
-                  {nextPlan?.title}
-                </span>
-              </button>
+                <span className="text-sm font-medium text-foreground">{nextPlan?.title}</span>
+              </NavButton>
             )}
           </div>
         </>

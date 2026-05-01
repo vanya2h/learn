@@ -1,3 +1,4 @@
+import { Text } from "@cloudflare/kumo/components/text";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, redirect, useNavigate } from "react-router";
@@ -47,8 +48,10 @@ export default function SignIn() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-neutral-100 tracking-tight">ML Learning</h1>
-          <p className="mt-2 text-sm text-neutral-400">Sign in to your account</p>
+          <Text variant="heading1" as="h1">
+            ML Learning
+          </Text>
+          <p className="mt-2 text-sm text-foreground/40">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -109,7 +112,7 @@ export default function SignIn() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-neutral-500">
+        <p className="text-center text-sm text-muted-foreground">
           No account?{" "}
           <Link to="/sign-up" className="text-neutral-300 hover:text-white transition-colors">
             Sign up

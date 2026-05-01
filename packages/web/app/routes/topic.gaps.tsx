@@ -1,6 +1,7 @@
 import { Badge } from "@cloudflare/kumo/components/badge";
 import { Button } from "@cloudflare/kumo/components/button";
 import { Loader } from "@cloudflare/kumo/components/loader";
+import { Text } from "@cloudflare/kumo/components/text";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
@@ -92,9 +93,9 @@ export default function GapsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader size="sm" />
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Evaluating your answers…</p>
+        <p className="text-sm text-muted-foreground">Evaluating your answers…</p>
         {evalStream && (
-          <p className="text-xs text-neutral-400 dark:text-neutral-600 max-w-sm text-center italic">
+          <p className="text-xs text-foreground/40 max-w-sm text-center italic">
             {evalStream.slice(0, 120)}
             {evalStream.length > 120 ? "…" : ""}
           </p>
@@ -105,14 +106,16 @@ export default function GapsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Assessment complete</h2>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">{review.summary}</p>
+      <div className="mb-1">
+        <Text variant="heading2" as="h2">
+          Assessment complete
+        </Text>
+      </div>
+      <p className="text-sm text-muted-foreground mb-6">{review.summary}</p>
 
       {review.gaps.length > 0 ? (
         <div className="mb-8">
-          <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-3">
-            Gaps to cover
-          </p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Gaps to cover</p>
           <ul className="flex flex-wrap gap-2">
             {review.gaps.map((gap) => (
               <li key={gap}>

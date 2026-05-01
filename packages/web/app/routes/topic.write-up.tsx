@@ -94,7 +94,7 @@ export default function WriteUpPage() {
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div className="mb-4 p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900">
         <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-1">Reflect</p>
-        <p className="text-sm text-neutral-800 dark:text-neutral-200">{part.writeUpPrompt}</p>
+        <p className="text-sm text-foreground">{part.writeUpPrompt}</p>
       </div>
 
       {!feedback && !streaming && (
@@ -117,14 +117,12 @@ export default function WriteUpPage() {
 
       {(feedback || streaming) && (
         <div className="mt-4">
-          <div className="text-xs text-neutral-500 dark:text-neutral-400 italic mb-1">Your reflection:</div>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 whitespace-pre-wrap">{text}</p>
+          <div className="text-xs text-muted-foreground italic mb-1">Your reflection:</div>
+          <p className="text-sm text-muted-foreground mb-4 whitespace-pre-wrap">{text}</p>
 
           <LayerCard className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-                Tutor feedback
-              </p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tutor feedback</p>
               {streaming && <Loader size="sm" />}
             </div>
             <Markdown isAnimating={streaming}>{feedback}</Markdown>

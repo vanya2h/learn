@@ -93,33 +93,15 @@ export default function FeedbackPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <div className="flex flex-col gap-4 mb-6">
-        {part.handsOn.map((t, i) => (
-          <div key={i} className="flex flex-col gap-2">
-            <LayerCard className="p-3">
-              <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">
-                Task {i + 1}
-              </p>
-              <Markdown>{t.task}</Markdown>
-            </LayerCard>
-            {answers[i] && (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap px-1">{answers[i]}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
       <LayerCard className="p-4">
         <div className="flex items-center gap-2 mb-2">
-          <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-            Feedback
-          </p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Feedback</p>
           {streaming && <Loader size="sm" />}
         </div>
         {feedback || streaming ? (
           <Markdown isAnimating={streaming}>{feedback}</Markdown>
         ) : (
-          <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-600">
+          <div className="flex items-center gap-2 text-foreground/40">
             <Loader size="sm" />
             <p className="text-sm">Evaluating your answers…</p>
           </div>

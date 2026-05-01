@@ -43,12 +43,10 @@ export function TaskRow({ task, curriculumId }: { task: Task; curriculumId: stri
           readOnly
           className="mt-0.5 h-4 w-4 shrink-0 accent-green-600 pointer-events-none"
         />
-        <span
-          className={`text-sm leading-snug ${checked ? "line-through text-neutral-400 dark:text-neutral-600" : "text-neutral-800 dark:text-neutral-200"}`}
-        >
+        <span className={`text-sm leading-snug ${checked ? "line-through text-foreground/40" : "text-foreground"}`}>
           {task.title}
           {task.estMinutes && (
-            <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
+            <span className="ml-2 text-xs text-muted-foreground">
               ~{task.estMinutes >= 60 ? `${Math.round(task.estMinutes / 60)}h` : `${task.estMinutes}m`}
             </span>
           )}
