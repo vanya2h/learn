@@ -1,35 +1,86 @@
+import { z } from "zod";
 import { parseJSON } from "./json";
 
-export type HandsOnTask = { task: string; hint?: string };
+const HandsOnTaskSchema = z.object({
+  task: z.string(),
+  hint: z.string().optional(),
+});
 
-export type PartPlan = { title: string; description: string };
+const PartPlanSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+});
 
-export type MaterialPlan = {
-  partPlans: PartPlan[];
-};
+const MaterialPlanSchema = z.object({
+  partPlans: z.array(PartPlanSchema),
+});
 
-export type StudyPart = {
-  title: string;
-  study: string;
-  handsOn: HandsOnTask[];
-  writeUpPrompt: string;
-};
+const StudyPartSchema = z.object({
+  title: z.string(),
+  study: z.string(),
+  handsOn: z.array(HandsOnTaskSchema),
+  writeUpPrompt: z.string(),
+});
 
-export type Material = {
-  plan: MaterialPlan;
-  parts: (StudyPart | null)[];
-  assessmentContext?: string;
-};
+const MaterialSchema = z.object({
+  plan: MaterialPlanSchema,
+  parts: z.array(StudyPartSchema.nullable()),
+  assessmentContext: z.string().optional(),
+});
 
-export type PersistedPhase =
-  | { name: "assessing"; questions: string[]; answers: Record<number, string> }
-  | { name: "gaps-review"; summary: string; gaps: string[]; context: string }
-  | { name: "study"; material: Material; partIdx: number }
-  | { name: "hands-on"; material: Material; partIdx: number; answers: Record<number, string> }
-  | { name: "feedback"; material: Material; partIdx: number; answers: Record<number, string>; feedback: string }
-  | { name: "write-up"; material: Material; partIdx: number; feedback: string };
+const answersSchema = z.record(z.string(), z.string());
 
-export type StepKey = "study" | "hands-on" | "feedback" | "write-up";
+export const PersistedPhaseSchema = z.discriminatedUnion("name", [
+  z.object({
+    name: z.literal("assessing"),
+    questions: z.array(z.string()),
+    answers: answersSchema,
+  }),
+  z.object({
+    name: z.literal("gaps-review"),
+    summary: z.string(),
+    gaps: z.array(z.string()),
+    context: z.string(),
+  }),
+  z.object({
+    name: z.literal("study"),
+    material: MaterialSchema,
+    partIdx: z.number(),
+  }),
+  z.object({
+    name: z.literal("hands-on"),
+    material: MaterialSchema,
+    partIdx: z.number(),
+    answers: answersSchema,
+  }),
+  z.object({
+    name: z.literal("feedback"),
+    material: MaterialSchema,
+    partIdx: z.number(),
+    answers: answersSchema,
+    feedback: z.string(),
+  }),
+  z.object({
+    name: z.literal("write-up"),
+    material: MaterialSchema,
+    partIdx: z.number(),
+    feedback: z.string(),
+  }),
+]);
+
+export type HandsOnTask = z.infer<typeof HandsOnTaskSchema>;
+export type PartPlan = z.infer<typeof PartPlanSchema>;
+export type MaterialPlan = z.infer<typeof MaterialPlanSchema>;
+export type StudyPart = z.infer<typeof StudyPartSchema>;
+export type Material = z.infer<typeof MaterialSchema>;
+export type PersistedPhase = z.infer<typeof PersistedPhaseSchema>;
+export type PhaseKey = PersistedPhase["name"];
+export type PhaseByKey<T extends PhaseKey> = Extract<PersistedPhase, { name: T }>;
+
+export function parsePersistedPhase(data: unknown): PersistedPhase | null {
+  const result = PersistedPhaseSchema.safeParse(data);
+  return result.success ? result.data : null;
+}
 
 export const PHASE_ROUTES = {
   assessing: "assess",
@@ -38,7 +89,7 @@ export const PHASE_ROUTES = {
   "hands-on": "hands-on",
   feedback: "feedback",
   "write-up": "write-up",
-} as const satisfies Record<PersistedPhase["name"], string>;
+} as const satisfies Record<PhaseKey, string>;
 
 export const PLAN_SYSTEM = `You are an expert tutor planning a structured study session for a senior software developer.
 Respond with ONLY valid JSON — no explanation outside the JSON:

@@ -2,14 +2,13 @@ import { Button } from "@cloudflare/kumo/components/button";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Loader } from "@cloudflare/kumo/components/loader";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
 import { useProgress } from "../../src/hooks/useProgress";
+import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { useClaude } from "../../src/lib/claude";
-import type { PersistedPhase } from "../../src/lib/phase";
-import { WRITEUP_SYSTEM } from "../../src/lib/phase";
+import { parsePersistedPhase, WRITEUP_SYSTEM } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.write-up";
@@ -26,7 +25,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       },
     },
   });
-  const phase = record?.phaseData as PersistedPhase | null;
+  const phase = parsePersistedPhase(record?.phaseData);
   if (phase?.name !== "write-up") {
     throw new Response("Not found", { status: 404 });
   }
@@ -41,50 +40,36 @@ export default function WriteUpPage() {
   const { material, partIdx, savedFeedback } = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { streamAI } = useClaude();
+  const { stream, streaming, abort } = useStreamAI();
   const { saveSession, deleteSession } = useTopicSession(taskId!);
   const { toggleTask } = useProgress();
-  const abortRef = useRef<AbortController | null>(null);
 
   const [text, setText] = useState("");
   const [feedback, setFeedback] = useState(savedFeedback);
-  const [streaming, setStreaming] = useState(false);
 
   const { parts } = material;
   const part = parts[partIdx]!;
 
   async function handleSubmit() {
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-    setStreaming(true);
     setFeedback("");
-
-    try {
-      await streamAI(
-        WRITEUP_SYSTEM,
-        `Topic: "${part.title}"\nLearner's reflection: "${text}"`,
-        (acc) => {
-          if (!ctrl.signal.aborted) setFeedback(acc);
-        },
-        TOKENS_WRITEUP,
-        ctrl.signal,
-      );
-      if (ctrl.signal.aborted) return;
-      setStreaming(false);
+    const result = await stream(
+      WRITEUP_SYSTEM,
+      `Topic: "${part.title}"\nLearner's reflection: "${text}"`,
+      setFeedback,
+      TOKENS_WRITEUP,
+    );
+    if (result !== null) {
       void saveSession({
         name: "write-up",
         material,
         partIdx,
-        feedback,
+        feedback: result,
       });
-    } catch (err) {
-      if (!ctrl.signal.aborted) console.error(err);
     }
   }
 
   async function handleComplete() {
-    abortRef.current?.abort();
+    abort();
     if (taskId) await toggleTask(taskId);
     void deleteSession();
     void navigate("../complete", { relative: "path" });

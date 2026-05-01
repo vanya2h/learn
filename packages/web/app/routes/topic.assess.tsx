@@ -7,8 +7,7 @@ import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import { parseJSON } from "../../src/lib/json";
-import type { PersistedPhase } from "../../src/lib/phase";
-import { ASSESSMENT_SYSTEM } from "../../src/lib/phase";
+import { ASSESSMENT_SYSTEM, parsePersistedPhase } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.assess";
@@ -21,11 +20,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const record = await db.topicSession.findUnique({
     where: { userId_taskId: { userId: session.user.id, taskId: params.taskId } },
   });
-  const phase = record?.phaseData as PersistedPhase | null;
+  const phase = parsePersistedPhase(record?.phaseData);
   if (phase?.name === "assessing") {
     return { questions: phase.questions, answers: phase.answers };
   }
-  return { questions: null, answers: {} as Record<number, string> };
+  return { questions: null, answers: {} as Record<string, string> };
 }
 
 export default function AssessPage() {
@@ -38,7 +37,7 @@ export default function AssessPage() {
   const abortRef = useRef<AbortController | null>(null);
 
   const [questions, setQuestions] = useState<string[] | null>(savedQuestions);
-  const [answers, setAnswers] = useState<Record<number, string>>(savedAnswers);
+  const [answers, setAnswers] = useState<Record<string, string>>(savedAnswers);
   const [loading, setLoading] = useState(false);
 
   const task = layoutData?.task;

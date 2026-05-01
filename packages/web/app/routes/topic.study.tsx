@@ -2,63 +2,33 @@ import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import clsx from "clsx";
-import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
-import type { Material, PersistedPhase } from "../../src/lib/phase";
-import { parsePart, parsePlan, PART_SYSTEM, PLAN_SYSTEM } from "../../src/lib/phase";
+import type { Material, PhaseByKey } from "../../src/lib/phase";
+import { parsePart, parsePersistedPhase, parsePlan, PART_SYSTEM, PLAN_SYSTEM } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.study";
 import type { loader as layoutLoader } from "./topic-layout";
 
-function NavButton({
-  onClick,
-  align = "left",
-  children,
-}: {
-  onClick: () => void;
-  align?: "left" | "right";
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={clsx(
-        "flex flex-col gap-1 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden",
-        align === "right" ? "items-end text-right" : "text-left",
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
 const TOKENS_PLAN = 600;
 const TOKENS_PART = 3000;
 
-type LoaderResult =
-  | { hasSession: true; material: Material; partIdx: number }
-  | { hasSession: false; assessmentContext: string | undefined };
+type LoaderResult = PhaseByKey<"study"> | PhaseByKey<"gaps-review"> | { name: null };
 
 export async function loader({ request, params }: Route.LoaderArgs): Promise<LoaderResult> {
   const session = await requireSession(request);
   const record = await db.topicSession.findUnique({
     where: { userId_taskId: { userId: session.user.id, taskId: params.taskId } },
   });
-  const phase = record?.phaseData as PersistedPhase | null;
+  const phase = parsePersistedPhase(record?.phaseData);
 
-  if (phase?.name === "study") {
-    return { hasSession: true, material: phase.material, partIdx: phase.partIdx };
-  }
-  if (phase?.name === "gaps-review") {
-    return { hasSession: false, assessmentContext: phase.context };
-  }
-  return { hasSession: false, assessmentContext: undefined };
+  if (phase?.name === "study") return phase;
+  if (phase?.name === "gaps-review") return phase;
+  return { name: null };
 }
 
 export default function StudyPage() {
@@ -73,8 +43,8 @@ export default function StudyPage() {
   const task = layoutData?.task;
   const curriculumName = layoutData?.curriculumName;
 
-  const [material, setMaterial] = useState<Material | null>(loaderData.hasSession ? loaderData.material : null);
-  const [partIdx, setPartIdx] = useState(loaderData.hasSession ? loaderData.partIdx : 0);
+  const [material, setMaterial] = useState<Material | null>(loaderData.name === "study" ? loaderData.material : null);
+  const [partIdx, setPartIdx] = useState(loaderData.name === "study" ? loaderData.partIdx : 0);
   const [planStream, setPlanStream] = useState("");
   const [partStream, setPartStream] = useState("");
 
@@ -144,7 +114,7 @@ export default function StudyPage() {
   async function generatePlan() {
     if (!task) return;
     const ctrl = newAbort();
-    const assessmentContext = loaderData.hasSession ? undefined : loaderData.assessmentContext;
+    const assessmentContext = loaderData.name === "gaps-review" ? loaderData.context : undefined;
 
     const userMsg = assessmentContext
       ? `Plan a study session for: "${task.title}"\nCurriculum: ${curriculumName}\n\nAssessment context: ${assessmentContext}`
@@ -182,7 +152,7 @@ export default function StudyPage() {
 
   // On mount: generate plan if no session, or resume incomplete part
   useEffect(() => {
-    if (!loaderData.hasSession) {
+    if (loaderData.name !== "study") {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       void generatePlan();
     } else if (!loaderData.material.parts[loaderData.partIdx]) {
@@ -292,5 +262,23 @@ export default function StudyPage() {
         </>
       )}
     </div>
+  );
+}
+
+type NavButtonProps = React.ComponentProps<"button"> & { align?: "left" | "right" };
+
+function NavButton({ align = "left", className, children, ...rest }: NavButtonProps) {
+  return (
+    <button
+      type="button"
+      {...rest}
+      className={clsx(
+        "flex flex-col gap-1 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden",
+        align === "right" ? "items-end text-right" : "text-left",
+        className,
+      )}
+    >
+      {children}
+    </button>
   );
 }

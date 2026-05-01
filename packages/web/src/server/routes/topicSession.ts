@@ -2,14 +2,11 @@ import { zValidator } from "@hono/zod-validator";
 import type { Prisma } from "@prisma/client-generated";
 import { Hono } from "hono";
 import { z } from "zod";
+import { PersistedPhaseSchema } from "../../lib/phase";
 import { db } from "../db";
 import type { AuthEnv } from "../middleware/requireAuth";
 
 const paramSchema = z.object({ taskId: z.string().min(1) });
-
-const phaseDataSchema = z
-  .object({ name: z.enum(["assessing", "gaps-review", "study", "hands-on", "feedback", "write-up"]) })
-  .loose();
 
 export const topicSessionRoute = new Hono<AuthEnv>()
   .get("/topic-sessions/:taskId", zValidator("param", paramSchema), async (c) => {
@@ -26,7 +23,7 @@ export const topicSessionRoute = new Hono<AuthEnv>()
   .put(
     "/topic-sessions/:taskId",
     zValidator("param", paramSchema),
-    zValidator("json", z.object({ phaseData: phaseDataSchema })),
+    zValidator("json", z.object({ phaseData: PersistedPhaseSchema })),
     async (c) => {
       const userId = c.var.user.id;
       const { taskId } = c.req.valid("param");

@@ -1,6 +1,5 @@
 import { redirect } from "react-router";
-import type { PersistedPhase } from "../../src/lib/phase";
-import { PHASE_ROUTES } from "../../src/lib/phase";
+import { parsePersistedPhase, PHASE_ROUTES } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.index";
@@ -13,6 +12,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   if (!record) return redirect("choice");
 
-  const phase = record.phaseData as PersistedPhase;
+  const phase = parsePersistedPhase(record.phaseData);
+  if (!phase) return redirect("choice");
   return redirect(PHASE_ROUTES[phase.name] ?? "choice");
 }

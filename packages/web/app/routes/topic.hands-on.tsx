@@ -2,13 +2,12 @@ import { Button } from "@cloudflare/kumo/components/button";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Loader } from "@cloudflare/kumo/components/loader";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
+import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { useClaude } from "../../src/lib/claude";
-import type { PersistedPhase } from "../../src/lib/phase";
-import { TASK_SOLUTION_SYSTEM } from "../../src/lib/phase";
+import { parsePersistedPhase, TASK_SOLUTION_SYSTEM } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.hands-on";
@@ -16,22 +15,30 @@ import type { Route } from "./+types/topic.hands-on";
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
   const record = await db.topicSession.findUnique({
-    where: { userId_taskId: { userId: session.user.id, taskId: params.taskId } },
+    where: {
+      userId_taskId: {
+        userId: session.user.id,
+        taskId: params.taskId,
+      },
+    },
   });
-  const phase = record?.phaseData as PersistedPhase | null;
+  const phase = parsePersistedPhase(record?.phaseData);
   if (phase?.name !== "hands-on") throw new Response("Not found", { status: 404 });
-  return { material: phase.material, partIdx: phase.partIdx, savedAnswers: phase.answers };
+  return {
+    material: phase.material,
+    partIdx: phase.partIdx,
+    savedAnswers: phase.answers,
+  };
 }
 
 export default function HandsOnPage() {
   const { material, partIdx, savedAnswers } = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { streamAI } = useClaude();
+  const { stream } = useStreamAI();
   const { saveSession } = useTopicSession(taskId!);
-  const solutionAbortRef = useRef<AbortController | null>(null);
 
-  const [answers, setAnswers] = useState<Record<number, string>>(savedAnswers);
+  const [answers, setAnswers] = useState<Record<string, string>>(savedAnswers);
   const [solutions, setSolutions] = useState<Record<number, { text: string; streaming: boolean }>>({});
 
   const { parts } = material;
@@ -39,36 +46,41 @@ export default function HandsOnPage() {
   const allAnswered = part.handsOn.every((_, i) => (answers[i] ?? "").trim().length > 0);
 
   async function handleSolution(idx: number, task: string, hint?: string) {
-    solutionAbortRef.current?.abort();
-    const ctrl = new AbortController();
-    solutionAbortRef.current = ctrl;
-    setSolutions((prev) => ({ ...prev, [idx]: { text: "", streaming: true } }));
+    setSolutions((prev) => ({
+      ...prev,
+      [idx]: { text: "", streaming: true },
+    }));
     const msg = hint ? `Task: ${task}\nHint: ${hint}` : `Task: ${task}`;
-    try {
-      await streamAI(
-        TASK_SOLUTION_SYSTEM,
-        msg,
-        (acc) => {
-          if (!ctrl.signal.aborted) setSolutions((prev) => ({ ...prev, [idx]: { text: acc, streaming: true } }));
-        },
-        800,
-        ctrl.signal,
-      );
-      if (!ctrl.signal.aborted) {
-        setSolutions((prev) => ({ ...prev, [idx]: { ...prev[idx]!, streaming: false } }));
-      }
-    } catch {
-      if (!ctrl.signal.aborted) {
-        setSolutions((prev) => {
-          const { [idx]: _, ...rest } = prev;
-          return rest;
-        });
-      }
+    const result = await stream(
+      TASK_SOLUTION_SYSTEM,
+      msg,
+      (acc) =>
+        setSolutions((prev) => ({
+          ...prev,
+          [idx]: { text: acc, streaming: true },
+        })),
+      800,
+    );
+    if (result !== null) {
+      setSolutions((prev) => ({
+        ...prev,
+        [idx]: { ...prev[idx]!, streaming: false },
+      }));
+    } else {
+      setSolutions((prev) => {
+        const { [idx]: _, ...rest } = prev;
+        return rest;
+      });
     }
   }
 
   async function handleSubmit() {
-    await saveSession({ name: "hands-on", material, partIdx, answers });
+    await saveSession({
+      name: "hands-on",
+      material,
+      partIdx,
+      answers,
+    });
     void navigate("../feedback", { relative: "path" });
   }
 
