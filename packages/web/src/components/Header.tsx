@@ -4,7 +4,7 @@ import { Text } from "@cloudflare/kumo/components/text";
 import { MoonIcon } from "@phosphor-icons/react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
-import { CURRICULUMS } from "../data/curriculum";
+import { useAllCurriculums } from "../hooks/useAllCurriculums";
 import { useTheme } from "../hooks/useTheme";
 import { authClient } from "../lib/authClient";
 import type { AuthUser } from "../server/auth";
@@ -50,7 +50,8 @@ export function Header() {
 
   const isDashboard = location.pathname === "/";
   const activeCurriculumId = params.curriculumId ?? null;
-  const activeCurriculum = activeCurriculumId ? CURRICULUMS.find((c) => c.id === activeCurriculumId) : null;
+  const allCurriculums = useAllCurriculums();
+  const activeCurriculum = activeCurriculumId ? allCurriculums.find((c) => c.id === activeCurriculumId) : null;
 
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b border-border">

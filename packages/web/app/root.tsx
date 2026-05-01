@@ -1,4 +1,5 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { parseCurriculumDef } from "../src/data/types";
 import type { ActiveSession } from "../src/hooks/useProgress";
 import { auth } from "../src/server/auth";
 import { db } from "../src/server/db";
@@ -10,11 +11,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (!session) return { user: null, progress: null };
 
   const userId = session.user.id;
-  const [completions, activities, startedAt, topicSessions] = await Promise.all([
+  const [completions, activities, startedAt, topicSessions, customCurriculums] = await Promise.all([
     db.taskCompletion.findMany({ where: { userId } }),
     db.dailyActivity.findMany({ where: { userId } }),
     db.appSetting.findUnique({ where: { key_userId: { key: "startedAt", userId } } }),
     db.topicSession.findMany({ where: { userId } }),
+    db.customCurriculum.findMany({ where: { userId } }),
   ]);
 
   return {
@@ -32,6 +34,9 @@ export async function loader({ request }: Route.LoaderArgs) {
         }),
       ),
     },
+    customCurriculums: customCurriculums
+      .map((c) => parseCurriculumDef({ ...c, description: c.description ?? undefined }))
+      .filter((c) => c !== null),
   };
 }
 

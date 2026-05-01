@@ -6,6 +6,7 @@ export default [
   route("api/*", "./routes/api.ts"),
   layout("./routes/app-layout.tsx", [
     index("./routes/home.tsx"),
+    route("curriculum/new", "./routes/curriculum.new.tsx"),
     route("curriculum/:curriculumId", "./routes/curriculum.$curriculumId.tsx"),
     route("topic/:curriculumId/:taskId", "./routes/topic-layout.tsx", [
       index("./routes/topic.index.tsx"),

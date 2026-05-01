@@ -4,8 +4,8 @@ import { Meter } from "@cloudflare/kumo/components/meter";
 import { Text } from "@cloudflare/kumo/components/text";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { CURRICULUMS } from "../data/curriculum";
-import type { Skill } from "../data/types";
+import type { CurriculumDef, Skill } from "../data/types";
+import { useAllCurriculums } from "../hooks/useAllCurriculums";
 import { useProgress } from "../hooks/useProgress";
 import { computeUnlockedSkills } from "../lib/skills";
 
@@ -53,9 +53,7 @@ function QuoteSlider() {
   );
 }
 
-function calcCurriculumProgress(curriculumId: string, completedTaskIds: Record<string, string>) {
-  const curriculum = CURRICULUMS.find((c) => c.id === curriculumId);
-  if (!curriculum) return 0;
+function calcCurriculumProgress(curriculum: CurriculumDef, completedTaskIds: Record<string, string>) {
   let totalWeight = 0;
   let doneWeight = 0;
   for (const phase of curriculum.phases) {
@@ -105,7 +103,11 @@ function SkillBadge({
 }
 
 function SkillsSection({ completedTaskIds }: { completedTaskIds: Record<string, string> }) {
-  const unlockedSkills = useMemo(() => computeUnlockedSkills(completedTaskIds), [completedTaskIds]);
+  const allCurriculums = useAllCurriculums();
+  const unlockedSkills = useMemo(
+    () => computeUnlockedSkills(completedTaskIds, allCurriculums),
+    [completedTaskIds, allCurriculums],
+  );
   const { unlockedIds, recentIds } = useMemo(() => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -115,7 +117,7 @@ function SkillsSection({ completedTaskIds }: { completedTaskIds: Record<string, 
     };
   }, [unlockedSkills]);
 
-  const curriculumsWithSkills = CURRICULUMS.filter((c) => (c.skills?.length ?? 0) > 0);
+  const curriculumsWithSkills = allCurriculums.filter((c) => (c.skills?.length ?? 0) > 0);
   if (curriculumsWithSkills.length === 0) return null;
 
   return (
@@ -148,6 +150,7 @@ function SkillsSection({ completedTaskIds }: { completedTaskIds: Record<string, 
 
 export function Dashboard() {
   const { completedTaskIds } = useProgress();
+  const allCurriculums = useAllCurriculums();
 
   return (
     <main>
@@ -160,8 +163,8 @@ export function Dashboard() {
           </Text>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {CURRICULUMS.map((curriculum) => {
-            const pct = calcCurriculumProgress(curriculum.id, completedTaskIds);
+          {allCurriculums.map((curriculum) => {
+            const pct = calcCurriculumProgress(curriculum, completedTaskIds);
             return (
               <LayerCard key={curriculum.id} render={<Link to={`/curriculum/${curriculum.id}`} />}>
                 <LayerCard.Secondary>{curriculum.name}</LayerCard.Secondary>
@@ -174,6 +177,12 @@ export function Dashboard() {
               </LayerCard>
             );
           })}
+          <Link
+            to="/curriculum/new"
+            className="flex items-center justify-center rounded-lg border-2 border-dashed border-border hover:border-foreground/30 transition-colors min-h-25 text-muted-foreground hover:text-foreground/60"
+          >
+            <span className="text-sm font-medium">+ Create new program</span>
+          </Link>
         </div>
       </section>
       <SkillsSection completedTaskIds={completedTaskIds} />

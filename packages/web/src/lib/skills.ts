@@ -1,4 +1,3 @@
-import { CURRICULUMS } from "../data/curriculum";
 import type { CurriculumDef, Skill } from "../data/types";
 
 export type UnlockedSkill = {
@@ -7,10 +6,6 @@ export type UnlockedSkill = {
   curriculumName: string;
   unlockedAt: Date;
 };
-
-export type ActivityItem =
-  | { type: "skill"; skill: UnlockedSkill; date: Date }
-  | { type: "task"; taskId: string; taskTitle: string; curriculumName: string; date: Date };
 
 function resolveSkillUnlock(
   skill: Skill,
@@ -36,10 +31,15 @@ function resolveSkillUnlock(
   return { skill, curriculumId: curriculum.id, curriculumName: curriculum.name, unlockedAt };
 }
 
-export function computeUnlockedSkills(completedTaskIds: Record<string, string>): UnlockedSkill[] {
-  return CURRICULUMS.flatMap((curriculum) =>
-    (curriculum.skills ?? [])
-      .map((skill) => resolveSkillUnlock(skill, curriculum, completedTaskIds))
-      .filter((s): s is UnlockedSkill => s !== null),
-  ).sort((a, b) => b.unlockedAt.getTime() - a.unlockedAt.getTime());
+export function computeUnlockedSkills(
+  completedTaskIds: Record<string, string>,
+  curriculums: CurriculumDef[],
+): UnlockedSkill[] {
+  return curriculums
+    .flatMap((curriculum) =>
+      (curriculum.skills ?? [])
+        .map((skill) => resolveSkillUnlock(skill, curriculum, completedTaskIds))
+        .filter((s): s is UnlockedSkill => s !== null),
+    )
+    .sort((a, b) => b.unlockedAt.getTime() - a.unlockedAt.getTime());
 }

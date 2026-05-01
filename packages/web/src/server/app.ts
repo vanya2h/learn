@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { requireAuth } from "./middleware/requireAuth";
 import { chatRoute } from "./routes/chat";
+import { curriculumRoute } from "./routes/curriculum";
 import { progressRoute } from "./routes/progress";
 import { topicSessionRoute } from "./routes/topicSession";
 import { auth } from "./auth";
@@ -16,7 +17,9 @@ const app = new Hono()
   .use("/api/chat", requireAuth)
   .use("/api/progress/*", requireAuth)
   .use("/api/topic-sessions/*", requireAuth)
+  .use("/api/curriculums/*", requireAuth)
   .route("/api", chatRoute)
+  .route("/api", curriculumRoute)
   .route("/api", progressRoute)
   .route("/api", topicSessionRoute);
 

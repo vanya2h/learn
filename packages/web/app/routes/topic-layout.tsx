@@ -4,21 +4,37 @@ import { Text } from "@cloudflare/kumo/components/text";
 import { Outlet, useLoaderData, useNavigate, useParams } from "react-router";
 import { redirect } from "react-router";
 import { CURRICULUMS } from "../../src/data/curriculum";
+import type { CurriculumDef } from "../../src/data/types";
+import { parseCurriculumDef } from "../../src/data/types";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
+import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  await requireSession(request);
-  for (const c of CURRICULUMS) {
+function findTask(curriculums: CurriculumDef[], taskId: string) {
+  for (const c of curriculums) {
     for (const p of c.phases) {
       for (const t of p.tasks) {
-        if (t.id === params.taskId) {
-          return { task: t, curriculumName: c.name };
-        }
+        if (t.id === taskId) return { task: t, curriculumName: c.name };
       }
     }
   }
+  return null;
+}
+
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const session = await requireSession(request);
+
+  const found = findTask(CURRICULUMS, params.taskId);
+  if (found) return found;
+
+  const custom = await db.customCurriculum.findMany({ where: { userId: session.user.id } });
+  const customCurriculums = custom
+    .map((c) => parseCurriculumDef({ ...c, description: c.description ?? undefined }))
+    .filter((c) => c !== null);
+  const foundCustom = findTask(customCurriculums, params.taskId);
+  if (foundCustom) return foundCustom;
+
   return redirect(`/curriculum/${params.curriculumId}`);
 }
 
