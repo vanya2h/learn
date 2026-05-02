@@ -5,10 +5,8 @@ FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/web/package.json packages/web/
-# pnpm requires all workspace package.json files to exist for --frozen-lockfile
-RUN mkdir -p packages/cv packages/job-search && \
-    echo '{"name":"cv","private":true}' > packages/cv/package.json && \
-    echo '{"name":"job-search","private":true}' > packages/job-search/package.json
+COPY packages/cv/package.json packages/cv/
+COPY packages/job-search/package.json packages/job-search/
 RUN pnpm install --frozen-lockfile --filter web...
 
 FROM base AS build
@@ -25,9 +23,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=build /app/packages/web/package.json packages/web/
-RUN mkdir -p packages/cv packages/job-search && \
-    echo '{"name":"cv","private":true}' > packages/cv/package.json && \
-    echo '{"name":"job-search","private":true}' > packages/job-search/package.json
+COPY --from=build /app/packages/cv/package.json packages/cv/
+COPY --from=build /app/packages/job-search/package.json packages/job-search/
 RUN pnpm install --frozen-lockfile --filter web... --prod
 COPY --from=build /app/packages/web/build packages/web/build
 COPY --from=build /app/packages/web/node_modules/@prisma/client-generated packages/web/node_modules/@prisma/client-generated
