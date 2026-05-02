@@ -1,10 +1,8 @@
-# CSS / Tailwind Rules
-
-## Theme colors — never use paired `dark:` overrides for neutral grays
+# Theme colors — never use paired `dark:` overrides for neutral grays
 
 The project has semantic CSS variables registered as Tailwind color utilities in `src/index.css`. Use them instead of `text-neutral-X dark:text-neutral-Y` pairs.
 
-### Available tokens
+## Available tokens
 
 | Token | Use for |
 |---|---|
@@ -19,7 +17,7 @@ The project has semantic CSS variables registered as Tailwind color utilities in
 | `bg-muted/50` | Even subtler fill |
 | `ring-offset-background` | Ring offset color on focused/highlighted elements |
 
-### Mapping cheat-sheet
+## Mapping cheat-sheet
 
 | Old pattern | Replace with |
 |---|---|
@@ -34,7 +32,7 @@ The project has semantic CSS variables registered as Tailwind color utilities in
 | `bg-neutral-50 dark:bg-neutral-900/40` | `bg-muted/50` |
 | `dark:ring-offset-neutral-950` | `ring-offset-background` |
 
-### Exception
+## Exception
 
 Intentionally semantic colors (green for success, red for error, etc.) keep their `dark:` variants — they encode meaning, not just theme adaptation.
 
@@ -45,15 +43,3 @@ Intentionally semantic colors (green for success, red for error, etc.) keep thei
 // NOT OK — pure theme adaptation
 "text-neutral-500 dark:text-neutral-400"
 ```
-
-## Adding new tokens
-
-If you need a new semantic color not in the table above, add it to both places:
-
-1. Define the CSS variable in `src/index.css` under `:root {}` and `.dark {}`
-2. Register it under `@theme {}` in the same file:
-   ```css
-   @theme {
-     --color-my-token: var(--my-token);
-   }
-   ```
