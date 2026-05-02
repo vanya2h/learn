@@ -3,11 +3,12 @@ import { DropdownMenu } from "@cloudflare/kumo/components/dropdown";
 import { Text } from "@cloudflare/kumo/components/text";
 import { Trans } from "@lingui/react/macro";
 import { MoonIcon } from "@phosphor-icons/react";
-import { Link, useLocation, useNavigate, useParams } from "react-router";
+import { Fragment } from "react";
+import { Link, useMatches, useNavigate } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
-import { useAllCurriculums } from "../hooks/useAllCurriculums";
 import { useTheme } from "../hooks/useTheme";
 import { authClient } from "../lib/authClient";
+import type { BreadcrumbHandle } from "../lib/breadcrumbs";
 import type { AuthUser } from "../server/auth";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -45,15 +46,12 @@ function UserAvatar({ user }: { user: AuthUser }) {
 export function Header() {
   const user = (useRootData()?.user ?? null) as AuthUser | null;
   const { toggle } = useTheme();
-
-  const location = useLocation();
   const navigate = useNavigate();
-  const params = useParams<{ curriculumId?: string }>();
 
-  const isDashboard = location.pathname === "/";
-  const activeCurriculumId = params.curriculumId ?? null;
-  const allCurriculums = useAllCurriculums();
-  const activeCurriculum = activeCurriculumId ? allCurriculums.find((c) => c.id === activeCurriculumId) : null;
+  const matches = useMatches();
+  const crumbs = matches
+    .map((m) => (m.handle as BreadcrumbHandle | undefined)?.breadcrumb)
+    .filter((b): b is BreadcrumbHandle["breadcrumb"] => typeof b === "function");
 
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b border-border">
@@ -63,10 +61,14 @@ export function Header() {
             <Trans>Learning Tracker</Trans>
           </Link>
         </Text>
-        {isDashboard ? null : (
+        {crumbs.length > 0 && (
           <Breadcrumbs size="sm">
-            <Breadcrumbs.Separator />
-            <Breadcrumbs.Current>{activeCurriculum?.name ?? ""}</Breadcrumbs.Current>
+            {crumbs.map((crumb, i) => (
+              <Fragment key={i}>
+                <Breadcrumbs.Separator />
+                {crumb()}
+              </Fragment>
+            ))}
           </Breadcrumbs>
         )}
       </div>

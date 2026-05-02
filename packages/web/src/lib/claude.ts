@@ -44,7 +44,7 @@ export function useClaude() {
         { init: { signal } },
       );
 
-      if (!res.ok) await parseResponse(Promise.resolve(res));
+      if (!res.ok) await parseResponse(res);
       if (!res.body) throw new Error("No response body");
 
       let accumulated = "";

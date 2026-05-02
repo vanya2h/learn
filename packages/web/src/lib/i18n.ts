@@ -1,6 +1,6 @@
 import { i18n } from "@lingui/core";
-import { messages as enMessages } from "../locales/en/messages";
-import { messages as ruMessages } from "../locales/ru/messages";
+import { messages as enMessages } from "../locales/en/messages.po";
+import { messages as ruMessages } from "../locales/ru/messages.po";
 
 export const LOCALES = ["en", "ru"] as const;
 export type Locale = (typeof LOCALES)[number];

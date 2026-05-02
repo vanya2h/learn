@@ -17,8 +17,7 @@
     "withenv": "dotenv -e ../../.env",
     "measure-tokens": "dotenv -e ../../.env tsx scripts/measure-tokens.ts",
     "test": "vitest run",
-    "i18n:extract": "lingui extract",
-    "i18n:compile": "lingui compile --typescript"
+    "i18n:extract": "lingui extract"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
@@ -48,6 +47,7 @@
     "react-hook-form": "^7.74.0",
     "react-router": "^7.14.2",
     "streamdown": "^2.5.0",
+    "unpdf": "^1.6.2",
     "zod": "^4.3.6",
     "zustand": "^5.0.0"
   },

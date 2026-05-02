@@ -22,7 +22,7 @@ await parseResponse(client.api.curriculums.$post({ json: payload }));
 
 ```ts
 const res = await client.api.curriculums.generate.$post({ json: payload });
-if (!res.ok) await parseResponse(Promise.resolve(res)); // throws DetailedError
+if (!res.ok) await parseResponse(res); // throws DetailedError
 // res.body is still unconsumed — proceed to stream it
 for await (const delta of readSSEStream(res.body)) { ... }
 ```

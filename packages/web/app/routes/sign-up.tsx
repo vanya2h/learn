@@ -52,7 +52,7 @@ export default function SignUp() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-            <Trans>ML Learning</Trans>
+            <Trans>Learning Tracker</Trans>
           </h1>
           <p className="mt-2 text-sm text-foreground/40">
             <Trans>Create your account</Trans>

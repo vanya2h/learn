@@ -2,8 +2,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import { zValidator } from "@hono/zod-validator";
 import type { Prisma } from "@prisma/client-generated";
 import { Hono } from "hono";
+import { extractText, getDocumentProxy } from "unpdf";
 import { z } from "zod";
 import { PhaseSchema, SkillSchema } from "../../data/types";
+import type { Locale } from "../../lib/i18n";
 import { LOCALES, localizeSystem } from "../../lib/i18n";
 import { db } from "../db";
 import type { AuthEnv } from "../middleware/requireAuth";
@@ -53,6 +55,12 @@ const generateSchema = z.object({
   locale: z.enum(LOCALES).optional(),
 });
 
+const generateFromPdfSchema = z.object({
+  file: z.instanceof(File),
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
+
 const saveSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
@@ -61,23 +69,69 @@ const saveSchema = z.object({
   skills: z.array(SkillSchema).optional(),
 });
 
+function streamCurriculum(textContent: string, feedback: string | undefined, locale: Locale | undefined): Response {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
+
+  const userMessage = feedback
+    ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
+    : `Job posting:\n\n${textContent}`;
+
+  const anthropic = new Anthropic({ apiKey });
+  const stream = anthropic.messages.stream({
+    model: "claude-sonnet-4-6",
+    max_tokens: 4000,
+    system: locale ? localizeSystem(locale, GENERATE_SYSTEM) : GENERATE_SYSTEM,
+    messages: [{ role: "user", content: userMessage }],
+  });
+
+  const body = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const event of stream) {
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(event.delta.text)}\n\n`));
+          }
+        }
+        controller.close();
+      } catch (err) {
+        console.error("[curriculum/generate] stream error:", err);
+        controller.error(err);
+      }
+    },
+    cancel() {
+      stream.abort();
+    },
+  });
+
+  return new Response(body, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
+}
+
 export const curriculumRoute = new Hono<AuthEnv>()
   .post("/curriculums/generate", zValidator("json", generateSchema), async (c) => {
     const { url, feedback, locale } = c.req.valid("json");
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+
+    const pdfFallbackHint =
+      "Couldn't read the job posting from this URL — many sites render content with JavaScript and aren't readable as plain HTML. Try opening the page in your browser, saving it as a PDF, and using the PDF upload option instead.";
 
     let pageText: string;
     try {
       const res = await fetch(url, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; CurriculumBot/1.0)" },
       });
+      if (!res.ok) return c.json({ error: pdfFallbackHint }, 400);
       pageText = await res.text();
     } catch {
-      return c.json({ error: "Failed to fetch job posting URL" }, 400);
+      return c.json({ error: pdfFallbackHint }, 400);
     }
 
-    // Strip HTML tags to get text content
     const textContent = pageText
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -86,44 +140,29 @@ export const curriculumRoute = new Hono<AuthEnv>()
       .trim()
       .slice(0, 15000);
 
-    const userMessage = feedback
-      ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
-      : `Job posting:\n\n${textContent}`;
+    if (textContent.length < 300) return c.json({ error: pdfFallbackHint }, 400);
 
-    const anthropic = new Anthropic({ apiKey });
-    const stream = anthropic.messages.stream({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4000,
-      system: locale ? localizeSystem(locale, GENERATE_SYSTEM) : GENERATE_SYSTEM,
-      messages: [{ role: "user", content: userMessage }],
-    });
+    return streamCurriculum(textContent, feedback, locale);
+  })
+  .post("/curriculums/generate-from-pdf", zValidator("form", generateFromPdfSchema), async (c) => {
+    const { file, feedback, locale } = c.req.valid("form");
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+    if (file.type !== "application/pdf") return c.json({ error: "File must be a PDF" }, 400);
 
-    const body = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const event of stream) {
-            if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(event.delta.text)}\n\n`));
-            }
-          }
-          controller.close();
-        } catch (err) {
-          console.error("[curriculum/generate] stream error:", err);
-          controller.error(err);
-        }
-      },
-      cancel() {
-        stream.abort();
-      },
-    });
+    let textContent: string;
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      const pdf = await getDocumentProxy(buffer);
+      const { text } = await extractText(pdf, { mergePages: true });
+      textContent = text.replace(/\s+/g, " ").trim().slice(0, 15000);
+    } catch (err) {
+      console.error("[curriculum/generate-from-pdf] parse error:", err);
+      return c.json({ error: "Failed to parse PDF" }, 400);
+    }
 
-    return new Response(body, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      },
-    });
+    if (!textContent) return c.json({ error: "PDF contained no extractable text" }, 400);
+
+    return streamCurriculum(textContent, feedback, locale);
   })
   .post("/curriculums", zValidator("json", saveSchema), async (c) => {
     const userId = c.get("user").id;

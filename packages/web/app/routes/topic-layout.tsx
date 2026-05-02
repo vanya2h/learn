@@ -1,3 +1,4 @@
+import { Breadcrumbs } from "@cloudflare/kumo/components/breadcrumbs";
 import { Button } from "@cloudflare/kumo/components/button";
 import { Dialog } from "@cloudflare/kumo/components/dialog";
 import { Text } from "@cloudflare/kumo/components/text";
@@ -8,6 +9,7 @@ import { CURRICULUMS } from "../../src/data/curriculum";
 import type { CurriculumDef } from "../../src/data/types";
 import { parseCurriculumDef } from "../../src/data/types";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
+import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
@@ -37,6 +39,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (foundCustom) return foundCustom;
 
   return redirect(`/curriculum/${params.curriculumId}`);
+}
+
+export const handle: BreadcrumbHandle = {
+  breadcrumb: () => <TopicBreadcrumb />,
+};
+
+function TopicBreadcrumb() {
+  const { task, curriculumName } = useLoaderData<typeof loader>();
+  const { curriculumId } = useParams<{ curriculumId: string }>();
+  return (
+    <>
+      <Breadcrumbs.Link href={`/curriculum/${curriculumId}`}>{curriculumName}</Breadcrumbs.Link>
+      <Breadcrumbs.Separator />
+      <Breadcrumbs.Current>{task.title}</Breadcrumbs.Current>
+    </>
+  );
 }
 
 export default function TopicLayout() {

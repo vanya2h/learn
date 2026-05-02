@@ -1,6 +1,7 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { Input } from "@cloudflare/kumo/components/input";
 import { InputArea } from "@cloudflare/kumo/components/input";
+import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -20,11 +21,14 @@ import { Markdown } from "./Markdown";
 const client = hc<AppType>("/");
 
 type BuilderState = "idle" | "generating" | "preview" | "saving";
+type InputMode = "url" | "pdf" | null;
 
 export function CurriculumBuilder() {
   const { t } = useLingui();
   const locale = (useRootData()?.locale ?? "en") as Locale;
+  const [inputMode, setInputMode] = useState<InputMode>(null);
   const [url, setUrl] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [feedback, setFeedback] = useState("");
   const [state, setState] = useState<BuilderState>("idle");
   const [streamText, setStreamText] = useState("");
@@ -40,10 +44,15 @@ export function CurriculumBuilder() {
     setError(null);
 
     try {
-      const res = await client.api.curriculums.generate.$post({
-        json: { url, feedback: feedbackText, locale },
-      });
-      if (!res.ok) await parseResponse(Promise.resolve(res));
+      const res =
+        inputMode === "pdf" && pdfFile
+          ? await client.api.curriculums["generate-from-pdf"].$post({
+              form: { file: pdfFile, feedback: feedbackText, locale },
+            })
+          : await client.api.curriculums.generate.$post({
+              json: { url, feedback: feedbackText, locale },
+            });
+      if (!res.ok) await parseResponse(res);
       if (!res.body) {
         setError(t`No response body`);
         setState("idle");
@@ -82,7 +91,7 @@ export function CurriculumBuilder() {
           json: {
             name: curriculum.name,
             description: curriculum.description,
-            jobUrl: url,
+            jobUrl: inputMode === "url" ? url : undefined,
             phases: curriculum.phases,
             skills: curriculum.skills,
           },
@@ -101,6 +110,8 @@ export function CurriculumBuilder() {
     setFeedback("");
   }
 
+  const disabled = state === "generating" || state === "saving";
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="mb-6">
@@ -109,12 +120,27 @@ export function CurriculumBuilder() {
         </Text>
       </div>
 
-      <UrlInput
-        url={url}
-        setUrl={setUrl}
-        onGenerate={() => void generate()}
-        disabled={state === "generating" || state === "saving"}
-      />
+      {state === "idle" && inputMode === null && <InputModePicker onPick={setInputMode} />}
+
+      {state === "idle" && inputMode === "url" && (
+        <UrlInput
+          url={url}
+          setUrl={setUrl}
+          onGenerate={() => void generate()}
+          onBack={() => setInputMode(null)}
+          disabled={disabled}
+        />
+      )}
+
+      {state === "idle" && inputMode === "pdf" && (
+        <PdfInput
+          file={pdfFile}
+          setFile={setPdfFile}
+          onGenerate={() => void generate()}
+          onBack={() => setInputMode(null)}
+          disabled={disabled}
+        />
+      )}
 
       {error && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
@@ -159,35 +185,124 @@ export function CurriculumBuilder() {
   );
 }
 
+function InputModePicker({ onPick }: { onPick: (mode: "url" | "pdf") => void }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+      <LayerCard
+        render={<button onClick={() => onPick("url")} className="text-left cursor-pointer" />}
+        className="flex flex-col items-start gap-2 rounded-xl p-5 hover:bg-muted/50 transition-colors"
+      >
+        <span className="font-semibold text-foreground">
+          <Trans>Paste a URL</Trans>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          <Trans>Use a link to the job posting on its company or job-board page</Trans>
+        </span>
+      </LayerCard>
+      <LayerCard
+        render={<button onClick={() => onPick("pdf")} className="text-left cursor-pointer" />}
+        className="flex flex-col items-start gap-2 rounded-xl p-5 hover:bg-muted/50 transition-colors"
+      >
+        <span className="font-semibold text-foreground">
+          <Trans>Upload a PDF</Trans>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          <Trans>Pick a saved PDF of the job description from your computer</Trans>
+        </span>
+      </LayerCard>
+    </div>
+  );
+}
+
 function UrlInput({
   url,
   setUrl,
   onGenerate,
+  onBack,
   disabled,
 }: {
   url: string;
   setUrl: (v: string) => void;
   onGenerate: () => void;
+  onBack: () => void;
   disabled: boolean;
 }) {
   const { t } = useLingui();
   return (
-    <div className="flex gap-3 w-full">
-      <div className="flex-1 grow">
-        <Input
-          placeholder={t`Paste job posting URL...`}
-          value={url}
-          className="w-full"
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && url.trim()) onGenerate();
-          }}
-        />
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-3 w-full">
+        <div className="flex-1 grow">
+          <Input
+            placeholder={t`Paste job posting URL...`}
+            value={url}
+            className="w-full"
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && url.trim()) onGenerate();
+            }}
+          />
+        </div>
+        <Button onClick={onGenerate} disabled={disabled || !url.trim()}>
+          <Trans>Generate</Trans>
+        </Button>
       </div>
-      <Button onClick={onGenerate} disabled={disabled || !url.trim()}>
-        <Trans>Generate</Trans>
-      </Button>
+      <p className="text-xs text-muted-foreground">
+        <Trans>
+          Some sites render their content with JavaScript and cannot be read this way. If generation fails, save the
+          page as a PDF in your browser and use the PDF upload option instead.
+        </Trans>
+      </p>
+      <BackLink onClick={onBack} />
     </div>
+  );
+}
+
+function PdfInput({
+  file,
+  setFile,
+  onGenerate,
+  onBack,
+  disabled,
+}: {
+  file: File | null;
+  setFile: (f: File | null) => void;
+  onGenerate: () => void;
+  onBack: () => void;
+  disabled: boolean;
+}) {
+  const { t } = useLingui();
+  return (
+    <div className="flex flex-col gap-3">
+      <label className="flex items-center justify-center w-full px-4 py-8 rounded-lg border border-dashed border-border hover:bg-muted/30 cursor-pointer transition-colors">
+        <input
+          type="file"
+          accept="application/pdf"
+          className="sr-only"
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        />
+        <span className="text-sm text-muted-foreground text-center">
+          {file ? file.name : t`Click to choose a PDF file`}
+        </span>
+      </label>
+      <div className="flex justify-end">
+        <Button onClick={onGenerate} disabled={disabled || !file}>
+          <Trans>Generate</Trans>
+        </Button>
+      </div>
+      <BackLink onClick={onBack} />
+    </div>
+  );
+}
+
+function BackLink({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="self-start text-xs text-muted-foreground hover:text-foreground transition-colors"
+    >
+      <Trans>← Choose another method</Trans>
+    </button>
   );
 }
 

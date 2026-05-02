@@ -14,13 +14,17 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. placeholder {0}: curriculum.phases.length
-#: src/components/CurriculumBuilder.tsx:231
+#: src/components/CurriculumBuilder.tsx:326
 msgid "{0} phases · {totalTasks} tasks · ~{totalHours}h total"
 msgstr "{0} phases · {totalTasks} tasks · ~{totalHours}h total"
 
-#: app/routes/topic-layout.tsx:61
+#: app/routes/topic-layout.tsx:79
 msgid "← Back"
 msgstr "← Back"
+
+#: src/components/CurriculumBuilder.tsx:304
+msgid "← Choose another method"
+msgstr "← Choose another method"
 
 #: src/components/Dashboard.tsx:189
 msgid "+ Create new program"
@@ -42,7 +46,7 @@ msgstr "Answer 4 questions so the AI can focus on your gaps"
 msgid "Answer each question in 2–4 sentences. Honest answers get more useful material."
 msgstr "Answer each question in 2–4 sentences. Honest answers get more useful material."
 
-#: src/components/TaskRow.tsx:13
+#: src/components/TaskRow.tsx:16
 msgid "Assessing"
 msgstr "Assessing"
 
@@ -50,7 +54,7 @@ msgstr "Assessing"
 msgid "Assessment complete"
 msgstr "Assessment complete"
 
-#: src/components/TaskRow.tsx:14
+#: src/components/TaskRow.tsx:18
 msgid "Assessment done"
 msgstr "Assessment done"
 
@@ -58,15 +62,19 @@ msgstr "Assessment done"
 msgid "Back to curriculum"
 msgstr "Back to curriculum"
 
-#: app/routes/topic-layout.tsx:91
+#: app/routes/topic-layout.tsx:109
 msgid "Cancel"
 msgstr "Cancel"
+
+#: src/components/CurriculumBuilder.tsx:284
+msgid "Click to choose a PDF file"
+msgstr "Click to choose a PDF file"
 
 #: app/routes/topic.write-up.tsx:127
 msgid "Complete →"
 msgstr "Complete →"
 
-#: src/components/TaskRow.tsx:73
+#: src/components/TaskRow.tsx:84
 msgid "Continue"
 msgstr "Continue"
 
@@ -74,7 +82,7 @@ msgstr "Continue"
 msgid "Create account"
 msgstr "Create account"
 
-#: src/components/CurriculumBuilder.tsx:128
+#: src/components/CurriculumBuilder.tsx:119
 msgid "Create new program"
 msgstr "Create new program"
 
@@ -108,12 +116,11 @@ msgstr "Every hour of focused work today is an hour your future self doesn't hav
 msgid "Failed to create account"
 msgstr "Failed to create account"
 
-#: src/components/CurriculumBuilder.tsx:85
+#: src/components/CurriculumBuilder.tsx:79
 msgid "Failed to generate curriculum"
 msgstr "Failed to generate curriculum"
 
-#: src/components/CurriculumBuilder.tsx:106
-#: src/components/CurriculumBuilder.tsx:114
+#: src/components/CurriculumBuilder.tsx:103
 msgid "Failed to save"
 msgstr "Failed to save"
 
@@ -129,21 +136,22 @@ msgstr "Full comprehensive material from the beginning"
 msgid "Gaps to cover"
 msgstr "Gaps to cover"
 
-#: src/components/CurriculumBuilder.tsx:208
+#: src/components/CurriculumBuilder.tsx:246
+#: src/components/CurriculumBuilder.tsx:289
 msgid "Generate"
 msgstr "Generate"
 
-#: src/components/CurriculumBuilder.tsx:78
+#: src/components/CurriculumBuilder.tsx:71
 msgid "Generated curriculum has an invalid shape — try regenerating"
 msgstr "Generated curriculum has an invalid shape — try regenerating"
 
-#: src/components/CurriculumBuilder.tsx:146
+#: src/components/CurriculumBuilder.tsx:152
 msgid "Generating curriculum..."
 msgstr "Generating curriculum..."
 
 #: src/components/CurriculumBuilder.tsx:45
-msgid "Generation failed"
-msgstr "Generation failed"
+#~ msgid "Generation failed"
+#~ msgstr "Generation failed"
 
 #. placeholder {0}: taskItem.hint
 #: app/routes/topic.hands-on.tsx:101
@@ -166,14 +174,16 @@ msgstr "Invalid email or password"
 msgid "Ivan K."
 msgstr "Ivan K."
 
-#: src/components/Header.tsx:63
+#: app/routes/sign-in.tsx:54
+#: app/routes/sign-up.tsx:55
+#: src/components/Header.tsx:61
 msgid "Learning Tracker"
 msgstr "Learning Tracker"
 
 #: app/routes/sign-in.tsx:54
 #: app/routes/sign-up.tsx:55
-msgid "ML Learning"
-msgstr "ML Learning"
+#~ msgid "ML Learning"
+#~ msgstr "ML Learning"
 
 #: app/routes/topic.feedback.tsx:100
 msgid "Move to reflection →"
@@ -186,6 +196,10 @@ msgstr "Name"
 #: src/components/Dashboard.tsx:97
 msgid "New"
 msgstr "New"
+
+#: app/routes/curriculum.new.tsx:16
+msgid "New program"
+msgstr "New program"
 
 #: app/routes/topic.study.tsx:255
 #: app/routes/topic.study.tsx:264
@@ -200,7 +214,7 @@ msgstr "Next quote"
 msgid "No account? <0>Sign up</0>"
 msgstr "No account? <0>Sign up</0>"
 
-#: src/components/CurriculumBuilder.tsx:51
+#: src/components/CurriculumBuilder.tsx:57
 msgid "No response body"
 msgstr "No response body"
 
@@ -208,7 +222,7 @@ msgstr "No response body"
 msgid "No significant gaps detected — the material will go deep on advanced nuances."
 msgstr "No significant gaps detected — the material will go deep on advanced nuances."
 
-#: src/components/CurriculumBuilder.tsx:254
+#: src/components/CurriculumBuilder.tsx:349
 msgid "Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')..."
 msgstr "Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')..."
 
@@ -218,19 +232,19 @@ msgstr "Optional: describe what to change (e.g. 'add more system design tasks', 
 msgid "Part {0} of {1}"
 msgstr "Part {0} of {1}"
 
-#: src/components/TaskRow.tsx:17
+#: src/components/TaskRow.tsx:24
 msgid "Part {part} · Feedback"
 msgstr "Part {part} · Feedback"
 
-#: src/components/TaskRow.tsx:16
+#: src/components/TaskRow.tsx:22
 msgid "Part {part} · Practice"
 msgstr "Part {part} · Practice"
 
-#: src/components/TaskRow.tsx:15
+#: src/components/TaskRow.tsx:20
 msgid "Part {part} · Study"
 msgstr "Part {part} · Study"
 
-#: src/components/TaskRow.tsx:18
+#: src/components/TaskRow.tsx:26
 msgid "Part {part} · Write-up"
 msgstr "Part {part} · Write-up"
 
@@ -239,9 +253,17 @@ msgstr "Part {part} · Write-up"
 msgid "Password"
 msgstr "Password"
 
-#: src/components/CurriculumBuilder.tsx:198
+#: src/components/CurriculumBuilder.tsx:196
+msgid "Paste a URL"
+msgstr "Paste a URL"
+
+#: src/components/CurriculumBuilder.tsx:236
 msgid "Paste job posting URL..."
 msgstr "Paste job posting URL..."
+
+#: src/components/CurriculumBuilder.tsx:210
+msgid "Pick a saved PDF of the job description from your computer"
+msgstr "Pick a saved PDF of the job description from your computer"
 
 #: app/routes/topic.study.tsx:258
 msgid "Practice"
@@ -285,15 +307,15 @@ msgid "Reflect"
 msgstr "Reflect"
 
 #: app/routes/topic.assess.tsx:109
-#: src/components/CurriculumBuilder.tsx:261
+#: src/components/CurriculumBuilder.tsx:356
 msgid "Regenerate"
 msgstr "Regenerate"
 
-#: src/components/CurriculumBuilder.tsx:264
+#: src/components/CurriculumBuilder.tsx:359
 msgid "Save program"
 msgstr "Save program"
 
-#: src/components/CurriculumBuilder.tsx:174
+#: src/components/CurriculumBuilder.tsx:180
 msgid "Saving..."
 msgstr "Saving..."
 
@@ -313,7 +335,7 @@ msgstr "Sign in"
 msgid "Sign in to your account"
 msgstr "Sign in to your account"
 
-#: src/components/Header.tsx:96
+#: src/components/Header.tsx:98
 msgid "Sign out"
 msgstr "Sign out"
 
@@ -329,7 +351,11 @@ msgstr "Skills"
 msgid "Solution"
 msgstr "Solution"
 
-#: src/components/TaskRow.tsx:73
+#: src/components/CurriculumBuilder.tsx:250
+msgid "Some sites render their content with JavaScript and cannot be read this way. If generation fails, save the page as a PDF in your browser and use the PDF upload option instead."
+msgstr "Some sites render their content with JavaScript and cannot be read this way. If generation fails, save the page as a PDF in your browser and use the PDF upload option instead."
+
+#: src/components/TaskRow.tsx:84
 msgid "Start"
 msgstr "Start"
 
@@ -337,14 +363,14 @@ msgstr "Start"
 msgid "Start from scratch"
 msgstr "Start from scratch"
 
-#: app/routes/topic-layout.tsx:74
-#: app/routes/topic-layout.tsx:105
+#: app/routes/topic-layout.tsx:92
+#: app/routes/topic-layout.tsx:123
 #: app/routes/topic.complete.tsx:33
-#: src/components/TaskRow.tsx:69
+#: src/components/TaskRow.tsx:80
 msgid "Start over"
 msgstr "Start over"
 
-#: app/routes/topic-layout.tsx:81
+#: app/routes/topic-layout.tsx:99
 msgid "Start over?"
 msgstr "Start over?"
 
@@ -387,7 +413,7 @@ msgstr "The expert in anything was once a beginner who refused to quit."
 msgid "The gap between where you are and where you want to be is closed one rep at a time."
 msgstr "The gap between where you are and where you want to be is closed one rep at a time."
 
-#: src/components/Header.tsx:93
+#: src/components/Header.tsx:95
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
@@ -398,6 +424,14 @@ msgstr "Topic Complete"
 #: app/routes/topic.write-up.tsx:117
 msgid "Tutor feedback"
 msgstr "Tutor feedback"
+
+#: src/components/CurriculumBuilder.tsx:207
+msgid "Upload a PDF"
+msgstr "Upload a PDF"
+
+#: src/components/CurriculumBuilder.tsx:199
+msgid "Use a link to the job posting on its company or job-board page"
+msgstr "Use a link to the job posting on its company or job-board page"
 
 #: app/routes/topic.write-up.tsx:94
 msgid "Write your reflection in your own words…"
@@ -428,7 +462,7 @@ msgstr "Your answer, code, or reasoning…"
 msgid "Your answer…"
 msgstr "Your answer…"
 
-#: app/routes/topic-layout.tsx:85
+#: app/routes/topic-layout.tsx:103
 msgid "Your current progress on this topic will be reset."
 msgstr "Your current progress on this topic will be reset."
 

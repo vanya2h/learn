@@ -51,7 +51,7 @@ export default function SignIn() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <Text variant="heading1" as="h1">
-            <Trans>ML Learning</Trans>
+            <Trans>Learning Tracker</Trans>
           </Text>
           <p className="mt-2 text-sm text-foreground/40">
             <Trans>Sign in to your account</Trans>
