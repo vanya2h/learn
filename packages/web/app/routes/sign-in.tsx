@@ -1,5 +1,6 @@
 import { Text } from "@cloudflare/kumo/components/text";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useForm } from "react-hook-form";
 import { Link, redirect, useNavigate } from "react-router";
 import { z } from "zod";
@@ -22,6 +23,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   const {
     register,
@@ -38,7 +40,7 @@ export default function SignIn() {
       password: data.password,
     });
     if (error) {
-      setError("root", { message: error.message ?? "Invalid email or password" });
+      setError("root", { message: error.message ?? t`Invalid email or password` });
     } else {
       navigate("/");
     }
@@ -49,9 +51,11 @@ export default function SignIn() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <Text variant="heading1" as="h1">
-            ML Learning
+            <Trans>ML Learning</Trans>
           </Text>
-          <p className="mt-2 text-sm text-foreground/40">Sign in to your account</p>
+          <p className="mt-2 text-sm text-foreground/40">
+            <Trans>Sign in to your account</Trans>
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -63,7 +67,7 @@ export default function SignIn() {
 
           <div className="space-y-1">
             <label htmlFor="email" className="block text-sm text-neutral-300">
-              Email
+              <Trans>Email</Trans>
             </label>
             <input
               id="email"
@@ -73,7 +77,7 @@ export default function SignIn() {
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
               className="w-full rounded-lg bg-neutral-900 border border-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-600"
-              placeholder="you@example.com"
+              placeholder={t`you@example.com`}
             />
             {errors.email && (
               <p id="email-error" role="alert" className="text-xs text-red-400 mt-1">
@@ -84,7 +88,7 @@ export default function SignIn() {
 
           <div className="space-y-1">
             <label htmlFor="password" className="block text-sm text-neutral-300">
-              Password
+              <Trans>Password</Trans>
             </label>
             <input
               id="password"
@@ -108,15 +112,17 @@ export default function SignIn() {
             disabled={isSubmitting}
             className="w-full rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? <Trans>Signing in…</Trans> : <Trans>Sign in</Trans>}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          No account?{" "}
-          <Link to="/sign-up" className="text-neutral-300 hover:text-white transition-colors">
-            Sign up
-          </Link>
+          <Trans>
+            No account?{" "}
+            <Link to="/sign-up" className="text-neutral-300 hover:text-white transition-colors">
+              Sign up
+            </Link>
+          </Trans>
         </p>
       </div>
     </div>

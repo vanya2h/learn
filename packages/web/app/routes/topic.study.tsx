@@ -1,5 +1,6 @@
 import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
@@ -209,7 +210,9 @@ export default function StudyPage() {
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div>
         <p className="text-xs text-muted-foreground mb-2">
-          Part {partIdx + 1} of {plan.partPlans.length}
+          <Trans>
+            Part {partIdx + 1} of {plan.partPlans.length}
+          </Trans>
         </p>
       </div>
 
@@ -223,7 +226,9 @@ export default function StudyPage() {
         <>
           <div className="flex items-center gap-2 mb-6 text-foreground/40">
             <Loader size="sm" />
-            <p className="text-sm">Preparing study material…</p>
+            <p className="text-sm">
+              <Trans>Preparing study material…</Trans>
+            </p>
           </div>
           {partStream && <Markdown isAnimating>{partStream}</Markdown>}
         </>
@@ -236,7 +241,7 @@ export default function StudyPage() {
             {prevPlan && parts[partIdx - 1] ? (
               <NavButton onClick={() => handleGoToPart(partIdx - 1)}>
                 <span className="text-xs text-muted-foreground">
-                  <ArrowLeftIcon className="inline" /> previous
+                  <ArrowLeftIcon className="inline" /> <Trans>previous</Trans>
                 </span>
                 <span className="text-sm font-medium text-foreground">{prevPlan.title}</span>
               </NavButton>
@@ -246,13 +251,17 @@ export default function StudyPage() {
 
             {isLastPart ? (
               <NavButton onClick={handleMoveToHandsOn} align="right">
-                <span className="text-xs text-muted-foreground">next</span>
-                <span className="text-sm font-medium text-foreground">Practice</span>
+                <span className="text-xs text-muted-foreground">
+                  <Trans>next</Trans>
+                </span>
+                <span className="text-sm font-medium text-foreground">
+                  <Trans>Practice</Trans>
+                </span>
               </NavButton>
             ) : (
               <NavButton onClick={handleNextPart} align="right">
                 <span className="text-xs text-muted-foreground">
-                  next <ArrowRightIcon className="inline" />
+                  <Trans>next</Trans> <ArrowRightIcon className="inline" />
                 </span>
                 <span className="text-sm font-medium text-foreground">{nextPlan?.title}</span>
               </NavButton>

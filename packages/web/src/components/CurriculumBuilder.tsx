@@ -3,6 +3,7 @@ import { Input } from "@cloudflare/kumo/components/input";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { hc } from "hono/client";
 import { useState } from "react";
 import { useNavigate, useRevalidator } from "react-router";
@@ -18,6 +19,7 @@ const client = hc<AppType>("/");
 type BuilderState = "idle" | "generating" | "preview" | "saving";
 
 export function CurriculumBuilder() {
+  const { t } = useLingui();
   const [url, setUrl] = useState("");
   const [feedback, setFeedback] = useState("");
   const [state, setState] = useState<BuilderState>("idle");
@@ -40,13 +42,13 @@ export function CurriculumBuilder() {
 
       if (!res.ok) {
         const body = await res.json();
-        setError((body as { error?: string }).error ?? "Generation failed");
+        setError((body as { error?: string }).error ?? t`Generation failed`);
         setState("idle");
         return;
       }
 
       if (!res.body) {
-        setError("No response body");
+        setError(t`No response body`);
         setState("idle");
         return;
       }
@@ -73,14 +75,14 @@ export function CurriculumBuilder() {
       const repaired = parseJSON<unknown>(accumulated);
       const parsed = parseCurriculumDef(repaired);
       if (!parsed) {
-        setError("Generated curriculum has an invalid shape — try regenerating");
+        setError(t`Generated curriculum has an invalid shape — try regenerating`);
         setState("idle");
         return;
       }
       setCurriculum(parsed);
       setState("preview");
     } catch {
-      setError("Failed to generate curriculum");
+      setError(t`Failed to generate curriculum`);
       setState("idle");
     }
   }
@@ -101,7 +103,7 @@ export function CurriculumBuilder() {
       });
 
       if (!res.ok) {
-        setError("Failed to save");
+        setError(t`Failed to save`);
         setState("preview");
         return;
       }
@@ -109,7 +111,7 @@ export function CurriculumBuilder() {
       revalidate();
       void navigate("/");
     } catch {
-      setError("Failed to save");
+      setError(t`Failed to save`);
       setState("preview");
     }
   }
@@ -123,7 +125,7 @@ export function CurriculumBuilder() {
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="mb-6">
         <Text variant="heading2" as="h1">
-          Create new program
+          <Trans>Create new program</Trans>
         </Text>
       </div>
 
@@ -140,7 +142,9 @@ export function CurriculumBuilder() {
         <div className="mt-6">
           <div className="flex items-center gap-2 mb-4">
             <Loader size="sm" />
-            <span className="text-sm text-muted-foreground">Generating curriculum...</span>
+            <span className="text-sm text-muted-foreground">
+              <Trans>Generating curriculum...</Trans>
+            </span>
           </div>
           <div className="rounded-lg border border-border p-4 bg-muted/30">
             <Markdown>{streamText}</Markdown>
@@ -166,7 +170,9 @@ export function CurriculumBuilder() {
       {state === "saving" && (
         <div className="mt-6 flex items-center gap-2">
           <Loader size="sm" />
-          <span className="text-sm text-muted-foreground">Saving...</span>
+          <span className="text-sm text-muted-foreground">
+            <Trans>Saving...</Trans>
+          </span>
         </div>
       )}
     </div>
@@ -184,11 +190,12 @@ function UrlInput({
   onGenerate: () => void;
   disabled: boolean;
 }) {
+  const { t } = useLingui();
   return (
     <div className="flex gap-3 w-full">
       <div className="flex-1 grow">
         <Input
-          placeholder="Paste job posting URL..."
+          placeholder={t`Paste job posting URL...`}
           value={url}
           className="w-full"
           onChange={(e) => setUrl(e.target.value)}
@@ -198,7 +205,7 @@ function UrlInput({
         />
       </div>
       <Button onClick={onGenerate} disabled={disabled || !url.trim()}>
-        Generate
+        <Trans>Generate</Trans>
       </Button>
     </div>
   );
@@ -221,7 +228,9 @@ function PreviewHeader({ curriculum }: { curriculum: CurriculumDef }) {
       </div>
       {curriculum.description && <p className="text-sm text-muted-foreground mb-2">{curriculum.description}</p>}
       <p className="text-xs text-muted-foreground">
-        {curriculum.phases.length} phases &middot; {totalTasks} tasks &middot; ~{totalHours}h total
+        <Trans>
+          {curriculum.phases.length} phases &middot; {totalTasks} tasks &middot; ~{totalHours}h total
+        </Trans>
       </p>
     </div>
   );
@@ -238,19 +247,22 @@ function FeedbackSection({
   onRegenerate: () => void;
   onSave: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <div className="flex flex-col gap-3">
       <InputArea
-        placeholder="Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')..."
+        placeholder={t`Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')...`}
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
         rows={3}
       />
       <div className="flex gap-3 justify-end">
         <Button variant="secondary" onClick={onRegenerate}>
-          Regenerate
+          <Trans>Regenerate</Trans>
         </Button>
-        <Button onClick={onSave}>Save program</Button>
+        <Button onClick={onSave}>
+          <Trans>Save program</Trans>
+        </Button>
       </div>
     </div>
   );

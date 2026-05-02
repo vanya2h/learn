@@ -2,6 +2,7 @@ import { Badge } from "@cloudflare/kumo/components/badge";
 import { Button } from "@cloudflare/kumo/components/button";
 import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
@@ -68,7 +69,9 @@ export default function GapsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader size="sm" />
-        <p className="text-sm text-muted-foreground">Evaluating your answers…</p>
+        <p className="text-sm text-muted-foreground">
+          <Trans>Evaluating your answers…</Trans>
+        </p>
         {evalStream && (
           <p className="text-xs text-foreground/40 max-w-sm text-center italic">
             {evalStream.slice(0, 120)}
@@ -83,14 +86,16 @@ export default function GapsPage() {
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div className="mb-1">
         <Text variant="heading2" as="h2">
-          Assessment complete
+          <Trans>Assessment complete</Trans>
         </Text>
       </div>
       <p className="text-sm text-muted-foreground mb-6">{review.summary}</p>
 
       {review.gaps.length > 0 ? (
         <div className="mb-8">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Gaps to cover</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            <Trans>Gaps to cover</Trans>
+          </p>
           <ul className="flex flex-wrap gap-2">
             {review.gaps.map((gap) => (
               <li key={gap}>
@@ -101,12 +106,12 @@ export default function GapsPage() {
         </div>
       ) : (
         <div className="mb-8 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 px-4 py-3 text-sm text-green-800 dark:text-green-300">
-          No significant gaps detected — the material will go deep on advanced nuances.
+          <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
         </div>
       )}
 
       <Button variant="primary" onClick={() => void navigate("../study", { relative: "path" })}>
-        Start studying
+        <Trans>Start studying</Trans>
       </Button>
     </div>
   );

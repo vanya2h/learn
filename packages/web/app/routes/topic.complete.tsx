@@ -1,5 +1,6 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans } from "@lingui/react/macro";
 import { useNavigate, useParams, useRouteLoaderData } from "react-router";
 import type { loader as layoutLoader } from "./topic-layout";
 
@@ -15,19 +16,21 @@ export default function CompletePage() {
       <div className="text-4xl mb-4">✓</div>
       <div className="mb-2">
         <Text variant="heading2" as="h2">
-          Topic Complete
+          <Trans>Topic Complete</Trans>
         </Text>
       </div>
       <p className="text-sm text-muted-foreground mb-8 max-w-sm">
-        You passed the final test for <span className="font-medium text-foreground">{taskTitle}</span>. It&apos;s been
-        marked as done.
+        <Trans>
+          You passed the final test for <span className="font-medium text-foreground">{taskTitle}</span>. It&apos;s been
+          marked as done.
+        </Trans>
       </p>
       <div className="flex gap-3">
         <Button variant="secondary" onClick={() => void navigate(`/curriculum/${curriculumId}`)}>
-          Back to curriculum
+          <Trans>Back to curriculum</Trans>
         </Button>
         <Button variant="primary" onClick={() => void navigate("../choice", { relative: "path" })}>
-          Start over
+          <Trans>Start over</Trans>
         </Button>
       </div>
     </div>

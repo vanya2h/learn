@@ -2,6 +2,8 @@ import { Badge } from "@cloudflare/kumo/components/badge";
 import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Meter } from "@cloudflare/kumo/components/meter";
 import { Text } from "@cloudflare/kumo/components/text";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import type { CurriculumDef, Skill } from "../data/types";
@@ -10,19 +12,20 @@ import { useProgress } from "../hooks/useProgress";
 import { computeUnlockedSkills } from "../lib/skills";
 
 const QUOTES = [
-  "If you can't explain it cleanly in writing, you don't understand it.",
-  "The expert in anything was once a beginner who refused to quit.",
-  "Every hour of focused work today is an hour your future self doesn't have to dread.",
-  "You don't rise to the level of your goals — you fall to the level of your systems.",
-  "Discomfort is the price of admission to a meaningful career.",
-  "The gap between where you are and where you want to be is closed one rep at a time.",
-  "Ship something small today. Momentum is built, not found.",
-  "Your skills compound like interest. The earlier you invest, the richer you become.",
-  "A day of deep work done is a day you can defend.",
-  "You are not behind. You are exactly where your effort has put you — and effort is still yours to give.",
+  msg`If you can't explain it cleanly in writing, you don't understand it.`,
+  msg`The expert in anything was once a beginner who refused to quit.`,
+  msg`Every hour of focused work today is an hour your future self doesn't have to dread.`,
+  msg`You don't rise to the level of your goals — you fall to the level of your systems.`,
+  msg`Discomfort is the price of admission to a meaningful career.`,
+  msg`The gap between where you are and where you want to be is closed one rep at a time.`,
+  msg`Ship something small today. Momentum is built, not found.`,
+  msg`Your skills compound like interest. The earlier you invest, the richer you become.`,
+  msg`A day of deep work done is a day you can defend.`,
+  msg`You are not behind. You are exactly where your effort has put you — and effort is still yours to give.`,
 ];
 
 function QuoteSlider() {
+  const { i18n, t } = useLingui();
   const [index, setIndex] = useState(() => Math.floor(Math.random() * QUOTES.length));
 
   const prev = () => setIndex((i) => (i - 1 + QUOTES.length) % QUOTES.length);
@@ -33,17 +36,17 @@ function QuoteSlider() {
       <div className="flex items-center gap-3">
         <button
           onClick={prev}
-          aria-label="Previous quote"
+          aria-label={t`Previous quote`}
           className="shrink-0 text-foreground/40 hover:text-foreground/70 transition-colors text-lg leading-none"
         >
           ‹
         </button>
         <blockquote className="flex-1 text-center text-sm italic text-muted-foreground leading-relaxed">
-          &ldquo;{QUOTES[index]}&rdquo;
+          &ldquo;{i18n._(QUOTES[index]!)}&rdquo;
         </blockquote>
         <button
           onClick={next}
-          aria-label="Next quote"
+          aria-label={t`Next quote`}
           className="shrink-0 text-foreground/40 hover:text-foreground/70 transition-colors text-lg leading-none"
         >
           ›
@@ -91,7 +94,7 @@ function SkillBadge({
         </span>
         {recentlyUnlocked && (
           <Badge variant="success" className="ml-auto">
-            New
+            <Trans>New</Trans>
           </Badge>
         )}
       </div>
@@ -124,7 +127,7 @@ function SkillsSection({ completedTaskIds }: { completedTaskIds: Record<string, 
     <section className="px-6 py-4 border-b border-border">
       <div className="mb-4">
         <Text variant="heading3" as="h2">
-          Skills
+          <Trans>Skills</Trans>
         </Text>
       </div>
       <div className="flex flex-col gap-6">
@@ -149,6 +152,7 @@ function SkillsSection({ completedTaskIds }: { completedTaskIds: Record<string, 
 }
 
 export function Dashboard() {
+  const { t } = useLingui();
   const { completedTaskIds } = useProgress();
   const allCurriculums = useAllCurriculums();
 
@@ -159,7 +163,7 @@ export function Dashboard() {
       <section className="px-6 py-4 border-b border-border">
         <div className="mb-3">
           <Text variant="heading3" as="h2">
-            Programs
+            <Trans>Programs</Trans>
           </Text>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -172,7 +176,7 @@ export function Dashboard() {
                   {curriculum.description && (
                     <p className="text-sm text-muted-foreground mb-3">{curriculum.description}</p>
                   )}
-                  <Meter label="Progress" value={pct} showValue />
+                  <Meter label={t`Progress`} value={pct} showValue />
                 </LayerCard.Primary>
               </LayerCard>
             );
@@ -181,7 +185,9 @@ export function Dashboard() {
             to="/curriculum/new"
             className="flex items-center justify-center rounded-lg border-2 border-dashed border-border hover:border-foreground/30 transition-colors min-h-25 text-muted-foreground hover:text-foreground/60"
           >
-            <span className="text-sm font-medium">+ Create new program</span>
+            <span className="text-sm font-medium">
+              <Trans>+ Create new program</Trans>
+            </span>
           </Link>
         </div>
       </section>

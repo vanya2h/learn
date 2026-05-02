@@ -1,6 +1,7 @@
 import { Button } from "@cloudflare/kumo/components/button";
 import { Dialog } from "@cloudflare/kumo/components/dialog";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans } from "@lingui/react/macro";
 import { Outlet, useLoaderData, useNavigate, useParams } from "react-router";
 import { redirect } from "react-router";
 import { CURRICULUMS } from "../../src/data/curriculum";
@@ -57,7 +58,7 @@ export default function TopicLayout() {
     <>
       <header className="flex items-center gap-4 px-6 py-4 border-b border-border bg-background">
         <Button size="sm" onClick={goBack}>
-          ← Back
+          <Trans>← Back</Trans>
         </Button>
         <div className="min-w-0">
           <Text variant="heading3" as="h1">
@@ -70,22 +71,24 @@ export default function TopicLayout() {
             <Dialog.Trigger
               render={(p) => (
                 <Button size="sm" {...p}>
-                  Start over
+                  <Trans>Start over</Trans>
                 </Button>
               )}
             />
             <Dialog size="sm" className="p-8">
               <div className="mb-4">
-                <Dialog.Title className="text-xl font-semibold">Start over?</Dialog.Title>
+                <Dialog.Title className="text-xl font-semibold">
+                  <Trans>Start over?</Trans>
+                </Dialog.Title>
               </div>
               <Dialog.Description className="text-muted-foreground">
-                Your current progress on this topic will be reset.
+                <Trans>Your current progress on this topic will be reset.</Trans>
               </Dialog.Description>
               <div className="mt-6 flex justify-end gap-2">
                 <Dialog.Close
                   render={(props) => (
                     <Button variant="secondary" {...props}>
-                      Cancel
+                      <Trans>Cancel</Trans>
                     </Button>
                   )}
                 />
@@ -99,7 +102,7 @@ export default function TopicLayout() {
                         props.onClick?.(e);
                       }}
                     >
-                      Start over
+                      <Trans>Start over</Trans>
                     </Button>
                   )}
                 />

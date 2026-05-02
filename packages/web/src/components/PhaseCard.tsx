@@ -1,6 +1,7 @@
 import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Meter } from "@cloudflare/kumo/components/meter";
 import { Text } from "@cloudflare/kumo/components/text";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { Phase, Task } from "../data/curriculum";
 import { useProgress } from "../hooks/useProgress";
@@ -18,6 +19,7 @@ function phaseProgress(tasks: Task[], completedTaskIds: Record<string, string>) 
 export function PhaseCard({ phase, curriculumId }: Props) {
   const [open, setOpen] = useState(true);
   const { completedTaskIds } = useProgress();
+  const { t } = useLingui();
 
   const pct = phaseProgress(phase.tasks, completedTaskIds);
 
@@ -39,7 +41,7 @@ export function PhaseCard({ phase, curriculumId }: Props) {
           </div>
           <div className="flex items-center gap-3 ml-4">
             <div className="w-52">
-              <Meter value={pct} label="Progress" showValue />
+              <Meter value={pct} label={t`Progress`} showValue />
             </div>
             <span className="text-foreground/40 text-xs">{open ? "▲" : "▼"}</span>
           </div>

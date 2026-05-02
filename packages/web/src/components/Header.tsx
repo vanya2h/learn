@@ -1,6 +1,7 @@
 import { Breadcrumbs } from "@cloudflare/kumo/components/breadcrumbs";
 import { DropdownMenu } from "@cloudflare/kumo/components/dropdown";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans } from "@lingui/react/macro";
 import { MoonIcon } from "@phosphor-icons/react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
@@ -59,7 +60,7 @@ export function Header() {
       <div className="flex items-center gap-4">
         <Text variant="heading2" as="h1">
           <Link to="/" className="text-foreground hover:opacity-75 transition-opacity">
-            Learning Tracker
+            <Trans>Learning Tracker</Trans>
           </Link>
         </Text>
         {isDashboard ? null : (
@@ -89,10 +90,10 @@ export function Header() {
               <DropdownMenu.Separator />
               <DropdownMenu.Item onClick={toggle}>
                 <MoonIcon size={14} />
-                Toggle theme
+                <Trans>Toggle theme</Trans>
               </DropdownMenu.Item>
               <DropdownMenu.Item onClick={() => authClient.signOut().then(() => navigate("/sign-in"))}>
-                Sign out
+                <Trans>Sign out</Trans>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu>

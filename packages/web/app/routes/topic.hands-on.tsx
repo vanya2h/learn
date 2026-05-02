@@ -2,6 +2,7 @@ import { Button } from "@cloudflare/kumo/components/button";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Loader } from "@cloudflare/kumo/components/loader";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
@@ -37,6 +38,7 @@ export default function HandsOnPage() {
   const navigate = useNavigate();
   const { stream } = useStreamAI();
   const { saveSession } = useTopicSession(taskId!);
+  const { t } = useLingui();
 
   const [answers, setAnswers] = useState<Record<string, string>>(savedAnswers);
   const [solutions, setSolutions] = useState<Record<number, { text: string; streaming: boolean }>>({});
@@ -87,20 +89,26 @@ export default function HandsOnPage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div className="flex flex-col gap-6">
-        {part.handsOn.map((t, i) => (
+        {part.handsOn.map((taskItem, i) => (
           <div key={i} className="flex flex-col gap-3">
             <LayerCard className="p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Task {i + 1}</p>
-              <Markdown>{t.task}</Markdown>
-              {t.hint && <p className="mt-2 text-xs text-foreground/40 italic">Hint: {t.hint}</p>}
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                <Trans>Task {i + 1}</Trans>
+              </p>
+              <Markdown>{taskItem.task}</Markdown>
+              {taskItem.hint && (
+                <p className="mt-2 text-xs text-foreground/40 italic">
+                  <Trans>Hint: {taskItem.hint}</Trans>
+                </p>
+              )}
               <div className="mt-3 flex items-center gap-2">
                 <Button
                   size="xs"
                   variant="secondary"
                   disabled={solutions[i]?.streaming}
-                  onClick={() => void handleSolution(i, t.task, t.hint)}
+                  onClick={() => void handleSolution(i, taskItem.task, taskItem.hint)}
                 >
-                  See solution
+                  <Trans>See solution</Trans>
                 </Button>
                 {solutions[i]?.streaming && <Loader size="sm" />}
               </div>
@@ -109,7 +117,7 @@ export default function HandsOnPage() {
             {solutions[i] && (
               <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
                 <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
-                  Solution
+                  <Trans>Solution</Trans>
                 </p>
                 <Markdown isAnimating={solutions[i].streaming}>{solutions[i].text}</Markdown>
               </div>
@@ -118,9 +126,9 @@ export default function HandsOnPage() {
             <InputArea
               value={answers[i] ?? ""}
               onChange={(e) => setAnswers((prev) => ({ ...prev, [i]: e.target.value }))}
-              placeholder="Your answer, code, or reasoning…"
+              placeholder={t`Your answer, code, or reasoning…`}
               rows={4}
-              aria-label="Text input"
+              aria-label={t`Text input`}
               className="w-full"
             />
           </div>
@@ -128,7 +136,7 @@ export default function HandsOnPage() {
 
         <div>
           <Button variant="primary" disabled={!allAnswered} onClick={() => void handleSubmit()}>
-            Submit for feedback →
+            <Trans>Submit for feedback →</Trans>
           </Button>
         </div>
       </div>

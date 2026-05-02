@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useForm } from "react-hook-form";
 import { Link, redirect, useNavigate } from "react-router";
 import { z } from "zod";
@@ -22,6 +23,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   const {
     register,
@@ -39,7 +41,7 @@ export default function SignUp() {
       password: data.password,
     });
     if (error) {
-      setError("root", { message: error.message ?? "Failed to create account" });
+      setError("root", { message: error.message ?? t`Failed to create account` });
     } else {
       navigate("/");
     }
@@ -49,8 +51,12 @@ export default function SignUp() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-foreground tracking-tight">ML Learning</h1>
-          <p className="mt-2 text-sm text-foreground/40">Create your account</p>
+          <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+            <Trans>ML Learning</Trans>
+          </h1>
+          <p className="mt-2 text-sm text-foreground/40">
+            <Trans>Create your account</Trans>
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -62,7 +68,7 @@ export default function SignUp() {
 
           <div className="space-y-1">
             <label htmlFor="name" className="block text-sm text-neutral-300">
-              Name
+              <Trans>Name</Trans>
             </label>
             <input
               id="name"
@@ -72,7 +78,7 @@ export default function SignUp() {
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "name-error" : undefined}
               className="w-full rounded-lg bg-neutral-900 border border-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-600"
-              placeholder="Ivan K."
+              placeholder={t`Ivan K.`}
             />
             {errors.name && (
               <p id="name-error" role="alert" className="text-xs text-red-400 mt-1">
@@ -83,7 +89,7 @@ export default function SignUp() {
 
           <div className="space-y-1">
             <label htmlFor="email" className="block text-sm text-neutral-300">
-              Email
+              <Trans>Email</Trans>
             </label>
             <input
               id="email"
@@ -93,7 +99,7 @@ export default function SignUp() {
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
               className="w-full rounded-lg bg-neutral-900 border border-neutral-800 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-600"
-              placeholder="you@example.com"
+              placeholder={t`you@example.com`}
             />
             {errors.email && (
               <p id="email-error" role="alert" className="text-xs text-red-400 mt-1">
@@ -104,7 +110,7 @@ export default function SignUp() {
 
           <div className="space-y-1">
             <label htmlFor="password" className="block text-sm text-neutral-300">
-              Password
+              <Trans>Password</Trans>
             </label>
             <input
               id="password"
@@ -128,15 +134,17 @@ export default function SignUp() {
             disabled={isSubmitting}
             className="w-full rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isSubmitting ? "Creating account…" : "Create account"}
+            {isSubmitting ? <Trans>Creating account…</Trans> : <Trans>Create account</Trans>}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link to="/sign-in" className="text-neutral-300 hover:text-white transition-colors">
-            Sign in
-          </Link>
+          <Trans>
+            Already have an account?{" "}
+            <Link to="/sign-in" className="text-neutral-300 hover:text-white transition-colors">
+              Sign in
+            </Link>
+          </Trans>
         </p>
       </div>
     </div>

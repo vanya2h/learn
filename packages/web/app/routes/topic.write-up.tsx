@@ -2,6 +2,7 @@ import { Button } from "@cloudflare/kumo/components/button";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { LayerCard } from "@cloudflare/kumo/components/layer-card";
 import { Loader } from "@cloudflare/kumo/components/loader";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
@@ -43,6 +44,7 @@ export default function WriteUpPage() {
   const { stream, streaming, abort } = useStreamAI();
   const { saveSession, deleteSession } = useTopicSession(taskId!);
   const { toggleTask } = useProgress();
+  const { t } = useLingui();
 
   const [text, setText] = useState("");
   const [feedback, setFeedback] = useState(savedFeedback);
@@ -78,7 +80,9 @@ export default function WriteUpPage() {
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div className="mb-4 p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900">
-        <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-1">Reflect</p>
+        <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-1">
+          <Trans>Reflect</Trans>
+        </p>
         <p className="text-sm text-foreground">{part.writeUpPrompt}</p>
       </div>
 
@@ -87,14 +91,14 @@ export default function WriteUpPage() {
           <InputArea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Write your reflection in your own words…"
+            placeholder={t`Write your reflection in your own words…`}
             rows={5}
-            aria-label="Text input"
+            aria-label={t`Text input`}
             className="w-full"
           />
           <div className="mt-4">
             <Button variant="primary" onClick={() => void handleSubmit()} disabled={text.trim().length < 20}>
-              Submit reflection
+              <Trans>Submit reflection</Trans>
             </Button>
           </div>
         </>
@@ -102,12 +106,16 @@ export default function WriteUpPage() {
 
       {(feedback || streaming) && (
         <div className="mt-4">
-          <div className="text-xs text-muted-foreground italic mb-1">Your reflection:</div>
+          <div className="text-xs text-muted-foreground italic mb-1">
+            <Trans>Your reflection:</Trans>
+          </div>
           <p className="text-sm text-muted-foreground mb-4 whitespace-pre-wrap">{text}</p>
 
           <LayerCard className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tutor feedback</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <Trans>Tutor feedback</Trans>
+              </p>
               {streaming && <Loader size="sm" />}
             </div>
             <Markdown isAnimating={streaming}>{feedback}</Markdown>
@@ -116,7 +124,7 @@ export default function WriteUpPage() {
           {!streaming && (
             <div className="mt-6">
               <Button variant="primary" onClick={() => void handleComplete()}>
-                Complete →
+                <Trans>Complete →</Trans>
               </Button>
             </div>
           )}

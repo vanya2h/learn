@@ -2,6 +2,7 @@ import { Button } from "@cloudflare/kumo/components/button";
 import { InputArea } from "@cloudflare/kumo/components/input";
 import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
@@ -34,6 +35,7 @@ export default function AssessPage() {
   const navigate = useNavigate();
   const { askAI } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
+  const { t } = useLingui();
   const abortRef = useRef<AbortController | null>(null);
 
   const [questions, setQuestions] = useState<string[] | null>(savedQuestions);
@@ -88,7 +90,9 @@ export default function AssessPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Loader size="sm" />
-        <p className="text-sm text-muted-foreground">Preparing assessment questions…</p>
+        <p className="text-sm text-muted-foreground">
+          <Trans>Preparing assessment questions…</Trans>
+        </p>
       </div>
     );
   }
@@ -99,14 +103,14 @@ export default function AssessPage() {
     <div className="max-w-2xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-1">
         <Text variant="heading2" as="h2">
-          Quick Assessment
+          <Trans>Quick Assessment</Trans>
         </Text>
         <Button size="xs" variant="secondary" onClick={() => void generateQuestions()} disabled={loading}>
-          Regenerate
+          <Trans>Regenerate</Trans>
         </Button>
       </div>
       <p className="text-xs text-muted-foreground mb-8">
-        Answer each question in 2–4 sentences. Honest answers get more useful material.
+        <Trans>Answer each question in 2–4 sentences. Honest answers get more useful material.</Trans>
       </p>
       <div className="flex flex-col gap-6">
         {questions.map((q, i) => (
@@ -117,9 +121,9 @@ export default function AssessPage() {
             <InputArea
               value={answers[i] ?? ""}
               onChange={(e) => handleAnswerChange(i, e.target.value)}
-              placeholder="Your answer…"
+              placeholder={t`Your answer…`}
               rows={3}
-              aria-label="Text input"
+              aria-label={t`Text input`}
               className="w-full"
             />
           </div>
@@ -127,7 +131,7 @@ export default function AssessPage() {
       </div>
       <div className="mt-8">
         <Button variant="primary" disabled={!allAnswered} onClick={() => void handleSubmit()}>
-          Submit answers →
+          <Trans>Submit answers →</Trans>
         </Button>
       </div>
     </div>

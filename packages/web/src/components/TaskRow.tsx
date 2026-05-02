@@ -1,4 +1,5 @@
 import { Button } from "@cloudflare/kumo/components/button";
+import { Trans, useLingui } from "@lingui/react/macro";
 import clsx from "clsx";
 import { useNavigate } from "react-router";
 import type { Task } from "../data/curriculum";
@@ -6,26 +7,32 @@ import type { ActiveSession } from "../hooks/useProgress";
 import { useProgress } from "../hooks/useProgress";
 import { apiClient } from "../lib/apiClient";
 
-function sessionLabel(session: ActiveSession): string {
-  const part = `Part ${(session.partIdx ?? 0) + 1}`;
+function useSessionLabel(session: ActiveSession): string {
+  const { t } = useLingui();
+  const part = (session.partIdx ?? 0) + 1;
   switch (session.name) {
     case "assessing":
-      return "Assessing";
+      return t`Assessing`;
     case "gaps-review":
-      return "Assessment done";
+      return t`Assessment done`;
     case "study":
-      return `${part} · Study`;
+      return t`Part ${part} · Study`;
     case "hands-on":
-      return `${part} · Practice`;
+      return t`Part ${part} · Practice`;
     case "feedback":
-      return `${part} · Feedback`;
+      return t`Part ${part} · Feedback`;
     case "write-up":
-      return `${part} · Write-up`;
+      return t`Part ${part} · Write-up`;
     default: {
       const _exhaustive: never = session.name;
       return _exhaustive;
     }
   }
+}
+
+function ActiveSessionLabel({ session }: { session: ActiveSession }) {
+  const label = useSessionLabel(session);
+  return <span className="ml-2 text-xs text-amber-500 dark:text-amber-400 font-medium">{label}</span>;
 }
 
 export function TaskRow({ task, curriculumId }: { task: Task; curriculumId: string }) {
@@ -50,11 +57,7 @@ export function TaskRow({ task, curriculumId }: { task: Task; curriculumId: stri
               ~{task.estMinutes >= 60 ? `${Math.round(task.estMinutes / 60)}h` : `${task.estMinutes}m`}
             </span>
           )}
-          {activeSession && (
-            <span className="ml-2 text-xs text-amber-500 dark:text-amber-400 font-medium">
-              {sessionLabel(activeSession)}
-            </span>
-          )}
+          {activeSession && <ActiveSessionLabel session={activeSession} />}
         </span>
       </label>
       {!checked && (
@@ -73,11 +76,11 @@ export function TaskRow({ task, curriculumId }: { task: Task; curriculumId: stri
                 navigate(`/topic/${curriculumId}/${task.id}`);
               }}
             >
-              Start over
+              <Trans>Start over</Trans>
             </Button>
           )}
           <Button size="xs" variant="primary" onClick={() => navigate(`/topic/${curriculumId}/${task.id}`)}>
-            {activeSession ? "Continue" : "Start"}
+            {activeSession ? <Trans>Continue</Trans> : <Trans>Start</Trans>}
           </Button>
         </div>
       )}
