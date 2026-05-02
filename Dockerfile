@@ -21,14 +21,13 @@ RUN npx react-router build
 FROM base AS production
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
-COPY --from=build /app/packages/web/package.json packages/web/
-COPY --from=build /app/packages/cv/package.json packages/cv/
-COPY --from=build /app/packages/job-search/package.json packages/job-search/
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=deps /app/packages/web/package.json packages/web/
+COPY --from=deps /app/packages/cv/package.json packages/cv/
+COPY --from=deps /app/packages/job-search/package.json packages/job-search/
 RUN pnpm install --frozen-lockfile --filter web... --prod
 COPY --from=build /app/packages/web/build packages/web/build
 COPY --from=build /app/packages/web/node_modules/@prisma/client-generated packages/web/node_modules/@prisma/client-generated
-COPY --from=build /app/packages/web/node_modules/.prisma packages/web/node_modules/.prisma
 EXPOSE 3000
 WORKDIR /app/packages/web
 CMD ["pnpm", "react-router-serve", "./build/server/index.js"]
