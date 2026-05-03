@@ -46,8 +46,10 @@ export const handle: BreadcrumbHandle = {
 };
 
 function TopicBreadcrumb() {
-  const { task, curriculumName } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
   const { curriculumId } = useParams<{ curriculumId: string }>();
+  if (!data) return null;
+  const { task, curriculumName } = data;
   return (
     <>
       <Breadcrumbs.Link href={`/curriculum/${curriculumId}`}>{curriculumName}</Breadcrumbs.Link>
