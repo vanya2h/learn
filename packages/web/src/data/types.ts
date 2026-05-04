@@ -14,6 +14,12 @@ export const PhaseSchema = z.object({
   tasks: z.array(TaskSchema).min(1),
 });
 
+export const OutlinePhaseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  subtitle: z.string(),
+});
+
 export const SkillSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -30,12 +36,32 @@ export const CurriculumDefSchema = z.object({
   coverImage: z.string().optional(),
 });
 
+export const CurriculumOutlineSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  phases: z.array(OutlinePhaseSchema).min(1),
+  skills: z.array(SkillSchema).optional(),
+});
+
 export type Task = z.infer<typeof TaskSchema>;
 export type Phase = z.infer<typeof PhaseSchema>;
+export type OutlinePhase = z.infer<typeof OutlinePhaseSchema>;
 export type Skill = z.infer<typeof SkillSchema>;
 export type CurriculumDef = z.infer<typeof CurriculumDefSchema>;
+export type CurriculumOutline = z.infer<typeof CurriculumOutlineSchema>;
 
 export function parseCurriculumDef(data: unknown): CurriculumDef | null {
   const result = CurriculumDefSchema.safeParse(data);
+  return result.success ? result.data : null;
+}
+
+export function parseCurriculumOutline(data: unknown): CurriculumOutline | null {
+  const result = CurriculumOutlineSchema.safeParse(data);
+  return result.success ? result.data : null;
+}
+
+export function parsePhase(data: unknown): Phase | null {
+  const result = PhaseSchema.safeParse(data);
   return result.success ? result.data : null;
 }

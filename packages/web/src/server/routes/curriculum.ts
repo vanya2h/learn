@@ -5,7 +5,7 @@ import { Hono } from "hono";
 import { extractText, getDocumentProxy } from "unpdf";
 import { z } from "zod";
 import { CUSTOM_CURRICULUM_COVER } from "../../data/cover-image";
-import { PhaseSchema, SkillSchema } from "../../data/types";
+import { OutlinePhaseSchema, PhaseSchema, SkillSchema } from "../../data/types";
 import type { Locale } from "../../lib/i18n";
 import { LOCALES, localizeSystem } from "../../lib/i18n";
 import { db } from "../db";
@@ -50,39 +50,88 @@ Rules:
 - Output ONLY valid JSON — no markdown fences, no commentary.
 - If the user provides feedback, incorporate it into the revised curriculum.`;
 
-const generateSchema = z.object({
-  url: z.url(),
-  feedback: z.string().optional(),
-  locale: z.enum(LOCALES).optional(),
-});
+const OUTLINE_SYSTEM = `You generate interview-prep curriculum outlines from job postings.
 
-const generateFromPdfSchema = z.object({
-  file: z.instanceof(File),
-  feedback: z.string().optional(),
-  locale: z.enum(LOCALES).optional(),
-});
+The user will provide a job posting's text content. Analyze it and produce a JSON object matching this TypeScript type:
 
-const saveSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
-  jobUrl: z.url().optional(),
-  phases: z.array(PhaseSchema).min(1),
-  skills: z.array(SkillSchema).optional(),
-});
+\`\`\`ts
+type CurriculumOutline = {
+  id: string;          // kebab-case slug, e.g. "stripe-senior-frontend"
+  name: string;        // "Company — Role Prep"
+  description: string; // one-sentence summary
+  phases: PhaseOutline[];  // 4-7 phases, ordered: foundations → domain → advanced → mock interviews
+  skills: Skill[];     // one skill unlocked per phase
+};
+type PhaseOutline = {
+  id: string;          // kebab-case, prefixed per domain (e.g. "fe-", "sys-", "algo-", "co-")
+  title: string;
+  subtitle: string;    // one sentence describing what this phase prepares the candidate for
+};
+type Skill = {
+  id: string;
+  name: string;
+  description: string;
+  unlockedBy: { phaseId: string }; // references a phase id
+};
+\`\`\`
 
-function streamCurriculum(textContent: string, feedback: string | undefined, locale: Locale | undefined): Response {
+Rules:
+- Tailor phases to the SPECIFIC job requirements.
+- Do NOT include tasks — only phase structure and skills.
+- All IDs must be unique and kebab-case.
+- Always end with a "mock interview + practice" phase and a "company research" phase.
+- Output ONLY valid JSON — no markdown fences, no commentary.
+- If the user provides feedback, incorporate it into the revised outline.`;
+
+const PHASE_SYSTEM = `You generate the tasks for one specific phase of an interview-prep curriculum.
+
+The user provides the job posting, the full curriculum outline, any already-generated phases (for context), and which phase index to generate.
+
+Produce a JSON object for JUST that one phase:
+
+\`\`\`ts
+type Phase = {
+  id: string;         // match the id from the outline exactly
+  title: string;      // match the title from the outline exactly
+  subtitle: string;   // match the subtitle from the outline exactly
+  tasks: Task[];      // 4-8 tasks
+};
+type Task = {
+  id: string;         // kebab-case, use the phase id as a prefix (e.g. "fe-basics-read-docs")
+  title: string;      // actionable: "Read X", "Build Y", "Practice Z", "Watch X"
+  estMinutes: number; // realistic: reading 60-120, building 120-240, review 30-60
+};
+\`\`\`
+
+Rules:
+- Copy the phase id, title, subtitle exactly from the outline.
+- Tasks must be concrete and actionable — not vague. Each scoped to a single sitting.
+- Do not duplicate tasks that appear in already-generated phases.
+- Output ONLY valid JSON — no markdown fences, no commentary.
+- If the user provides feedback, incorporate it.`;
+
+const PDF_FALLBACK_HINT =
+  "Couldn't read the job posting from this URL — many sites render content with JavaScript and aren't readable as plain HTML. Try opening the page in your browser, saving it as a PDF, and using the PDF upload option instead.";
+
+function cleanHtml(html: string): string {
+  return html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 15000);
+}
+
+function streamLLM(system: string, userMessage: string, locale: Locale | undefined, maxTokens = 4000): Response {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
-
-  const userMessage = feedback
-    ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
-    : `Job posting:\n\n${textContent}`;
 
   const anthropic = new Anthropic({ apiKey });
   const stream = anthropic.messages.stream({
     model: "claude-sonnet-4-6",
-    max_tokens: 4000,
-    system: locale ? localizeSystem(locale, GENERATE_SYSTEM) : GENERATE_SYSTEM,
+    max_tokens: maxTokens,
+    system: locale ? localizeSystem(locale, system) : system,
     messages: [{ role: "user", content: userMessage }],
   });
 
@@ -96,7 +145,7 @@ function streamCurriculum(textContent: string, feedback: string | undefined, loc
         }
         controller.close();
       } catch (err) {
-        console.error("[curriculum/generate] stream error:", err);
+        console.error("[curriculum] stream error:", err);
         controller.error(err);
       }
     },
@@ -114,36 +163,142 @@ function streamCurriculum(textContent: string, feedback: string | undefined, loc
   });
 }
 
-export const curriculumRoute = new Hono<AuthEnv>()
-  .post("/curriculums/generate", zValidator("json", generateSchema), async (c) => {
-    const { url, feedback, locale } = c.req.valid("json");
-    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+const generateSchema = z.object({
+  url: z.url(),
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
 
-    const pdfFallbackHint =
-      "Couldn't read the job posting from this URL — many sites render content with JavaScript and aren't readable as plain HTML. Try opening the page in your browser, saving it as a PDF, and using the PDF upload option instead.";
+const generateFromPdfSchema = z.object({
+  file: z.instanceof(File),
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
+
+const extractSchema = z.object({ url: z.url() });
+const extractPdfSchema = z.object({ file: z.instanceof(File) });
+
+const generateOutlineSchema = z.object({
+  textContent: z.string().min(100),
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
+
+const generatePhaseSchema = z.object({
+  textContent: z.string().min(100),
+  outline: z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string().optional(),
+    phases: z.array(OutlinePhaseSchema).min(1),
+    skills: z.array(SkillSchema).optional(),
+  }),
+  phaseIndex: z.number().int().min(0),
+  completedPhases: z.array(PhaseSchema).optional(),
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
+
+const saveSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  jobUrl: z.url().optional(),
+  phases: z.array(PhaseSchema).min(1),
+  skills: z.array(SkillSchema).optional(),
+});
+
+export const curriculumRoute = new Hono<AuthEnv>()
+  .post("/curriculums/extract", zValidator("json", extractSchema), async (c) => {
+    const { url } = c.req.valid("json");
 
     let pageText: string;
     try {
       const res = await fetch(url, {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; CurriculumBot/1.0)" },
       });
-      if (!res.ok) return c.json({ error: pdfFallbackHint }, 400);
+      if (!res.ok) return c.json({ error: PDF_FALLBACK_HINT }, 400);
       pageText = await res.text();
     } catch {
-      return c.json({ error: pdfFallbackHint }, 400);
+      return c.json({ error: PDF_FALLBACK_HINT }, 400);
     }
 
-    const textContent = pageText
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 15000);
+    const text = cleanHtml(pageText);
+    if (text.length < 300) return c.json({ error: PDF_FALLBACK_HINT }, 400);
+    return c.json({ text });
+  })
+  .post("/curriculums/extract-pdf", zValidator("form", extractPdfSchema), async (c) => {
+    const { file } = c.req.valid("form");
+    if (file.type !== "application/pdf") return c.json({ error: "File must be a PDF" }, 400);
 
-    if (textContent.length < 300) return c.json({ error: pdfFallbackHint }, 400);
+    let text: string;
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      const pdf = await getDocumentProxy(buffer);
+      const { text: raw } = await extractText(pdf, { mergePages: true });
+      text = raw.replace(/\s+/g, " ").trim().slice(0, 15000);
+    } catch (err) {
+      console.error("[curriculum/extract-pdf] parse error:", err);
+      return c.json({ error: "Failed to parse PDF" }, 400);
+    }
 
-    return streamCurriculum(textContent, feedback, locale);
+    if (!text) return c.json({ error: "PDF contained no extractable text" }, 400);
+    return c.json({ text });
+  })
+  .post("/curriculums/generate-outline", zValidator("json", generateOutlineSchema), async (c) => {
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+    const { textContent, feedback, locale } = c.req.valid("json");
+
+    const userMessage = feedback
+      ? `Job posting:\n\n${textContent}\n\nFeedback on previous outline:\n${feedback}`
+      : `Job posting:\n\n${textContent}`;
+
+    return streamLLM(OUTLINE_SYSTEM, userMessage, locale, 2000);
+  })
+  .post("/curriculums/generate-phase", zValidator("json", generatePhaseSchema), async (c) => {
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+    const { textContent, outline, phaseIndex, completedPhases, feedback, locale } = c.req.valid("json");
+
+    if (phaseIndex >= outline.phases.length) return c.json({ error: "Invalid phase index" }, 400);
+
+    const phase = outline.phases[phaseIndex]!;
+    const completedSection =
+      completedPhases && completedPhases.length > 0
+        ? `\nAlready generated phases (for context — do not duplicate tasks):\n${JSON.stringify(completedPhases, null, 2)}\n`
+        : "";
+
+    const userMessage = [
+      `Job posting:\n\n${textContent}`,
+      `\n\nCurriculum outline:\n${JSON.stringify(outline, null, 2)}`,
+      completedSection,
+      `\n\nGenerate tasks for phase ${phaseIndex + 1} of ${outline.phases.length}: "${phase.title}" (id: "${phase.id}")`,
+      feedback ? `\n\nFeedback to incorporate: ${feedback}` : "",
+    ].join("");
+
+    return streamLLM(PHASE_SYSTEM, userMessage, locale, 1500);
+  })
+  .post("/curriculums/generate", zValidator("json", generateSchema), async (c) => {
+    const { url, feedback, locale } = c.req.valid("json");
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+
+    let pageText: string;
+    try {
+      const res = await fetch(url, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; CurriculumBot/1.0)" },
+      });
+      if (!res.ok) return c.json({ error: PDF_FALLBACK_HINT }, 400);
+      pageText = await res.text();
+    } catch {
+      return c.json({ error: PDF_FALLBACK_HINT }, 400);
+    }
+
+    const textContent = cleanHtml(pageText);
+    if (textContent.length < 300) return c.json({ error: PDF_FALLBACK_HINT }, 400);
+
+    const userMessage = feedback
+      ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
+      : `Job posting:\n\n${textContent}`;
+
+    return streamLLM(GENERATE_SYSTEM, userMessage, locale);
   })
   .post("/curriculums/generate-from-pdf", zValidator("form", generateFromPdfSchema), async (c) => {
     const { file, feedback, locale } = c.req.valid("form");
@@ -163,7 +318,11 @@ export const curriculumRoute = new Hono<AuthEnv>()
 
     if (!textContent) return c.json({ error: "PDF contained no extractable text" }, 400);
 
-    return streamCurriculum(textContent, feedback, locale);
+    const userMessage = feedback
+      ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
+      : `Job posting:\n\n${textContent}`;
+
+    return streamLLM(GENERATE_SYSTEM, userMessage, locale);
   })
   .post("/curriculums", zValidator("json", saveSchema), async (c) => {
     const userId = c.get("user").id;
