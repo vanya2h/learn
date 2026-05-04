@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { DetailedError, hc, parseResponse } from "hono/client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useRevalidator } from "react-router";
 import { useRootData } from "../../../app/hooks/useRootData";
 import type { CurriculumOutline, Phase, Task } from "../../data/types";
@@ -8,12 +8,40 @@ import { parseCurriculumOutline, parsePhase } from "../../data/types";
 import { readSSEStream } from "../../lib/claude";
 import type { Locale } from "../../lib/i18n";
 import { parseJSON } from "../../lib/json";
+import { createVersionedStorage } from "../../lib/storage";
 import type { AppType } from "../../server/app";
 
 const client = hc<AppType>("/");
 
 export type BuilderStep = "idle" | "extracting" | "generating-outline" | "outline-review" | "phase-view" | "saving";
 export type InputMode = "url" | "pdf" | null;
+
+// ─── persistence ────────────────────────────────────────────────────────────
+
+type PersistedBuilderState = {
+  textContent: string;
+  outline: CurriculumOutline;
+  selectedPhaseIds: string[];
+  generatedPhases: Record<string, Phase>;
+  deselectedTaskIds: string[];
+  step: "outline-review" | "phase-view";
+  currentPageIndex: number;
+};
+
+const builderStorage = createVersionedStorage<PersistedBuilderState>("curriculum-builder:", 1);
+
+async function computeIdentifier(inputMode: InputMode, url: string, pdfFile: File | null): Promise<string | null> {
+  if (inputMode === "url" && url) return `url:${url}`;
+  if (inputMode === "pdf" && pdfFile) {
+    const buffer = await pdfFile.arrayBuffer();
+    const hash = await crypto.subtle.digest("SHA-256", buffer);
+    const hex = [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    return `pdf:${hex}`;
+  }
+  return null;
+}
+
+// ─── hook ────────────────────────────────────────────────────────────────────
 
 export function useCurriculumBuilder() {
   const { t } = useLingui();
@@ -35,8 +63,44 @@ export function useCurriculumBuilder() {
   const navigate = useNavigate();
   const { revalidate } = useRevalidator();
 
+  const identifierRef = useRef<string | null>(null);
+
+  // Auto-save whenever meaningful state changes
+  useEffect(() => {
+    const id = identifierRef.current;
+    if (!id || !outline || (step !== "outline-review" && step !== "phase-view")) return;
+    builderStorage.set(id, {
+      textContent,
+      outline,
+      selectedPhaseIds,
+      generatedPhases,
+      deselectedTaskIds: [...deselectedTaskIds],
+      step,
+      currentPageIndex,
+    });
+  }, [outline, selectedPhaseIds, generatedPhases, deselectedTaskIds, step, currentPageIndex, textContent]);
+
   async function start() {
     setError(null);
+
+    const id = await computeIdentifier(inputMode, url, pdfFile);
+    identifierRef.current = id;
+
+    if (id) {
+      const saved = builderStorage.get(id);
+      if (saved) {
+        setTextContent(saved.textContent);
+        setOutline(saved.outline);
+        setSelectedPhaseIds(saved.selectedPhaseIds);
+        setGeneratedPhases(saved.generatedPhases);
+        setDeselectedTaskIds(new Set(saved.deselectedTaskIds));
+        setCurrentPageIndex(saved.currentPageIndex);
+        setGeneratingPhaseId(null);
+        setStep(saved.step);
+        return;
+      }
+    }
+
     setOutline(null);
     setSelectedPhaseIds([]);
     setGeneratedPhases({});
@@ -218,6 +282,9 @@ export function useCurriculumBuilder() {
           },
         }),
       );
+      const id = identifierRef.current;
+      if (id) builderStorage.remove(id);
+      identifierRef.current = null;
       revalidate();
       void navigate("/");
     } catch {
@@ -227,6 +294,9 @@ export function useCurriculumBuilder() {
   }
 
   function startOver() {
+    const id = identifierRef.current;
+    if (id) builderStorage.remove(id);
+    identifierRef.current = null;
     setStep("idle");
     setOutline(null);
     setSelectedPhaseIds([]);
