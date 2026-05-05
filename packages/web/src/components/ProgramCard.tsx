@@ -1,16 +1,15 @@
 import { useLingui } from "@lingui/react/macro";
 import clsx from "clsx";
-import { Link } from "react-router";
+import { Link, LinkProps } from "react-router";
 import type { CurriculumDef } from "../data/types";
 import { Meter } from "./ui/Meter";
 
-type Props = {
+export type ProgramCardProps = Omit<LinkProps, "to"> & {
   curriculum: CurriculumDef;
   progress: number;
-  className?: string;
 };
 
-export function ProgramCard({ curriculum, progress, className }: Props) {
+export function ProgramCard({ curriculum, progress, className, ...restProps }: ProgramCardProps) {
   const { t } = useLingui();
   const { coverImage, complexity, name, description, id } = curriculum;
 
@@ -23,6 +22,7 @@ export function ProgramCard({ curriculum, progress, className }: Props) {
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30",
         className,
       )}
+      {...restProps}
     >
       {coverImage ? (
         <div className="relative aspect-video overflow-hidden">

@@ -16,9 +16,6 @@
     "db:studio": "pnpm withenv -- prisma studio",
     "db:reset": "pnpm withenv -- prisma migrate reset",
     "withenv": "dotenv -e ../../.env",
-    "measure-tokens": "dotenv -e ../../.env tsx scripts/measure-tokens.ts",
-    "db:backfill-covers": "pnpm withenv -- tsx scripts/backfill-cover-images.ts",
-    "cover:refresh": "pnpm withenv -- tsx scripts/refresh-cover-image.ts",
     "test": "vitest run",
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile"

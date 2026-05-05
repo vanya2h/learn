@@ -16,6 +16,7 @@ Read **only** the `_index.md` files for the domains that apply to this task:
 
 | Domain | Index file | When to read |
 |---|---|---|
+| Visual design reference | `DESIGN.md` (repo root) | Any layout, styling, markup, color, spacing, typography, radius, shadow, or component-visual change. `DESIGN.md` is the authoritative source of truth for the project's visual language — read it before choosing concrete values. |
 | CSS / Tailwind | `.claude/skills/code/css/_index.md` | Any `.css` file or Tailwind class changes |
 | TypeScript | `.claude/skills/code/typescript/_index.md` | Any `.ts` or `.tsx` file |
 | React components | `.claude/skills/code/react/_index.md` | Any component file under `src/components/` or `app/routes/` |
