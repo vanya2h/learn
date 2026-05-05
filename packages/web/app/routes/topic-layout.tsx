@@ -5,11 +5,12 @@ import { Text } from "@cloudflare/kumo/components/text";
 import { Trans } from "@lingui/react/macro";
 import { Outlet, useLoaderData, useNavigate, useParams } from "react-router";
 import { redirect } from "react-router";
-import { CURRICULUMS } from "../../src/data/curriculum";
+import { CURRICULUMS_BY_LOCALE } from "../../src/data/curriculum";
 import type { CurriculumDef } from "../../src/data/types";
 import { parseCurriculumDef } from "../../src/data/types";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
+import { getLocaleFromRequest } from "../../src/lib/i18n";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
@@ -41,7 +42,8 @@ function findTask(curriculums: CurriculumDef[], taskId: string) {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
 
-  const found = findTask(CURRICULUMS, params.taskId);
+  const locale = getLocaleFromRequest(request);
+  const found = findTask(CURRICULUMS_BY_LOCALE[locale], params.taskId);
   if (found) return found;
 
   const custom = await db.customCurriculum.findMany({ where: { userId: session.user.id } });

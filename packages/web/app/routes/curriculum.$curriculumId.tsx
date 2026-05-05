@@ -1,9 +1,10 @@
 import { Breadcrumbs } from "@cloudflare/kumo/components/breadcrumbs";
 import { useParams } from "react-router";
 import { CurriculumView } from "../../src/components/CurriculumView";
-import { CURRICULUMS } from "../../src/data/curriculum";
+import { CURRICULUMS_BY_LOCALE } from "../../src/data/curriculum";
 import { useAllCurriculums } from "../../src/hooks/useAllCurriculums";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
+import { getLocaleFromRequest } from "../../src/lib/i18n";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/curriculum.$curriculumId";
@@ -24,7 +25,8 @@ export function meta({ data }: Route.MetaArgs): Route.MetaDescriptors {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
 
-  const staticCurriculum = CURRICULUMS.find((c) => c.id === params.curriculumId);
+  const locale = getLocaleFromRequest(request);
+  const staticCurriculum = CURRICULUMS_BY_LOCALE[locale].find((c) => c.id === params.curriculumId);
   if (staticCurriculum) return { curriculumName: staticCurriculum.name };
 
   const custom = await db.customCurriculum.findFirst({

@@ -31,12 +31,12 @@ type Phase = {
 };
 type Task = {
   id: string;          // kebab-case, prefixed with short phase abbrev
-  title: string;       // actionable: "Read X", "Build Y", "Practice Z"
+  title: string;       // short topic phrase, e.g. "REST API pagination, auth patterns, rate limiting" — NOT full sentences like "Read and annotate X"
   estMinutes: number;  // realistic: reading 60-120, building 120-240, review 30-60
 };
 type Skill = {
   id: string;
-  name: string;
+  name: string;        // MUST be a specific technology/domain, e.g. "Java Core Fundamentals", "React Native Basics", "Kubernetes Operations" — NEVER generic labels like "Interview Readiness" or "Job Ready"
   description: string;
   unlockedBy: { phaseId: string }; // references a phase id
 };
@@ -44,9 +44,10 @@ type Skill = {
 
 Rules:
 - Tailor phases to the SPECIFIC job requirements. If the job needs Kubernetes, include a Kubernetes phase. If it's frontend, make system design frontend-flavored.
-- Tasks must be concrete and actionable — not vague. Each scoped to a single sitting.
+- Task titles must be short topic phrases (under 10 words), not full sentences. Good: "React reconciliation and fiber internals". Bad: "Read and annotate a comprehensive guide to React reconciliation".
 - All IDs must be unique and kebab-case.
 - Always include a "mock interview + practice" phase and a "company research" phase at the end.
+- Skills must name a concrete technical domain mastered (e.g. "TypeScript Proficiency", "System Design Fundamentals", "React Native Basics"). Never use generic process labels like "Interview Readiness", "Mock Interview Complete", or "Job Ready".
 - Output ONLY valid JSON — no markdown fences, no commentary.
 - If the user provides feedback, incorporate it into the revised curriculum.`;
 
@@ -69,7 +70,7 @@ type PhaseOutline = {
 };
 type Skill = {
   id: string;
-  name: string;
+  name: string;        // MUST be a specific technology/domain, e.g. "Java Core Fundamentals", "React Native Basics", "Kubernetes Operations" — NEVER generic labels like "Interview Readiness" or "Job Ready"
   description: string;
   unlockedBy: { phaseId: string }; // references a phase id
 };
@@ -80,13 +81,14 @@ Rules:
 - Do NOT include tasks — only phase structure and skills.
 - All IDs must be unique and kebab-case.
 - Always end with a "mock interview + practice" phase and a "company research" phase.
+- Skills must name a concrete technical domain mastered (e.g. "TypeScript Proficiency", "System Design Fundamentals", "React Native Basics"). Never use generic process labels like "Interview Readiness", "Mock Interview Complete", or "Job Ready".
 - Output ONLY valid JSON — no markdown fences, no commentary.
 - If the user provides feedback, incorporate it into the revised outline.
 
 Complexity mode rules (the mode is specified in the user message):
-- easy: 2–3 phases total. Pick only the highest-impact topics. Skip anything supplementary or advanced.
-- medium: 3–6 phases. Cover core requirements plus key supporting topics.
-- deep: 5–9 phases. Comprehensive coverage including advanced topics, system design depth, and exploratory areas.`;
+- easy: 2-3 phases total. Pick only the highest-impact topics. Skip anything supplementary or advanced.
+- medium: 3-6 phases. Cover core requirements plus key supporting topics.
+- deep: 5-9 phases. Comprehensive coverage including advanced topics, system design depth, and exploratory areas.`;
 
 const PHASE_SYSTEM = `You generate the tasks for one specific phase of an interview-prep curriculum.
 
@@ -103,22 +105,22 @@ type Phase = {
 };
 type Task = {
   id: string;         // kebab-case, use the phase id as a prefix (e.g. "fe-basics-read-docs")
-  title: string;      // actionable: "Read X", "Build Y", "Practice Z", "Watch X"
+  title: string;      // short topic phrase, e.g. "REST API pagination, auth patterns, rate limiting" — NOT full sentences like "Read and annotate X"
   estMinutes: number; // realistic: reading 60-120, building 120-240, review 30-60
 };
 \`\`\`
 
 Rules:
 - Copy the phase id, title, subtitle exactly from the outline.
-- Tasks must be concrete and actionable — not vague. Each scoped to a single sitting.
+- Task titles must be short topic phrases (under 10 words), not full sentences. Good: "React reconciliation and fiber internals". Bad: "Read and annotate a comprehensive guide to React reconciliation".
 - Do not duplicate tasks that appear in already-generated phases.
 - Output ONLY valid JSON — no markdown fences, no commentary.
 - If the user provides feedback, incorporate it.
 
 Complexity mode rules (the mode is specified in the user message):
-- easy: 3–5 tasks. Prefer reading and watching (30–90 min each). No open-ended builds or research.
-- medium: 5–7 tasks. Mix of reading and structured hands-on exercises (45–150 min each).
-- deep: 6–8 tasks. Include reading, guided builds, and open-ended research or project challenges (60–240 min each).`;
+- easy: 3-5 tasks. Prefer reading and watching (30-90 min each). No open-ended builds or research.
+- medium: 5-7 tasks. Mix of reading and structured hands-on exercises (45-150 min each).
+- deep: 6-8 tasks. Include reading, guided builds, and open-ended research or project challenges (60-240 min each).`;
 
 const PDF_FALLBACK_HINT =
   "Couldn't read the job posting from this URL — many sites render content with JavaScript and aren't readable as plain HTML. Try opening the page in your browser, saving it as a PDF, and using the PDF upload option instead.";
