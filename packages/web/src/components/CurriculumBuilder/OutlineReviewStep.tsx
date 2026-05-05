@@ -19,14 +19,16 @@ export function OutlineReviewStep({
 }) {
   return (
     <div className="mt-6 flex flex-col gap-6">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-foreground mb-1">{outline.name}</h2>
           {outline.description && <p className="text-sm text-muted-foreground">{outline.description}</p>}
         </div>
-        <Button size="sm" type="button" onClick={onStartOver}>
-          <Trans>← Start over</Trans>
-        </Button>
+        <div className="shrink-0">
+          <Button size="sm" type="button" onClick={onStartOver}>
+            <Trans>← Start over</Trans>
+          </Button>
+        </div>
       </div>
 
       <div>

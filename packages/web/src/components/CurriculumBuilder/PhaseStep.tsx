@@ -2,8 +2,8 @@ import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import clsx from "clsx";
 import type { OutlinePhase, Phase, Task } from "../../data/types";
-import { DotLoader } from "../Spinner";
 import { Button } from "../ui/Button";
+import { Spinner } from "../ui/Spinner";
 import { BuilderTaskRow } from "./BuilderTaskRow";
 
 export function PhaseStep({
@@ -45,15 +45,17 @@ export function PhaseStep({
 
   return (
     <div className="mt-6">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center gap-4 mb-2">
         <p className="text-xs text-muted-foreground">
           <Trans>
             Phase {currentPageIndex + 1} of {total}
           </Trans>
         </p>
-        <Button size="sm" type="button" onClick={onStartOver} disabled={isGenerating}>
-          <Trans>← Start over</Trans>
-        </Button>
+        <div className="shrink-0">
+          <Button size="sm" type="button" onClick={onStartOver} disabled={isGenerating}>
+            <Trans>← Start over</Trans>
+          </Button>
+        </div>
       </div>
 
       <h2 className="text-2xl font-semibold text-foreground mb-1">{outlinePhase.title}</h2>
@@ -62,7 +64,7 @@ export function PhaseStep({
       {isGeneratingThis && !generatedPhase && (
         <>
           <div className="flex items-center gap-2 mb-4 text-foreground/40">
-            <DotLoader />
+            <Spinner size="sm" />
             <p className="text-sm">
               <Trans>Generating phase...</Trans>
             </p>

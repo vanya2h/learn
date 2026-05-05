@@ -84,7 +84,7 @@ export default function FeedbackPage() {
         {feedback || streaming ? (
           <Markdown isAnimating={streaming}>{feedback}</Markdown>
         ) : (
-          <div className="flex items-center gap-2 text-foreground/40">
+          <div className="flex items-center justify-center gap-2 text-foreground/40">
             <DotLoader />
             <p className="text-sm">
               <Trans>Evaluating your answers…</Trans>

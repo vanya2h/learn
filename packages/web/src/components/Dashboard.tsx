@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro";
+import { PlusIcon } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { useMemo } from "react";
 import { Link } from "react-router";
@@ -121,7 +122,7 @@ export function Dashboard() {
             split="char"
             animation="animate-soft-blur-in"
             stagger={25}
-            className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white max-w-3xl"
+            className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-foreground max-w-3xl"
           />
           <AnimatedText
             as="p"
@@ -130,10 +131,10 @@ export function Dashboard() {
             animation="animate-word-rise"
             stagger={70}
             delay={500}
-            className="mt-6 text-lg sm:text-xl lg:text-2xl text-white/70 max-w-2xl"
+            className="mt-6 text-lg sm:text-xl lg:text-2xl text-foreground/70 max-w-2xl"
           />
           <Button
-            variant="on-dark"
+            variant="primary"
             size="base"
             render={<Link to="/curriculum/new" />}
             className="mt-10 active:scale-[0.98] transition-all animate-fade-rise [animation-delay:1500ms]"
@@ -161,11 +162,12 @@ export function Dashboard() {
             to="/curriculum/new"
             className={clsx(
               CELL_BORDERS,
-              "flex items-center justify-center min-h-50 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors",
+              "group flex flex-col items-center justify-center gap-4 min-h-60 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors",
             )}
           >
-            <span className="text-sm font-medium">
-              <Trans>+ Create new program</Trans>
+            <PlusIcon size={48} weight="bold" className="transition-transform duration-300 group-hover:scale-110" />
+            <span className="text-lg font-semibold">
+              <Trans>Create personal program</Trans>
             </span>
           </Link>
         </div>

@@ -1,6 +1,5 @@
 import { Trans } from "@lingui/react/macro";
 import { LoadingState } from "../LoadingState";
-import { DotLoader } from "../Spinner";
 import { InputModePicker, PdfInput, UrlInput } from "./InputStep";
 import { OutlineReviewStep } from "./OutlineReviewStep";
 import { PhaseStep } from "./PhaseStep";
@@ -104,14 +103,7 @@ export function CurriculumBuilder() {
         />
       )}
 
-      {step === "saving" && (
-        <div className="mt-6 flex items-center gap-2">
-          <DotLoader />
-          <span className="text-sm text-muted-foreground">
-            <Trans>Saving...</Trans>
-          </span>
-        </div>
-      )}
+      {step === "saving" && <LoadingState>Saving..</LoadingState>}
     </div>
   );
 }
