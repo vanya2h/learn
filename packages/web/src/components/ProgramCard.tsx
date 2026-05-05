@@ -29,7 +29,7 @@ export function ProgramCard({ curriculum, progress, className }: Props) {
           <img
             src={coverImage}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-out opacity-70 group-hover:scale-[1.04] group-hover:opacity-100"
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-[1.04]"
           />
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/80" />
           {complexity && (

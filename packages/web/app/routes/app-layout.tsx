@@ -1,4 +1,5 @@
 import { Outlet } from "react-router";
+import { Footer } from "../../src/components/Footer";
 import { GridBackground } from "../../src/components/GridBg";
 import { Header } from "../../src/components/Header";
 
@@ -8,6 +9,7 @@ export default function AppLayout() {
       <GridBackground />
       <Header />
       <Outlet />
+      <Footer />
     </div>
   );
 }
