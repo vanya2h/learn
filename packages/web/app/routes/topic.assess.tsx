@@ -1,9 +1,9 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
+import { LoadingState } from "../../src/components/LoadingState";
 import { Button } from "../../src/components/ui/Button";
 import { Textarea } from "../../src/components/ui/Input";
-import { Spinner } from "../../src/components/ui/Spinner";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import { parseJSON } from "../../src/lib/json";
@@ -88,12 +88,9 @@ export default function AssessPage() {
 
   if (loading || !questions) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <Spinner size="sm" />
-        <p className="text-sm text-muted-foreground">
-          <Trans>Preparing assessment questions…</Trans>
-        </p>
-      </div>
+      <LoadingState>
+        <Trans>Preparing assessment questions…</Trans>
+      </LoadingState>
     );
   }
 

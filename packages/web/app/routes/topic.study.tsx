@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
-import { Spinner } from "../../src/components/ui/Spinner";
+import { DotLoader } from "../../src/components/Spinner";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import type { Material, PhaseByKey } from "../../src/lib/phase";
@@ -223,7 +223,7 @@ export default function StudyPage() {
       {!part && (
         <>
           <div className="flex items-center gap-2 mb-6 text-foreground/40">
-            <Spinner size="sm" />
+            <DotLoader />
             <p className="text-sm">
               <Trans>Preparing study material…</Trans>
             </p>

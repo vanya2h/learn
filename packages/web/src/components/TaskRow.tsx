@@ -43,8 +43,8 @@ export function TaskRow({ task, curriculumId }: { task: Task; curriculumId: stri
   const activeSession = activeSessions[task.id];
 
   return (
-    <div className="group flex items-start gap-3 py-1.5 px-2 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800">
-      <label className="flex items-start gap-3 flex-1 min-w-0">
+    <div className="group flex items-center gap-3 py-1.5 px-2 rounded transition-colors hover:bg-foreground/10 hover:backdrop-blur-md">
+      <label className="flex items-center gap-3 flex-1 min-w-0">
         <input
           type="checkbox"
           checked={checked}

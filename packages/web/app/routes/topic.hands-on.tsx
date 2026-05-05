@@ -2,9 +2,9 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
+import { DotLoader } from "../../src/components/Spinner";
 import { Button } from "../../src/components/ui/Button";
 import { Textarea } from "../../src/components/ui/Input";
-import { Spinner } from "../../src/components/ui/Spinner";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { parsePersistedPhase, TASK_SOLUTION_SYSTEM } from "../../src/lib/phase";
@@ -108,7 +108,7 @@ export default function HandsOnPage() {
                 >
                   <Trans>See solution</Trans>
                 </Button>
-                {solutions[i]?.streaming && <Spinner size="sm" />}
+                {solutions[i]?.streaming && <DotLoader />}
               </div>
             </div>
 

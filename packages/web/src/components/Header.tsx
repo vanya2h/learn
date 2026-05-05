@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { MoonIcon, SunIcon } from "@phosphor-icons/react";
-import { Fragment } from "react";
+import clsx from "clsx";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useMatches, useNavigate } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
 import { useTheme } from "../hooks/useTheme";
@@ -46,6 +47,14 @@ export function Header() {
   const user = (useRootData()?.user ?? null) as AuthUser | null;
   const { toggle, theme } = useTheme();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const matches = useMatches();
   const crumbs = matches
@@ -53,7 +62,12 @@ export function Header() {
     .filter((b): b is BreadcrumbHandle["breadcrumb"] => typeof b === "function");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/50 backdrop-blur-md">
+    <header
+      className={clsx(
+        "sticky top-0 z-50 border-b border-border transition-colors duration-200",
+        scrolled ? "bg-background/50 backdrop-blur-md" : "bg-transparent",
+      )}
+    >
       <div className="px-6 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0 flex-1">
           <div className="shrink-0">

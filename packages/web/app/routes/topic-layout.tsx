@@ -1,16 +1,28 @@
 import { Outlet, useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { redirect } from "react-router";
 import { TopicHeader } from "../../src/components/TopicHeader";
+import { TopicSidebar } from "../../src/components/TopicSidebar";
 import { Breadcrumbs } from "../../src/components/ui/Breadcrumbs";
 import { CURRICULUMS_BY_LOCALE } from "../../src/data/curriculum";
 import type { CurriculumDef } from "../../src/data/types";
 import { parseCurriculumDef } from "../../src/data/types";
+import { useProgress } from "../../src/hooks/useProgress";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
 import { getLocaleFromRequest } from "../../src/lib/i18n";
+import { parsePersistedPhase } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
+
+const PHASE_TO_STAGE_INDEX: Record<string, number> = {
+  assessing: 1,
+  "gaps-review": 2,
+  study: 3,
+  "hands-on": 4,
+  feedback: 5,
+  "write-up": 6,
+};
 
 export function meta({ loaderData }: Route.MetaArgs): Route.MetaDescriptors {
   const title = loaderData?.task?.title;
@@ -42,17 +54,25 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
 
   const locale = getLocaleFromRequest(request);
-  const found = findTask(CURRICULUMS_BY_LOCALE[locale], params.taskId);
-  if (found) return found;
+  let taskInfo = findTask(CURRICULUMS_BY_LOCALE[locale], params.taskId);
 
-  const custom = await db.customCurriculum.findMany({ where: { userId: session.user.id } });
-  const customCurriculums = custom
-    .map((c) => parseCurriculumDef({ ...c, description: c.description ?? undefined }))
-    .filter((c) => c !== null);
-  const foundCustom = findTask(customCurriculums, params.taskId);
-  if (foundCustom) return foundCustom;
+  if (!taskInfo) {
+    const custom = await db.customCurriculum.findMany({ where: { userId: session.user.id } });
+    const customCurriculums = custom
+      .map((c) => parseCurriculumDef({ ...c, description: c.description ?? undefined }))
+      .filter((c) => c !== null);
+    taskInfo = findTask(customCurriculums, params.taskId);
+  }
 
-  return redirect(`/curriculum/${params.curriculumId}`);
+  if (!taskInfo) return redirect(`/curriculum/${params.curriculumId}`);
+
+  const record = await db.topicSession.findUnique({
+    where: { userId_taskId: { userId: session.user.id, taskId: params.taskId } },
+  });
+  const phase = parsePersistedPhase(record?.phaseData);
+  const highestStage = phase ? (PHASE_TO_STAGE_INDEX[phase.name] ?? 0) : 0;
+
+  return { ...taskInfo, highestStage };
 }
 
 export const handle: BreadcrumbHandle = {
@@ -76,10 +96,13 @@ function TopicBreadcrumb() {
 }
 
 export default function TopicLayout() {
-  const { task, curriculumName } = useLoaderData<typeof loader>();
+  const { task, curriculumName, highestStage } = useLoaderData<typeof loader>();
   const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { deleteSession } = useTopicSession(taskId!);
+  const { completedTaskIds } = useProgress();
+
+  const taskCompleted = !!completedTaskIds[taskId!];
 
   function goBack() {
     void navigate(`/curriculum/${curriculumId}`);
@@ -92,8 +115,13 @@ export default function TopicLayout() {
 
   return (
     <>
-      <TopicHeader taskTitle={task.title} curriculumName={curriculumName} onBack={goBack} onStartOver={startOver} />
-      <Outlet />
+      <TopicHeader taskTitle={task.title} curriculumName={curriculumName} onStartOver={startOver} />
+      <div className="flex flex-1">
+        <TopicSidebar highestStage={highestStage} taskCompleted={taskCompleted} onBack={goBack} />
+        <div className="flex-1 min-w-0 border-l border-border">
+          <Outlet />
+        </div>
+      </div>
     </>
   );
 }

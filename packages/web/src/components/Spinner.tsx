@@ -3,8 +3,27 @@
 import clsx from "clsx";
 import { ComponentProps, useCallback, useEffect, useRef } from "react";
 
+const game = [
+  [14, 7, 0, 8, 6, 13, 20],
+  [14, 7, 13, 20, 16, 27, 21],
+  [14, 20, 27, 21, 34, 24, 28],
+  [27, 21, 34, 28, 41, 32, 35],
+  [34, 28, 41, 35, 48, 40, 42],
+  [34, 28, 41, 35, 48, 42, 46],
+  [34, 28, 41, 35, 48, 42, 38],
+  [34, 28, 41, 35, 48, 30, 21],
+  [34, 28, 41, 48, 21, 22, 14],
+  [34, 28, 41, 21, 14, 16, 27],
+  [34, 28, 21, 14, 10, 20, 27],
+  [28, 21, 14, 4, 13, 20, 27],
+  [28, 21, 14, 12, 6, 13, 20],
+  [28, 21, 14, 6, 13, 20, 11],
+  [28, 21, 14, 6, 13, 20, 10],
+  [14, 6, 13, 20, 9, 7, 21],
+];
+
 type DotLoaderProps = {
-  frames: number[][];
+  frames?: number[][];
   dotClassName?: string;
   isPlaying?: boolean;
   duration?: number;
@@ -13,7 +32,7 @@ type DotLoaderProps = {
 } & ComponentProps<"div">;
 
 export const DotLoader = ({
-  frames,
+  frames = game,
   isPlaying = true,
   duration = 100,
   dotClassName,
@@ -75,7 +94,13 @@ export const DotLoader = ({
   return (
     <div {...props} ref={gridRef} className={clsx("grid w-fit grid-cols-7 gap-0.5", className)}>
       {Array.from({ length: 49 }).map((_, i) => (
-        <div key={i} className={clsx("h-1.5 w-1.5 rounded-sm", dotClassName)} />
+        <div
+          key={i}
+          className={clsx(
+            "h-1.5 w-1.5 rounded-sm bg-foreground/15 [&.active]:bg-foreground transition-colors",
+            dotClassName,
+          )}
+        />
       ))}
     </div>
   );

@@ -2,9 +2,9 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
+import { DotLoader } from "../../src/components/Spinner";
 import { Button } from "../../src/components/ui/Button";
 import { Textarea } from "../../src/components/ui/Input";
-import { Spinner } from "../../src/components/ui/Spinner";
 import { useProgress } from "../../src/hooks/useProgress";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
@@ -114,7 +114,7 @@ export default function WriteUpPage() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 <Trans>Tutor feedback</Trans>
               </p>
-              {streaming && <Spinner size="sm" />}
+              {streaming && <DotLoader />}
             </div>
             <Markdown isAnimating={streaming}>{feedback}</Markdown>
           </div>

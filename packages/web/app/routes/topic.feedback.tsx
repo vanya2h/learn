@@ -2,8 +2,8 @@ import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
+import { DotLoader } from "../../src/components/Spinner";
 import { Button } from "../../src/components/ui/Button";
-import { Spinner } from "../../src/components/ui/Spinner";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import type { PhaseByKey } from "../../src/lib/phase";
@@ -79,13 +79,13 @@ export default function FeedbackPage() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             <Trans>Feedback</Trans>
           </p>
-          {streaming && <Spinner size="sm" />}
+          {streaming && <DotLoader />}
         </div>
         {feedback || streaming ? (
           <Markdown isAnimating={streaming}>{feedback}</Markdown>
         ) : (
           <div className="flex items-center gap-2 text-foreground/40">
-            <Spinner size="sm" />
+            <DotLoader />
             <p className="text-sm">
               <Trans>Evaluating your answers…</Trans>
             </p>

@@ -1,9 +1,9 @@
 import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
+import { LoadingState } from "../../src/components/LoadingState";
 import { Badge } from "../../src/components/ui/Badge";
 import { Button } from "../../src/components/ui/Button";
-import { Spinner } from "../../src/components/ui/Spinner";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { parseJSON } from "../../src/lib/json";
@@ -66,18 +66,15 @@ export default function GapsPage() {
 
   if (!review) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Spinner size="sm" />
-        <p className="text-sm text-muted-foreground">
-          <Trans>Evaluating your answers…</Trans>
-        </p>
+      <LoadingState>
+        <Trans>Evaluating your answers…</Trans>
         {evalStream && (
-          <p className="text-xs text-foreground/40 max-w-sm text-center italic">
+          <p className="mt-2 text-xs text-foreground/40 max-w-sm italic">
             {evalStream.slice(0, 120)}
             {evalStream.length > 120 ? "…" : ""}
           </p>
         )}
-      </div>
+      </LoadingState>
     );
   }
 

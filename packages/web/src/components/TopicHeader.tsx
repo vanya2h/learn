@@ -5,16 +5,12 @@ import { Dialog } from "./ui/Dialog";
 type Props = {
   taskTitle: string;
   curriculumName: string;
-  onBack: () => void;
   onStartOver: () => void;
 };
 
-export function TopicHeader({ taskTitle, curriculumName, onBack, onStartOver }: Props) {
+export function TopicHeader({ taskTitle, curriculumName, onStartOver }: Props) {
   return (
     <header className="flex items-center gap-4 px-6 py-4 border-b border-border">
-      <Button onClick={onBack}>
-        <Trans>← Back</Trans>
-      </Button>
       <div className="min-w-0">
         <h1 className="text-lg font-semibold text-foreground truncate">{taskTitle}</h1>
         <p className="text-xs text-muted-foreground truncate">{curriculumName}</p>
