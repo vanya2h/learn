@@ -59,7 +59,6 @@ export function useCurriculumBuilder() {
   const [generatingPhaseId, setGeneratingPhaseId] = useState<string | null>(null);
   const [streamedTasks, setStreamedTasks] = useState<Task[]>([]);
   const [complexity, setComplexity] = useState<Complexity>("medium");
-  const [phaseFeedback, setPhaseFeedback] = useState("");
   const [deselectedTaskIds, setDeselectedTaskIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -236,18 +235,9 @@ export function useCurriculumBuilder() {
     const selectedPhases = outline?.phases.filter((p) => selectedPhaseIds.includes(p.id)) ?? [];
     const phaseId = selectedPhases[pageIndex]?.id;
     setCurrentPageIndex(pageIndex);
-    setPhaseFeedback("");
     if (phaseId && !currentGenerated[phaseId] && !generatingPhaseId) {
       void generatePhase(phaseId, currentGenerated);
     }
-  }
-
-  function handleRegenerate(currentGenerated: Record<string, Phase>) {
-    const selectedPhases = outline?.phases.filter((p) => selectedPhaseIds.includes(p.id)) ?? [];
-    const phaseId = selectedPhases[currentPageIndex]?.id;
-    if (!phaseId) return;
-    void generatePhase(phaseId, currentGenerated, phaseFeedback || undefined);
-    setPhaseFeedback("");
   }
 
   function togglePhase(phaseId: string) {
@@ -309,7 +299,6 @@ export function useCurriculumBuilder() {
     setGeneratedPhases({});
     setGeneratingPhaseId(null);
     setError(null);
-    setPhaseFeedback("");
     setDeselectedTaskIds(new Set());
   }
 
@@ -331,15 +320,12 @@ export function useCurriculumBuilder() {
     generatedPhases,
     generatingPhaseId,
     streamedTasks,
-    phaseFeedback,
-    setPhaseFeedback,
     deselectedTaskIds,
     error,
     selectedPhases,
     start,
     handleStartGenerating,
     handleNavigateTo,
-    handleRegenerate,
     togglePhase,
     toggleTask,
     save,

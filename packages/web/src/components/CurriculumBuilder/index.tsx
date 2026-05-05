@@ -48,15 +48,12 @@ export function CurriculumBuilder() {
     generatedPhases,
     generatingPhaseId,
     streamedTasks,
-    phaseFeedback,
-    setPhaseFeedback,
     deselectedTaskIds,
     error,
     selectedPhases,
     start,
     handleStartGenerating,
     handleNavigateTo,
-    handleRegenerate,
     togglePhase,
     toggleTask,
     save,
@@ -116,12 +113,9 @@ export function CurriculumBuilder() {
           generatedPhases={generatedPhases}
           generatingPhaseId={generatingPhaseId}
           streamedTasks={streamedTasks}
-          phaseFeedback={phaseFeedback}
           deselectedTaskIds={deselectedTaskIds}
-          onFeedbackChange={setPhaseFeedback}
           onToggleTask={toggleTask}
           onNavigateTo={handleNavigateTo}
-          onRegenerate={handleRegenerate}
           onSave={() => void save()}
           onStartOver={startOver}
         />

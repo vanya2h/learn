@@ -1,8 +1,7 @@
 import { Button } from "@cloudflare/kumo/components/button";
-import { InputArea } from "@cloudflare/kumo/components/input";
 import { Loader } from "@cloudflare/kumo/components/loader";
 import { Text } from "@cloudflare/kumo/components/text";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import clsx from "clsx";
 import type { OutlinePhase, Phase, Task } from "../../data/types";
@@ -14,12 +13,9 @@ export function PhaseStep({
   generatedPhases,
   generatingPhaseId,
   streamedTasks,
-  phaseFeedback,
   deselectedTaskIds,
-  onFeedbackChange,
   onToggleTask,
   onNavigateTo,
-  onRegenerate,
   onSave,
   onStartOver,
 }: {
@@ -28,16 +24,12 @@ export function PhaseStep({
   generatedPhases: Record<string, Phase>;
   generatingPhaseId: string | null;
   streamedTasks: Task[];
-  phaseFeedback: string;
   deselectedTaskIds: Set<string>;
-  onFeedbackChange: (v: string) => void;
   onToggleTask: (taskId: string) => void;
   onNavigateTo: (index: number, currentGenerated: Record<string, Phase>) => void;
-  onRegenerate: (currentGenerated: Record<string, Phase>) => void;
   onSave: () => void;
   onStartOver: () => void;
 }) {
-  const { t } = useLingui();
   const total = selectedPhases.length;
   const outlinePhase = selectedPhases[currentPageIndex];
   const phaseId = outlinePhase?.id;
@@ -86,6 +78,9 @@ export function PhaseStep({
 
       {generatedPhase && (
         <>
+          <p className="text-xs text-muted-foreground mb-3">
+            <Trans>Click any task to deselect it and exclude it from the program.</Trans>
+          </p>
           <div className="mb-6 flex flex-col">
             {generatedPhase.tasks.map((task) => (
               <BuilderTaskRow
@@ -95,19 +90,6 @@ export function PhaseStep({
                 onToggle={() => onToggleTask(task.id)}
               />
             ))}
-          </div>
-          <div className="flex flex-col gap-2 pt-4 border-t border-border/50 mb-6">
-            <InputArea
-              placeholder={t`Optional: describe what to change before regenerating...`}
-              value={phaseFeedback}
-              onChange={(e) => onFeedbackChange(e.target.value)}
-              rows={2}
-            />
-            <div className="flex justify-end">
-              <Button variant="secondary" onClick={() => onRegenerate(generatedPhases)} disabled={isGenerating}>
-                <Trans>Regenerate</Trans>
-              </Button>
-            </div>
           </div>
         </>
       )}
