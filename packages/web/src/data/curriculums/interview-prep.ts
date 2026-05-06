@@ -175,8 +175,12 @@ export const INTERVIEW_PREP_CURRICULUM: CurriculumDef = {
   name: "Frontend / Fullstack Interview Prep (Demo)",
   description: "Deep-dive frontend internals, system design, and DSA for senior-level interviews.",
   complexity: "deep",
-  coverImage:
-    "https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5NDEyMjF8MHwxfHNlYXJjaHw4fHxhYnN0cmFjdHxlbnwwfDB8fHwxNzc3NzcwMDYwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+  cover: {
+    shape: "blob",
+    rotation: 88,
+    colorBack: "hsl(353, 15%, 93%)",
+    colors: ["hsl(353, 88%, 56%)", "hsl(143, 78%, 57%)", "hsl(203, 86%, 63%)", "hsl(23, 89%, 57%)"],
+  },
   phases: PHASES,
   skills: [
     {

@@ -1,9 +1,9 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import type { CurriculumOutline } from "../../data/types";
+import { SelectableCard } from "./SelectableCard";
 
 import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
 
 export function OutlineReviewStep({
   outline,
@@ -22,11 +22,11 @@ export function OutlineReviewStep({
     <div className="mt-6 flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-1">{outline.name}</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-1">{outline.name}</h2>
           {outline.description && <p className="text-sm text-muted-foreground">{outline.description}</p>}
         </div>
         <div className="shrink-0">
-          <Button size="sm" type="button" onClick={onStartOver}>
+          <Button size="sm" variant="secondary" type="button" onClick={onStartOver}>
             <Trans>← Start over</Trans>
           </Button>
         </div>
@@ -37,29 +37,15 @@ export function OutlineReviewStep({
           <Trans>Deselect any phases you don&apos;t need:</Trans>
         </p>
         <div className="flex flex-col gap-2">
-          {outline.phases.map((phase) => {
-            const selected = selectedPhaseIds.includes(phase.id);
-            return (
-              <label
-                key={phase.id}
-                className={cn(
-                  "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                  selected ? "border-border" : "border-border/40 opacity-50",
-                )}
-              >
-                <input
-                  type="checkbox"
-                  className="mt-0.5 accent-foreground"
-                  checked={selected}
-                  onChange={() => onTogglePhase(phase.id)}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{phase.title}</p>
-                  <p className="text-xs text-muted-foreground">{phase.subtitle}</p>
-                </div>
-              </label>
-            );
-          })}
+          {outline.phases.map((phase) => (
+            <SelectableCard
+              key={phase.id}
+              selected={selectedPhaseIds.includes(phase.id)}
+              onToggle={() => onTogglePhase(phase.id)}
+              title={phase.title}
+              description={phase.subtitle}
+            />
+          ))}
         </div>
       </div>
 

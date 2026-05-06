@@ -45,7 +45,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         parseCurriculumDef({
           ...c,
           description: c.description ?? undefined,
-          coverImage: c.coverImage ?? undefined,
+          cover: c.cover ?? undefined,
           complexity: (c.complexity as Complexity) ?? "deep",
         }),
       )

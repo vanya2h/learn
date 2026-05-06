@@ -18,7 +18,9 @@
     "withenv": "dotenv -e ../../.env",
     "test": "vitest run",
     "i18n:extract": "lingui extract",
-    "i18n:compile": "lingui compile"
+    "i18n:compile": "lingui compile",
+    "gen:gradient": "node --experimental-strip-types --no-warnings scripts/gen-gradient.ts",
+    "backfill:cover": "pnpm withenv -- node --experimental-strip-types --no-warnings scripts/backfill-cover.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

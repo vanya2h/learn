@@ -99,16 +99,12 @@ function TopicBreadcrumb() {
 
 export default function TopicLayout() {
   const { task, curriculumName, highestStage } = useLoaderData<typeof loader>();
-  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
+  const { taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { deleteSession } = useTopicSession(taskId!);
   const { completedTaskIds } = useProgress();
 
   const taskCompleted = !!completedTaskIds[taskId!];
-
-  function goBack() {
-    void navigate(`/curriculum/${curriculumId}`);
-  }
 
   function startOver() {
     void deleteSession();
@@ -119,7 +115,7 @@ export default function TopicLayout() {
     <>
       <TopicHeader taskTitle={task.title} curriculumName={curriculumName} onStartOver={startOver} />
       <div className="flex flex-1">
-        <TopicSidebar highestStage={highestStage} taskCompleted={taskCompleted} onBack={goBack} />
+        <TopicSidebar highestStage={highestStage} taskCompleted={taskCompleted} />
         <div className="flex-1 min-w-0 border-l border-border">
           <Outlet />
         </div>

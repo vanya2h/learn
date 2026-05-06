@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { GradientCoverSchema } from "../lib/gradient";
 
 export const COMPLEXITY_LEVELS = ["easy", "medium", "deep"] as const;
 export type Complexity = (typeof COMPLEXITY_LEVELS)[number];
@@ -36,7 +37,7 @@ export const CurriculumDefSchema = z.object({
   description: z.string().optional(),
   phases: z.array(PhaseSchema).min(1),
   skills: z.array(SkillSchema).optional(),
-  coverImage: z.string().optional(),
+  cover: GradientCoverSchema.optional(),
   complexity: z.enum(COMPLEXITY_LEVELS).optional(),
 });
 

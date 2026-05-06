@@ -28,7 +28,7 @@ export function PhaseCard({ phase, curriculumId, index }: Props) {
     <div className="border-b border-border">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="group w-full flex items-center justify-between gap-6 px-6 py-6 text-left transition-colors cursor-pointer hover:bg-foreground/5 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30"
+        className="group w-full flex items-center justify-between gap-6 px-6 py-6 text-left transition-colors cursor-pointer bg-background-layer/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30"
         aria-expanded={open}
       >
         <div className="flex-1 min-w-0">

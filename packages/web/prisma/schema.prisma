@@ -132,7 +132,7 @@ model CustomCurriculum {
   name        String
   description String?
   jobUrl      String?
-  coverImage  String?
+  cover       Json?
   phases      Json
   skills      Json?
   complexity  String   @default("deep")

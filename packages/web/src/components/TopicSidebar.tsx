@@ -1,49 +1,121 @@
 import { Trans } from "@lingui/react/macro";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { useLocation } from "react-router";
-import { StageLink } from "./StageLink";
+import type { ReactNode } from "react";
+import { Link, useLocation } from "react-router";
 
-const STAGES = [
-  { path: "choice", label: "Choice" },
-  { path: "assess", label: "Assess" },
-  { path: "gaps", label: "Gaps" },
-  { path: "study", label: "Study" },
-  { path: "hands-on", label: "Practice" },
-  { path: "feedback", label: "Feedback" },
-  { path: "write-up", label: "Write-up" },
-  { path: "complete", label: "Complete" },
-] as const;
+import { cn } from "~/lib/utils";
 
 type Props = {
   highestStage: number;
   taskCompleted: boolean;
-  onBack: () => void;
 };
 
-export function TopicSidebar({ highestStage, taskCompleted, onBack }: Props) {
+type Stage = {
+  path: string;
+  label: ReactNode;
+};
+
+export function TopicSidebar({ highestStage, taskCompleted }: Props) {
   const { pathname } = useLocation();
   const lastSegment = pathname.split("/").filter(Boolean).pop() ?? "";
-  const reached = taskCompleted ? STAGES.length - 1 : highestStage;
+  const stages: Stage[] = [
+    { path: "choice", label: <Trans>Choice</Trans> },
+    { path: "assess", label: <Trans>Assess</Trans> },
+    { path: "gaps", label: <Trans>Gaps</Trans> },
+    { path: "study", label: <Trans>Study</Trans> },
+    { path: "hands-on", label: <Trans>Practice</Trans> },
+    { path: "feedback", label: <Trans>Feedback</Trans> },
+    { path: "write-up", label: <Trans>Write-up</Trans> },
+    { path: "complete", label: <Trans>Complete</Trans> },
+  ];
+  const reached = taskCompleted ? stages.length - 1 : highestStage;
+  const activeIndex = stages.findIndex((s) => s.path === lastSegment);
 
   return (
-    <div className="flex flex-col h-full">
-      <nav className="w-64 shrink-0 self-stretch flex flex-col">
-        <StageLink
-          prefix={<ArrowLeftIcon size={14} weight="bold" />}
-          label={<Trans>Back to curriculum</Trans>}
-          onClick={onBack}
-        />
-        {STAGES.map((stage, i) => (
-          <StageLink
+    <nav aria-label="Topic stages" className="w-50 shrink-0 self-stretch py-8 bg-background flex flex-col">
+      <ol className="flex flex-col">
+        {stages.map((stage, i) => (
+          <StageRow
             key={stage.path}
-            prefix={String(i + 1).padStart(2, "0")}
+            index={i}
             label={stage.label}
             to={stage.path}
-            active={stage.path === lastSegment}
-            disabled={i > reached}
+            state={stageStateFor(i, activeIndex, reached)}
           />
         ))}
-      </nav>
-    </div>
+      </ol>
+    </nav>
   );
+}
+
+type StageState = "active" | "done" | "upcoming";
+
+function StageRow({ index, label, to, state }: { index: number; label: ReactNode; to: string; state: StageState }) {
+  const isActive = state === "active";
+  const isDone = state === "done";
+  const isUpcoming = state === "upcoming";
+
+  const tick = (
+    <span
+      aria-hidden
+      className={cn(
+        "shrink-0 transition-all",
+        isActive ? "w-6 h-0.5 bg-foreground" : isDone ? "w-3 h-px bg-foreground/40" : "w-3 h-px bg-foreground/20",
+      )}
+    />
+  );
+  const number = (
+    <span
+      className={cn(
+        "font-mono text-[10px] uppercase tracking-[0.14em]",
+        isActive ? "text-foreground" : "text-foreground/30",
+      )}
+    >
+      {String(index + 1).padStart(2, "0")}
+    </span>
+  );
+  const text = (
+    <span
+      className={cn(
+        "text-[13px] tracking-tight",
+        isActive ? "font-semibold text-foreground" : isDone ? "text-foreground/60" : "text-foreground/30",
+      )}
+    >
+      {label}
+    </span>
+  );
+
+  const rowClassName = cn(
+    "flex items-center gap-4 h-12 pr-4 transition-colors",
+    isUpcoming ? "cursor-not-allowed select-none" : "cursor-pointer hover:text-foreground",
+  );
+
+  const inner = (
+    <>
+      {tick}
+      <span className="flex items-baseline gap-2.5">
+        {number}
+        {text}
+      </span>
+    </>
+  );
+
+  return (
+    <li>
+      {isUpcoming ? (
+        <button type="button" disabled className={rowClassName} aria-current={undefined}>
+          {inner}
+        </button>
+      ) : (
+        <Link to={to} className={rowClassName} aria-current={isActive ? "step" : undefined}>
+          {inner}
+        </Link>
+      )}
+    </li>
+  );
+}
+
+function stageStateFor(index: number, activeIndex: number, reached: number): StageState {
+  if (index === activeIndex) return "active";
+  if (index > reached) return "upcoming";
+  return "done";
 }

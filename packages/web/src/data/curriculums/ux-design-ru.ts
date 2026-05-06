@@ -90,8 +90,12 @@ export const UX_DESIGN_INTERVIEW_CURRICULUM_RU: CurriculumDef = {
   name: "Подготовка к UI/UX собеседованию",
   description: "Универсальная подготовка для начинающих к интервью по продуктовому и UI/UX дизайну.",
   complexity: "easy",
-  coverImage:
-    "https://images.unsplash.com/photo-1556139930-c23fa4a4f934?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  cover: {
+    shape: "ripple",
+    rotation: 342,
+    colorBack: "hsl(140, 23%, 98%)",
+    colors: ["hsl(140, 78%, 54%)", "hsl(170, 79%, 55%)", "hsl(110, 80%, 55%)", "hsl(200, 78%, 57%)"],
+  },
   phases: PHASES,
   skills: [
     {

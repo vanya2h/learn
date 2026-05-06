@@ -4,8 +4,8 @@ import type { Prisma } from "@prisma/client-generated";
 import { Hono } from "hono";
 import { extractText, getDocumentProxy } from "unpdf";
 import { z } from "zod";
-import { CUSTOM_CURRICULUM_COVER } from "../../data/cover-image";
 import { COMPLEXITY_LEVELS, OutlinePhaseSchema, PhaseSchema, SkillSchema } from "../../data/types";
+import { generateGradient } from "../../lib/gradient";
 import type { Locale } from "../../lib/i18n";
 import { LOCALES, localizeSystem } from "../../lib/i18n";
 import { db } from "../db";
@@ -352,7 +352,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
         name,
         description,
         jobUrl,
-        coverImage: CUSTOM_CURRICULUM_COVER,
+        cover: generateGradient() as Prisma.InputJsonValue,
         phases: phases as Prisma.InputJsonValue,
         skills: skills ? (skills as Prisma.InputJsonValue) : undefined,
         complexity: complexity ?? "deep",

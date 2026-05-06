@@ -1,7 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type { OutlinePhase, Phase, Task } from "../../data/types";
-import { BuilderTaskRow } from "./BuilderTaskRow";
+import { SelectableCard } from "./SelectableCard";
 
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
@@ -70,7 +70,7 @@ export function PhaseStep({
               <Trans>Generating phase...</Trans>
             </p>
           </div>
-          <PartialTaskList tasks={streamedTasks} />
+          <TaskList tasks={streamedTasks} readOnly />
         </>
       )}
 
@@ -79,16 +79,11 @@ export function PhaseStep({
           <p className="text-xs text-muted-foreground mb-3">
             <Trans>Click any task to deselect it and exclude it from the program.</Trans>
           </p>
-          <div className="mb-6 flex flex-col">
-            {generatedPhase.tasks.map((task) => (
-              <BuilderTaskRow
-                key={task.id}
-                task={task}
-                included={!deselectedTaskIds.has(task.id)}
-                onToggle={() => onToggleTask(task.id)}
-              />
-            ))}
-          </div>
+          <TaskList
+            tasks={generatedPhase.tasks}
+            isSelected={(task) => !deselectedTaskIds.has(task.id)}
+            onToggle={onToggleTask}
+          />
         </>
       )}
 
@@ -132,14 +127,37 @@ export function PhaseStep({
   );
 }
 
-function PartialTaskList({ tasks }: { tasks: Task[] }) {
+type TaskListProps =
+  | { tasks: Task[]; readOnly: true; isSelected?: never; onToggle?: never }
+  | { tasks: Task[]; readOnly?: false; isSelected: (task: Task) => boolean; onToggle: (taskId: string) => void };
+
+function TaskList({ tasks, readOnly, isSelected, onToggle }: TaskListProps) {
   if (!tasks.length) return null;
   return (
-    <div className="flex flex-col">
+    <div className="mb-6 flex flex-col gap-2">
       {tasks.map((task) => (
-        <BuilderTaskRow key={task.id} task={task} included readOnly />
+        <SelectableCard
+          key={task.id}
+          selected={readOnly ? true : isSelected(task)}
+          readOnly={readOnly}
+          onToggle={readOnly ? undefined : () => onToggle(task.id)}
+          title={<TaskTitle task={task} />}
+        />
       ))}
     </div>
+  );
+}
+
+function TaskTitle({ task }: { task: Task }) {
+  return (
+    <span className="text-sm leading-snug">
+      {task.title}
+      {task.estMinutes !== undefined && (
+        <span className="ml-2 text-xs text-muted-foreground font-normal">
+          ~{task.estMinutes >= 60 ? `${Math.round(task.estMinutes / 60)}h` : `${task.estMinutes}m`}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -151,7 +169,7 @@ function NavButton({ align = "left", className, children, ...rest }: NavButtonPr
       type="button"
       {...rest}
       className={cn(
-        "flex flex-col gap-1 p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed",
+        "flex flex-col gap-1 p-4 rounded-xl border border-border bg-background-layer hover:bg-background-active hover:border-border-hover transition-colors cursor-pointer overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed",
         align === "right" ? "items-end text-right" : "text-left",
         className,
       )}
