@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 import type { CurriculumOutline } from "../../data/types";
+import { BuilderActionBar } from "./BuilderActionBar";
 import { SelectableCard } from "./SelectableCard";
 
 import { Button } from "~/components/ui/button";
@@ -49,11 +50,11 @@ export function OutlineReviewStep({
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button onClick={onStart} disabled={selectedPhaseIds.length === 0}>
+      <BuilderActionBar>
+        <Button className="ml-auto" onClick={onStart} disabled={selectedPhaseIds.length === 0}>
           <Trans>Start generating</Trans> <ArrowRightIcon className="inline ml-1" />
         </Button>
-      </div>
+      </BuilderActionBar>
     </div>
   );
 }

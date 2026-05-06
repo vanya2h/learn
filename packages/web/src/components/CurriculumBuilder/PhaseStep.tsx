@@ -1,7 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type { OutlinePhase, Phase, Task } from "../../data/types";
-import { NavButton } from "../NavButton";
+import { BuilderActionBar } from "./BuilderActionBar";
 import { SelectableCard } from "./SelectableCard";
 
 import { Button } from "~/components/ui/button";
@@ -39,8 +39,6 @@ export function PhaseStep({
   const isFirst = currentPageIndex === 0;
   const isLast = currentPageIndex === total - 1;
   const allSelectedDone = selectedPhases.every((p) => generatedPhases[p.id]);
-  const prevPhase = !isFirst ? selectedPhases[currentPageIndex - 1] : null;
-  const nextPhase = !isLast ? selectedPhases[currentPageIndex + 1] : null;
 
   if (!outlinePhase) return null;
 
@@ -53,7 +51,7 @@ export function PhaseStep({
           </Trans>
         </p>
         <div className="shrink-0">
-          <Button size="sm" type="button" onClick={onStartOver} disabled={isGenerating}>
+          <Button variant="secondary" size="sm" type="button" onClick={onStartOver} disabled={isGenerating}>
             <Trans>← Start over</Trans>
           </Button>
         </div>
@@ -87,42 +85,29 @@ export function PhaseStep({
         </>
       )}
 
-      <div className="mt-8 grid grid-cols-2 gap-3">
-        {prevPhase ? (
-          <NavButton onClick={() => onNavigateTo(currentPageIndex - 1, generatedPhases)} disabled={isGenerating}>
-            <span className="text-xs text-muted-foreground">
-              <ArrowLeftIcon className="inline" /> <Trans>previous</Trans>
-            </span>
-            <span className="text-sm font-medium text-foreground">{prevPhase.title}</span>
-          </NavButton>
-        ) : (
-          <div />
-        )}
+      <BuilderActionBar>
+        <Button
+          variant="outline"
+          disabled={isFirst || isGenerating}
+          onClick={() => onNavigateTo(currentPageIndex - 1, generatedPhases)}
+        >
+          <ArrowLeftIcon /> <Trans>Previous</Trans>
+        </Button>
 
         {isLast && allSelectedDone ? (
-          <NavButton onClick={onSave} disabled={isGenerating} align="right">
-            <span className="text-xs text-muted-foreground">
-              <Trans>done</Trans>
-            </span>
-            <span className="text-sm font-medium text-foreground">
-              <Trans>Save program</Trans>
-            </span>
-          </NavButton>
-        ) : nextPhase ? (
-          <NavButton
-            onClick={() => onNavigateTo(currentPageIndex + 1, generatedPhases)}
-            disabled={isGenerating}
-            align="right"
-          >
-            <span className="text-xs text-muted-foreground">
-              <Trans>next</Trans> <ArrowRightIcon className="inline" />
-            </span>
-            <span className="text-sm font-medium text-foreground">{nextPhase.title}</span>
-          </NavButton>
+          <Button className="ml-auto" disabled={isGenerating} onClick={onSave}>
+            <Trans>Save program</Trans> <ArrowRightIcon />
+          </Button>
         ) : (
-          <div />
+          <Button
+            className="ml-auto"
+            disabled={isLast || isGenerating}
+            onClick={() => onNavigateTo(currentPageIndex + 1, generatedPhases)}
+          >
+            <Trans>Next</Trans> <ArrowRightIcon />
+          </Button>
         )}
-      </div>
+      </BuilderActionBar>
     </div>
   );
 }

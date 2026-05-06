@@ -1,6 +1,8 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { Complexity } from "../../data/types";
+import { Card } from "../Card";
 import { MethodPicker } from "./methods/MethodPicker";
+import { BuilderActionBar } from "./BuilderActionBar";
 import type { InputMode } from "./useCurriculumBuilder";
 
 import { Button } from "~/components/ui/button";
@@ -69,11 +71,11 @@ export function InputStep({
 
       <DepthRow depth={complexity} setDepth={setComplexity} enabled={canGenerate} />
 
-      <div className="flex items-center justify-end">
-        <Button type="button" size="lg" onClick={submit} disabled={!canGenerate}>
+      <BuilderActionBar>
+        <Button className="ml-auto" type="button" onClick={submit} disabled={!canGenerate}>
           <Trans>Generate program →</Trans>
         </Button>
-      </div>
+      </BuilderActionBar>
     </div>
   );
 }
@@ -90,9 +92,9 @@ function DepthRow({
   const { t } = useLingui();
 
   const opts: { value: Complexity; label: string; description: string }[] = [
-    { value: "easy", label: t`Easy`, description: t`2–3 key phases · easy reading & practice` },
-    { value: "medium", label: t`Medium`, description: t`3–6 phases · balanced reading & practice` },
-    { value: "deep", label: t`Deep`, description: t`5–9 phases · full depth with open-ended builds` },
+    { value: "easy", label: t`Easy`, description: t`2-3 key phases · easy reading & practice` },
+    { value: "medium", label: t`Medium`, description: t`3-6 phases · balanced reading & practice` },
+    { value: "deep", label: t`Deep`, description: t`5-9 phases · full depth with open-ended builds` },
   ];
 
   return (
@@ -114,21 +116,14 @@ function DepthRow({
         {opts.map((o) => {
           const active = depth === o.value;
           return (
-            <label
-              key={o.value}
-              className={cn(
-                "rounded-lg border px-4 py-3.5 text-left transition-[background-color,border-color] duration-200",
-                active
-                  ? "border-border-active bg-muted"
-                  : "border-border bg-background-layer hover:border-border-hover",
-                enabled ? "cursor-pointer" : "cursor-not-allowed",
-              )}
-            >
-              <div className="mb-1 flex items-center gap-2">
-                <RadioGroupItem value={o.value} />
-                <span className="font-semibold text-foreground">{o.label}</span>
-              </div>
-              <p className="pl-6 text-[12px] leading-normal text-muted-foreground">{o.description}</p>
+            <label key={o.value} className={cn(enabled ? "cursor-pointer" : "cursor-not-allowed")}>
+              <Card active={active} className="px-4 py-3.5">
+                <div className="mb-1 flex items-center gap-2">
+                  <RadioGroupItem value={o.value} />
+                  <span className="font-semibold text-foreground">{o.label}</span>
+                </div>
+                <p className="pl-6 text-[12px] leading-normal text-muted-foreground">{o.description}</p>
+              </Card>
             </label>
           );
         })}

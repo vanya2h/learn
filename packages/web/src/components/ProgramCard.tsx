@@ -36,7 +36,7 @@ export function ProgramCard({ curriculum, progress, className, ...restProps }: P
 
   const extra = (
     <div>
-      <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+      <div className="flex justify-between text-xs text-muted-foreground mb-2">
         <span>{t`Progress`}</span>
         <span>{progress}%</span>
       </div>

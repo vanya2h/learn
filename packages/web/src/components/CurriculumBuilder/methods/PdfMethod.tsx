@@ -1,19 +1,17 @@
 import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
-import { MethodCard } from "./MethodCard";
+import { MethodCard, MethodCardProps } from "./MethodCard";
 
 import { cn } from "~/lib/utils";
 
-export type PdfMethodCardProps = {
+export type PdfMethodCardProps = MethodCardProps & {
   file: File | null;
   onFileChange: (f: File | null) => void;
-  active: boolean;
-  className?: string;
 };
 
-export function PdfMethodCard({ file, onFileChange, active, className }: PdfMethodCardProps) {
+export function PdfMethodCard({ file, onFileChange, active, ...restProps }: PdfMethodCardProps) {
   return (
-    <MethodCard active={active} className={className}>
+    <MethodCard active={active} {...restProps}>
       <div>
         <div className="mb-3.5 font-mono text-[10px] uppercase tracking-[0.16em] text-foreground/40">
           <Trans>Have a file?</Trans>

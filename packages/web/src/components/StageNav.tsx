@@ -18,7 +18,7 @@ export type StageNavProps = React.ComponentProps<"nav"> & {
 
 export function StageNav({ stages, className, ...restProps }: StageNavProps) {
   return (
-    <nav {...restProps} className={cn("w-50 shrink-0 self-stretch py-8", className)}>
+    <nav {...restProps} className={cn("w-64 shrink-0 self-stretch py-8 bg-background", className)}>
       <ol className="flex flex-col">
         {stages.map((stage, i) => (
           <StageRow key={stage.key} index={i} label={stage.label} state={stage.state} href={stage.href} />
@@ -62,7 +62,7 @@ function StageRow({ index, label, state, href }: StageRowProps) {
   const text = (
     <span
       className={cn(
-        "text-[13px] tracking-tight",
+        "tracking-tight",
         isActive ? "font-semibold text-foreground" : isDone ? "text-foreground/60" : "text-foreground/30",
       )}
     >

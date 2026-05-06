@@ -1,24 +1,9 @@
-import type { ReactNode } from "react";
+import { Card, CardProps } from "../../Card";
 
 import { cn } from "~/lib/utils";
 
-export type MethodCardProps = {
-  active: boolean;
-  className?: string;
-  children: ReactNode;
-};
+export type MethodCardProps = CardProps;
 
-export function MethodCard({ active, className, children }: MethodCardProps) {
-  return (
-    <div
-      className={cn(
-        "group relative flex min-h-50 flex-col justify-between rounded-[10px]",
-        "border bg-background-layer p-6 text-left transition-[background-color,border-color] duration-300 ease-out",
-        active ? "border-border-active" : "border-border hover:border-border-hover",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
+export function MethodCard({ className, ...restProps }: MethodCardProps) {
+  return <Card className={cn("group relative flex flex-col justify-between", className)} {...restProps} />;
 }

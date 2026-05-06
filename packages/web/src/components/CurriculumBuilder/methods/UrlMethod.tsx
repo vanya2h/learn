@@ -1,21 +1,19 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { MethodCard } from "./MethodCard";
+import { MethodCard, MethodCardProps } from "./MethodCard";
 
 import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
 
-export type UrlMethodCardProps = {
+export type UrlMethodCardProps = MethodCardProps & {
   url: string;
   onUrlChange: (v: string) => void;
-  active: boolean;
   onSubmit: () => void;
-  className?: string;
 };
 
-export function UrlMethodCard({ url, onUrlChange, active, onSubmit, className }: UrlMethodCardProps) {
+export function UrlMethodCard({ url, onUrlChange, active, onSubmit, ...restProps }: UrlMethodCardProps) {
   const { t } = useLingui();
   return (
-    <MethodCard active={active} className={className}>
+    <MethodCard active={active} {...restProps}>
       <div>
         <Badge className="mb-4">
           <Trans>Recommended</Trans>
