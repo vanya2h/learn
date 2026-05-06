@@ -1,5 +1,4 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { PlusIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { Link } from "react-router";
 import type { CurriculumDef, Skill } from "../data/types";
@@ -8,7 +7,7 @@ import { useProgress } from "../hooks/useProgress";
 import { computeUnlockedSkills } from "../lib/skills";
 import { AnimatedText } from "./AnimatedText";
 import { GradientBackground } from "./GradientBg";
-import { ProgramCard } from "./ProgramCard";
+import { CreatePersonalProgramCard, ProgramCard } from "./ProgramCard";
 
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -159,18 +158,7 @@ export function Dashboard() {
               className={CELL_BORDERS}
             />
           ))}
-          <Link
-            to="/curriculum/new"
-            className={cn(
-              CELL_BORDERS,
-              "group flex flex-col items-center justify-center gap-4 min-h-60 text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors",
-            )}
-          >
-            <PlusIcon size={48} weight="bold" className="transition-transform duration-300 group-hover:scale-110" />
-            <span className="text-lg font-semibold">
-              <Trans>Create personal program</Trans>
-            </span>
-          </Link>
+          <CreatePersonalProgramCard className={CELL_BORDERS} />
         </div>
       </section>
       <SkillsSection completedTaskIds={completedTaskIds} />
