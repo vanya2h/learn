@@ -3,12 +3,14 @@ import type { ReactNode } from "react";
 import { useLocation } from "react-router";
 import { StageNav, type StageNavStage } from "./StageNav";
 
+import { cn } from "~/lib/utils";
+
 export type TopicSidebarProps = Omit<React.ComponentProps<typeof StageNav>, "stages"> & {
   highestStage: number;
   taskCompleted: boolean;
 };
 
-export function TopicSidebar({ highestStage, taskCompleted, ...restProps }: TopicSidebarProps) {
+export function TopicSidebar({ highestStage, taskCompleted, className, ...restProps }: TopicSidebarProps) {
   const { pathname } = useLocation();
   const lastSegment = pathname.split("/").filter(Boolean).pop() ?? "";
   const items: { path: string; label: ReactNode }[] = [
@@ -31,5 +33,12 @@ export function TopicSidebar({ highestStage, taskCompleted, ...restProps }: Topi
     state: i === activeIndex ? "active" : i > reached ? "upcoming" : "done",
   }));
 
-  return <StageNav aria-label="Topic stages" stages={stages} {...restProps} />;
+  return (
+    <StageNav
+      aria-label="Topic stages"
+      stages={stages}
+      className={cn("self-start sticky top-15.25", className)}
+      {...restProps}
+    />
+  );
 }

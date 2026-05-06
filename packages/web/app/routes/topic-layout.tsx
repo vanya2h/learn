@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link, Outlet, redirect, useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { ProgramCover } from "../../src/components/ProgramCover";
+import { TopicActionBarSlotContext } from "../../src/components/TopicActionBar";
 import { TopicHeader } from "../../src/components/TopicHeader";
 import { TopicSidebar } from "../../src/components/TopicSidebar";
 import { CURRICULUMS_BY_LOCALE } from "../../src/data/curriculum";
@@ -14,6 +16,7 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
 
+import { GridBackground } from "~/components/GridBg";
 import { BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
 
 const PHASE_TO_STAGE_INDEX: Record<string, number> = {
@@ -104,6 +107,7 @@ export default function TopicLayout() {
   const navigate = useNavigate();
   const { deleteSession } = useTopicSession(taskId!);
   const { completedTaskIds } = useProgress();
+  const [actionBarSlot, setActionBarSlot] = useState<HTMLElement | null>(null);
 
   const taskCompleted = !!completedTaskIds[taskId!];
 
@@ -113,7 +117,7 @@ export default function TopicLayout() {
   }
 
   return (
-    <>
+    <TopicActionBarSlotContext value={actionBarSlot}>
       <TopicHeader taskTitle={task.title} curriculumName={curriculumName} onStartOver={startOver} />
       <div className="flex flex-1">
         <TopicSidebar highestStage={highestStage} taskCompleted={taskCompleted} />
@@ -124,10 +128,14 @@ export default function TopicLayout() {
             </div>
           )}
           <div className="relative grow backdrop-blur-xl bg-background/90 flex flex-col">
-            <Outlet />
+            <GridBackground />
+            <div className="flex-1 flex flex-col">
+              <Outlet />
+            </div>
+            <div ref={setActionBarSlot} className="sticky bottom-0 z-10 shrink-0" />
           </div>
         </div>
       </div>
-    </>
+    </TopicActionBarSlotContext>
   );
 }

@@ -3,7 +3,8 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
-import { NavButton } from "../../src/components/NavButton";
+import { TopicActionBar } from "../../src/components/TopicActionBar";
+import { TopicContainer } from "../../src/components/TopicContainer";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import type { Material, PhaseByKey } from "../../src/lib/phase";
@@ -14,6 +15,7 @@ import type { Route } from "./+types/topic.study";
 import type { loader as layoutLoader } from "./topic-layout";
 
 import { LoadingState } from "~/components/LoadingState";
+import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 
 const TOKENS_PLAN = 600;
@@ -198,67 +200,52 @@ export default function StudyPage() {
   const part = parts[partIdx];
   const isLastPart = partIdx === plan.partPlans.length - 1;
   const prevPlan = partIdx > 0 ? plan.partPlans[partIdx - 1] : null;
-  const nextPlan = !isLastPart ? plan.partPlans[partIdx + 1] : null;
 
   return (
-    <div className="max-w-2xl w-full mx-auto px-6 py-8">
-      <div>
+    <>
+      <TopicContainer className="py-8">
         <p className="text-xs text-muted-foreground mb-2">
           <Trans>
             Part {partIdx + 1} of {plan.partPlans.length}
           </Trans>
         </p>
-      </div>
 
-      <h2 className="text-2xl font-semibold text-foreground mb-6">{partPlan?.title ?? ""}</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-6">{partPlan?.title ?? ""}</h2>
 
-      {!part && (
-        <>
-          <div className="flex items-center gap-2 mb-6 text-foreground/40">
-            <Spinner />
-            <p className="text-sm">
-              <Trans>Preparing study material…</Trans>
-            </p>
-          </div>
-          {partStream && <Markdown isAnimating>{partStream}</Markdown>}
-        </>
-      )}
+        {!part && (
+          <>
+            <div className="flex items-center gap-2 mb-6 text-foreground/40">
+              <Spinner />
+              <p className="text-sm">
+                <Trans>Preparing study material…</Trans>
+              </p>
+            </div>
+            {partStream && <Markdown isAnimating>{partStream}</Markdown>}
+          </>
+        )}
 
-      {part && (
-        <>
-          <Markdown>{part.study}</Markdown>
-          <div className="mt-8 grid grid-cols-2 gap-3">
-            {prevPlan && parts[partIdx - 1] ? (
-              <NavButton onClick={() => handleGoToPart(partIdx - 1)}>
-                <span className="text-xs text-muted-foreground">
-                  <ArrowLeftIcon className="inline" /> <Trans>previous</Trans>
-                </span>
-                <span className="text-sm font-medium text-foreground">{prevPlan.title}</span>
-              </NavButton>
-            ) : (
-              <div />
-            )}
+        {part && <Markdown>{part.study}</Markdown>}
+      </TopicContainer>
 
-            {isLastPart ? (
-              <NavButton onClick={handleMoveToHandsOn} align="right">
-                <span className="text-xs text-muted-foreground">
-                  <Trans>next</Trans>
-                </span>
-                <span className="text-sm font-medium text-foreground">
-                  <Trans>Practice</Trans>
-                </span>
-              </NavButton>
-            ) : (
-              <NavButton onClick={handleNextPart} align="right">
-                <span className="text-xs text-muted-foreground">
-                  <Trans>next</Trans> <ArrowRightIcon className="inline" />
-                </span>
-                <span className="text-sm font-medium text-foreground">{nextPlan?.title}</span>
-              </NavButton>
-            )}
-          </div>
-        </>
-      )}
-    </div>
+      <TopicActionBar>
+        <Button
+          variant="outline"
+          disabled={!prevPlan || !parts[partIdx - 1]}
+          onClick={() => handleGoToPart(partIdx - 1)}
+        >
+          <ArrowLeftIcon /> <Trans>Previous</Trans>
+        </Button>
+
+        {isLastPart ? (
+          <Button className="ml-auto" disabled={!part} onClick={handleMoveToHandsOn}>
+            <Trans>Practice</Trans> <ArrowRightIcon />
+          </Button>
+        ) : (
+          <Button className="ml-auto" disabled={!part} onClick={handleNextPart}>
+            <Trans>Next</Trans> <ArrowRightIcon />
+          </Button>
+        )}
+      </TopicActionBar>
+    </>
   );
 }

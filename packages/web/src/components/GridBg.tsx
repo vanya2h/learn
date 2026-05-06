@@ -4,11 +4,11 @@ export type GridBackgroundProps = React.ComponentProps<"div">;
 
 export function GridBackground({ className, ...restProps }: GridBackgroundProps) {
   return (
-    <div {...restProps} className={cn("absolute inset-0 -z-10 overflow-hidden pointer-events-none", className)}>
+    <div {...restProps} className={cn("absolute inset-0 overflow-hidden pointer-events-none", className)}>
       <svg className="absolute inset-0 w-full h-full text-muted-foreground" aria-hidden>
         <defs>
           <pattern id="grid-bg-dots" width="14" height="14" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="currentColor" fillOpacity="0.1" />
+            <circle cx="1" cy="1" r="1" fill="currentColor" fillOpacity="0.15" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid-bg-dots)" />

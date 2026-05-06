@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
 import { DotLoader } from "../../src/components/Spinner";
+import { TopicActionBar } from "../../src/components/TopicActionBar";
+import { TopicContainer } from "../../src/components/TopicContainer";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { parsePersistedPhase, TASK_SOLUTION_SYSTEM } from "../../src/lib/phase";
@@ -87,57 +89,67 @@ export default function HandsOnPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
-      <div className="flex flex-col gap-6">
-        {part.handsOn.map((taskItem, i) => (
-          <div key={i} className="flex flex-col gap-3">
-            <div className="border border-border bg-background-layer/50 rounded-lg p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                <Trans>Task {i + 1}</Trans>
-              </p>
+    <>
+      <TopicContainer className="py-8">
+        <div className="flex flex-col gap-6">
+          {part.handsOn.map((taskItem, i) => (
+            <div key={i} className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-xl font-semibold">
+                  <Trans>Task {i + 1}</Trans>
+                </h2>
+                <div className="flex items-center gap-2">
+                  {solutions[i]?.streaming && <DotLoader />}
+                  <Button
+                    size="xs"
+                    disabled={solutions[i]?.streaming}
+                    onClick={() => void handleSolution(i, taskItem.task, taskItem.hint)}
+                  >
+                    <Trans>See solution</Trans>
+                  </Button>
+                </div>
+              </div>
               <Markdown>{taskItem.task}</Markdown>
-              {taskItem.hint && (
-                <p className="mt-2 text-xs text-foreground/40 italic">
-                  <Trans>Hint: {taskItem.hint}</Trans>
-                </p>
+              {taskItem.hint && <Hint hint={taskItem.hint} />}
+
+              {solutions[i] && (
+                <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
+                    <Trans>Solution</Trans>
+                  </p>
+                  <Markdown isAnimating={solutions[i].streaming}>{solutions[i].text}</Markdown>
+                </div>
               )}
-              <div className="mt-3 flex items-center gap-2">
-                <Button
-                  size="xs"
-                  disabled={solutions[i]?.streaming}
-                  onClick={() => void handleSolution(i, taskItem.task, taskItem.hint)}
-                >
-                  <Trans>See solution</Trans>
-                </Button>
-                {solutions[i]?.streaming && <DotLoader />}
-              </div>
+
+              <Textarea
+                value={answers[i] ?? ""}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [i]: e.target.value }))}
+                placeholder={t`Your answer, code, or reasoning…`}
+                rows={4}
+                aria-label={t`Text input`}
+              />
             </div>
-
-            {solutions[i] && (
-              <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-                <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
-                  <Trans>Solution</Trans>
-                </p>
-                <Markdown isAnimating={solutions[i].streaming}>{solutions[i].text}</Markdown>
-              </div>
-            )}
-
-            <Textarea
-              value={answers[i] ?? ""}
-              onChange={(e) => setAnswers((prev) => ({ ...prev, [i]: e.target.value }))}
-              placeholder={t`Your answer, code, or reasoning…`}
-              rows={4}
-              aria-label={t`Text input`}
-            />
-          </div>
-        ))}
-
-        <div>
-          <Button variant="default" disabled={!allAnswered} onClick={() => void handleSubmit()}>
-            <Trans>Submit for feedback →</Trans>
-          </Button>
+          ))}
         </div>
-      </div>
+      </TopicContainer>
+
+      <TopicActionBar>
+        <Button className="ml-auto" disabled={!allAnswered} onClick={() => void handleSubmit()}>
+          <Trans>Submit for feedback</Trans>
+        </Button>
+      </TopicActionBar>
+    </>
+  );
+}
+
+function Hint({ hint }: { hint: string }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <div>
+      <Button variant="secondary" size="xs" onClick={() => setShown((s) => !s)}>
+        {shown ? <Trans>Hide hint</Trans> : <Trans>Show hint</Trans>}
+      </Button>
+      {shown && <p className="mt-2 text-xs text-foreground/40 italic">{hint}</p>}
     </div>
   );
 }

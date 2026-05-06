@@ -2,6 +2,8 @@ import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { LoadingState } from "../../src/components/LoadingState";
+import { TopicActionBar } from "../../src/components/TopicActionBar";
+import { TopicContainer } from "../../src/components/TopicContainer";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { parseJSON } from "../../src/lib/json";
@@ -74,34 +76,38 @@ export default function GapsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
-      <h2 className="text-2xl font-semibold text-foreground mb-1">
-        <Trans>Assessment complete</Trans>
-      </h2>
-      <p className="text-sm text-muted-foreground mb-6">{review.summary}</p>
+    <>
+      <TopicContainer className="py-8">
+        <h2 className="text-2xl font-semibold text-foreground mb-1">
+          <Trans>Assessment complete</Trans>
+        </h2>
+        <p className="text-sm text-muted-foreground mb-6">{review.summary}</p>
 
-      {review.gaps.length > 0 ? (
-        <div className="mb-8">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            <Trans>Gaps to cover</Trans>
-          </p>
-          <ul className="flex flex-wrap gap-2">
-            {review.gaps.map((gap) => (
-              <li key={gap}>
-                <Badge variant="secondary">{gap}</Badge>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="mb-8 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 px-4 py-3 text-sm text-green-800 dark:text-green-300">
-          <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
-        </div>
-      )}
+        {review.gaps.length > 0 ? (
+          <div className="mb-8">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              <Trans>Gaps to cover</Trans>
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {review.gaps.map((gap) => (
+                <li key={gap}>
+                  <Badge variant="secondary">{gap}</Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="mb-8 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 px-4 py-3 text-sm text-green-800 dark:text-green-300">
+            <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
+          </div>
+        )}
+      </TopicContainer>
 
-      <Button variant="default" onClick={() => void navigate("../study", { relative: "path" })}>
-        <Trans>Start studying</Trans>
-      </Button>
-    </div>
+      <TopicActionBar>
+        <Button className="ml-auto" onClick={() => void navigate("../study", { relative: "path" })}>
+          <Trans>Start studying</Trans>
+        </Button>
+      </TopicActionBar>
+    </>
   );
 }

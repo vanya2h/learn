@@ -4,6 +4,8 @@ import { Link } from "react-router";
 import type { CurriculumDef, Skill } from "../data/types";
 import { useAllCurriculums } from "../hooks/useAllCurriculums";
 import { useProgress } from "../hooks/useProgress";
+import { useTheme } from "../hooks/useTheme";
+import { GRADIENT_PRESETS } from "../lib/gradient";
 import { computeUnlockedSkills } from "../lib/skills";
 import { AnimatedText } from "./AnimatedText";
 import { GradientBackground } from "./GradientBg";
@@ -110,11 +112,12 @@ export function Dashboard() {
   const { t } = useLingui();
   const { completedTaskIds } = useProgress();
   const allCurriculums = useAllCurriculums();
+  const { theme } = useTheme();
 
   return (
     <main>
       <section className="relative isolate overflow-hidden border-b border-border">
-        <GradientBackground />
+        <GradientBackground preset={theme === "dark" ? GRADIENT_PRESETS.heroDark : GRADIENT_PRESETS.heroLight} />
         <div className="relative flex flex-col items-center justify-center text-center px-6 py-24 sm:py-32">
           <AnimatedText
             as="h1"

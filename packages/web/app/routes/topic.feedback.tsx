@@ -3,7 +3,8 @@ import { ArrowRightIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
-import { NavButton } from "../../src/components/NavButton";
+import { TopicActionBar } from "../../src/components/TopicActionBar";
+import { TopicContainer } from "../../src/components/TopicContainer";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import type { PhaseByKey } from "../../src/lib/phase";
@@ -12,6 +13,7 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.feedback";
 
+import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 
 const TOKENS_HANDS_ON_EVAL = 500;
@@ -76,43 +78,34 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="max-w-2xl w-full mx-auto px-6 py-8">
-      <div>
+    <>
+      <TopicContainer className="py-8">
         <p className="text-xs text-muted-foreground mb-2">
           <Trans>Feedback</Trans>
         </p>
-      </div>
 
-      <h2 className="text-2xl font-semibold text-foreground mb-6">{partPlan?.title ?? ""}</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-6">{partPlan?.title ?? ""}</h2>
 
-      {streaming && (
-        <>
-          <div className="flex items-center gap-2 mb-6 text-foreground/40">
-            <Spinner />
-            <p className="text-sm">
-              <Trans>Evaluating your answers…</Trans>
-            </p>
-          </div>
-          {feedback && <Markdown isAnimating>{feedback}</Markdown>}
-        </>
-      )}
+        {streaming && (
+          <>
+            <div className="flex items-center gap-2 mb-6 text-foreground/40">
+              <Spinner />
+              <p className="text-sm">
+                <Trans>Evaluating your answers…</Trans>
+              </p>
+            </div>
+            {feedback && <Markdown isAnimating>{feedback}</Markdown>}
+          </>
+        )}
 
-      {!streaming && feedback && (
-        <>
-          <Markdown>{feedback}</Markdown>
-          <div className="mt-8 grid grid-cols-2 gap-3">
-            <div />
-            <NavButton onClick={handleContinue} align="right">
-              <span className="text-xs text-muted-foreground">
-                <Trans>next</Trans> <ArrowRightIcon className="inline" />
-              </span>
-              <span className="text-sm font-medium text-foreground">
-                <Trans>Reflection</Trans>
-              </span>
-            </NavButton>
-          </div>
-        </>
-      )}
-    </div>
+        {!streaming && feedback && <Markdown>{feedback}</Markdown>}
+      </TopicContainer>
+
+      <TopicActionBar>
+        <Button className="ml-auto" disabled={streaming || !feedback} onClick={handleContinue}>
+          <Trans>Reflection</Trans> <ArrowRightIcon />
+        </Button>
+      </TopicActionBar>
+    </>
   );
 }

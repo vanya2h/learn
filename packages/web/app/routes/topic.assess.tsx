@@ -2,6 +2,8 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
 import { LoadingState } from "../../src/components/LoadingState";
+import { TopicActionBar } from "../../src/components/TopicActionBar";
+import { TopicContainer } from "../../src/components/TopicContainer";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import { parseJSON } from "../../src/lib/json";
@@ -98,39 +100,42 @@ export default function AssessPage() {
   const allAnswered = questions.every((_, i) => (answers[i] ?? "").trim().length > 0);
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-2xl font-semibold text-foreground">
-          <Trans>Quick Assessment</Trans>
-        </h2>
-        <Button variant="secondary" size="sm" onClick={() => void generateQuestions()} disabled={loading}>
-          <Trans>Regenerate</Trans>
+    <>
+      <TopicContainer className="py-8">
+        <div className="flex items-center justify-between mb-1 gap-6">
+          <h2 className="text-2xl font-semibold text-foreground">
+            <Trans>Quick Assessment</Trans>
+          </h2>
+          <Button variant="secondary" size="sm" onClick={() => void generateQuestions()} disabled={loading}>
+            <Trans>Regenerate</Trans>
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground mb-8">
+          <Trans>Answer each question in 2–4 sentences. Honest answers get more useful material.</Trans>
+        </p>
+        <div className="flex flex-col gap-6">
+          {questions.map((q, i) => (
+            <div key={i}>
+              <p className="text-sm font-medium text-foreground mb-2">
+                {i + 1}. {q}
+              </p>
+              <Textarea
+                value={answers[i] ?? ""}
+                onChange={(e) => handleAnswerChange(i, e.target.value)}
+                placeholder={t`Your answer…`}
+                rows={3}
+                aria-label={t`Text input`}
+              />
+            </div>
+          ))}
+        </div>
+      </TopicContainer>
+
+      <TopicActionBar>
+        <Button className="ml-auto" disabled={!allAnswered} onClick={() => void handleSubmit()}>
+          <Trans>Submit answers</Trans>
         </Button>
-      </div>
-      <p className="text-sm text-muted-foreground mb-8">
-        <Trans>Answer each question in 2–4 sentences. Honest answers get more useful material.</Trans>
-      </p>
-      <div className="flex flex-col gap-6">
-        {questions.map((q, i) => (
-          <div key={i}>
-            <p className="text-sm font-medium text-foreground mb-2">
-              {i + 1}. {q}
-            </p>
-            <Textarea
-              value={answers[i] ?? ""}
-              onChange={(e) => handleAnswerChange(i, e.target.value)}
-              placeholder={t`Your answer…`}
-              rows={3}
-              aria-label={t`Text input`}
-            />
-          </div>
-        ))}
-      </div>
-      <div className="mt-8">
-        <Button variant="default" disabled={!allAnswered} onClick={() => void handleSubmit()}>
-          <Trans>Submit answers →</Trans>
-        </Button>
-      </div>
-    </div>
+      </TopicActionBar>
+    </>
   );
 }

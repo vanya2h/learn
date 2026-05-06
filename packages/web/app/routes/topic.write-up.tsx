@@ -2,6 +2,8 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
+import { TopicActionBar } from "../../src/components/TopicActionBar";
+import { TopicContainer } from "../../src/components/TopicContainer";
 import { useProgress } from "../../src/hooks/useProgress";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
@@ -78,57 +80,47 @@ export default function WriteUpPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
-      <div className="mb-4 p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900">
-        <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-1">
+    <>
+      <TopicContainer className="py-8">
+        <h2 className="text-xl font-semibold">
           <Trans>Reflect</Trans>
-        </p>
-        <p className="text-sm text-foreground">{part.writeUpPrompt}</p>
-      </div>
+        </h2>
+        <p className="mt-2 text-foreground">{part.writeUpPrompt}</p>
 
-      {!feedback && !streaming && (
-        <>
+        {!feedback && !streaming && (
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t`Write your reflection in your own words…`}
             rows={5}
+            className="mt-4"
             aria-label={t`Text input`}
           />
-          <div className="mt-4">
-            <Button variant="default" onClick={() => void handleSubmit()} disabled={text.trim().length < 20}>
-              <Trans>Submit reflection</Trans>
-            </Button>
-          </div>
-        </>
-      )}
+        )}
 
-      {(feedback || streaming) && (
-        <div className="mt-4">
-          <div className="text-xs text-muted-foreground italic mb-1">
-            <Trans>Your reflection:</Trans>
-          </div>
-          <p className="text-sm text-muted-foreground mb-4 whitespace-pre-wrap">{text}</p>
-
-          <div className="border border-border bg-background p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                <Trans>Tutor feedback</Trans>
-              </p>
-              {streaming && <Spinner />}
+        {(feedback || streaming) && (
+          <div className="mt-8">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  <Trans>Tutor feedback</Trans>
+                </p>
+                {streaming && <Spinner />}
+              </div>
+              <Markdown isAnimating={streaming}>{feedback}</Markdown>
             </div>
-            <Markdown isAnimating={streaming}>{feedback}</Markdown>
           </div>
+        )}
+      </TopicContainer>
 
-          {!streaming && (
-            <div className="mt-6">
-              <Button variant="default" onClick={() => void handleComplete()}>
-                <Trans>Complete →</Trans>
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      <TopicActionBar>
+        <Button className="ml-auto" onClick={() => void handleSubmit()} disabled={streaming || !!feedback}>
+          <Trans>Submit reflection</Trans>
+        </Button>
+        <Button onClick={() => void handleComplete()} disabled={streaming || !feedback}>
+          <Trans>Complete</Trans>
+        </Button>
+      </TopicActionBar>
+    </>
   );
 }

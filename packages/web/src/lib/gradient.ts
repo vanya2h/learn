@@ -1,6 +1,26 @@
+import type { GrainGradientProps } from "@paper-design/shaders-react";
 import { z } from "zod";
 
 export const GRADIENT_SHAPES = ["wave", "dots", "truchet", "corners", "ripple", "blob", "sphere"] as const;
+
+export type GradientPreset = {
+  shape: GrainGradientProps["shape"];
+  colors: readonly string[];
+  rotation: number;
+};
+
+export const GRADIENT_PRESETS = {
+  heroLight: {
+    shape: "corners",
+    colors: ["#7300ff", "hsl(14, 100%, 57%)"],
+    rotation: 0,
+  },
+  heroDark: {
+    shape: "corners",
+    colors: ["hsl(14, 100%, 57%)", "hsl(45, 100%, 51%)", "hsl(340, 82%, 52%)"],
+    rotation: 0,
+  },
+} as const satisfies Record<string, GradientPreset>;
 
 export const GradientCoverSchema = z.object({
   shape: z.enum(GRADIENT_SHAPES),
