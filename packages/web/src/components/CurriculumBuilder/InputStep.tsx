@@ -1,161 +1,138 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { Complexity } from "../../data/types";
+import { MethodPicker } from "./methods/MethodPicker";
+import type { InputMode } from "./useCurriculumBuilder";
 
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { cn } from "~/lib/utils";
 
-const COMPLEXITY_OPTIONS: { value: Complexity; label: string; description: string }[] = [
-  { value: "easy", label: "Easy", description: "2–3 key phases · Reading & essentials" },
-  { value: "medium", label: "Medium", description: "3–6 phases · Balanced reading & practice" },
-  { value: "deep", label: "Deep", description: "5–9 phases · Full depth with open-ended builds" },
-];
-
-function ComplexityPicker({ complexity, onChange }: { complexity: Complexity; onChange: (v: Complexity) => void }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground">
-        <Trans>Depth</Trans>
-      </p>
-      <div className="grid grid-cols-3 gap-2">
-        {COMPLEXITY_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => onChange(opt.value)}
-            className={cn(
-              "flex flex-col gap-1 p-3 border text-left transition-colors cursor-pointer",
-              complexity === opt.value ? "border-foreground bg-muted" : "border-border hover:bg-muted/50",
-            )}
-          >
-            <span className="text-sm font-medium text-foreground">{opt.label}</span>
-            <span className="text-xs text-muted-foreground">{opt.description}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function InputModePicker({ onPick }: { onPick: (mode: "url" | "pdf") => void }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border border border-border w-full">
-      <button
-        onClick={() => onPick("url")}
-        className="flex flex-col items-start gap-2 p-5 text-left bg-background hover:bg-muted/40 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30"
-      >
-        <span className="font-semibold text-foreground">
-          <Trans>Paste a URL</Trans>
-        </span>
-        <span className="text-xs text-muted-foreground">
-          <Trans>Use a link to the job posting on its company or job-board page</Trans>
-        </span>
-      </button>
-      <button
-        onClick={() => onPick("pdf")}
-        className="flex flex-col items-start gap-2 p-5 text-left bg-background hover:bg-muted/40 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30"
-      >
-        <span className="font-semibold text-foreground">
-          <Trans>Upload a PDF</Trans>
-        </span>
-        <span className="text-xs text-muted-foreground">
-          <Trans>Pick a saved PDF of the job description from your computer</Trans>
-        </span>
-      </button>
-    </div>
-  );
-}
-
-export function UrlInput({
-  url,
-  setUrl,
-  complexity,
-  onComplexityChange,
-  onGenerate,
-  onBack,
-}: {
+type InputStepProps = {
+  method: InputMode;
+  setMethod: (m: InputMode) => void;
   url: string;
   setUrl: (v: string) => void;
-  complexity: Complexity;
-  onComplexityChange: (v: Complexity) => void;
-  onGenerate: () => void;
-  onBack: () => void;
-}) {
-  const { t } = useLingui();
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-3 w-full">
-        <div className="flex-1 grow">
-          <Input
-            placeholder={t`Paste job posting URL...`}
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && url.trim()) onGenerate();
-            }}
-          />
-          <p className="text-xs text-muted-foreground mt-4">
-            <Trans>
-              * Some sites block direct access. If this fails, save as PDF and use the upload option instead.
-            </Trans>
-          </p>
-        </div>
-      </div>
-      <ComplexityPicker complexity={complexity} onChange={onComplexityChange} />
-      <div className="flex items-center justify-between">
-        <BackLink onClick={onBack} />
-        <Button onClick={onGenerate} disabled={!url.trim()} className="shrink-0 ml-4">
-          <Trans>Generate</Trans>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-export function PdfInput({
-  file,
-  setFile,
-  complexity,
-  onComplexityChange,
-  onGenerate,
-  onBack,
-}: {
   file: File | null;
   setFile: (f: File | null) => void;
   complexity: Complexity;
-  onComplexityChange: (v: Complexity) => void;
+  setComplexity: (v: Complexity) => void;
   onGenerate: () => void;
-  onBack: () => void;
-}) {
-  const { t } = useLingui();
+};
+
+export function InputStep({
+  method,
+  setMethod,
+  url,
+  setUrl,
+  file,
+  setFile,
+  complexity,
+  setComplexity,
+  onGenerate,
+}: InputStepProps) {
+  const canGenerate = method !== null;
+
+  function handleUrlChange(v: string) {
+    setUrl(v);
+    if (v.trim()) {
+      if (file) setFile(null);
+      if (method !== "url") setMethod("url");
+    } else if (method === "url") {
+      setMethod(null);
+    }
+  }
+
+  function handleFileChange(f: File | null) {
+    setFile(f);
+    if (f) {
+      if (url) setUrl("");
+      if (method !== "pdf") setMethod("pdf");
+    } else if (method === "pdf") {
+      setMethod(null);
+    }
+  }
+
+  function submit() {
+    if (canGenerate) onGenerate();
+  }
+
   return (
-    <div className="flex flex-col gap-4">
-      <label className="flex items-center justify-center w-full px-4 py-8 border border-dashed border-border hover:bg-muted/30 cursor-pointer transition-colors">
-        <input
-          type="file"
-          accept="application/pdf"
-          className="sr-only"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        />
-        <span className="text-sm text-muted-foreground text-center">
-          {file ? file.name : t`Click to choose a PDF file`}
-        </span>
-      </label>
-      <ComplexityPicker complexity={complexity} onChange={onComplexityChange} />
-      <div className="flex justify-end">
-        <Button onClick={onGenerate} disabled={!file}>
-          <Trans>Generate</Trans>
+    <div className="flex w-full flex-col gap-7">
+      <MethodPicker
+        url={url}
+        onUrlChange={handleUrlChange}
+        file={file}
+        onFileChange={handleFileChange}
+        activeMethod={method}
+        onSubmit={submit}
+      />
+
+      <DepthRow depth={complexity} setDepth={setComplexity} enabled={canGenerate} />
+
+      <div className="flex items-center justify-end">
+        <Button type="button" size="lg" onClick={submit} disabled={!canGenerate}>
+          <Trans>Generate program →</Trans>
         </Button>
       </div>
-      <BackLink onClick={onBack} />
     </div>
   );
 }
 
-export function BackLink({ onClick }: { onClick: () => void }) {
+function DepthRow({
+  depth,
+  setDepth,
+  enabled,
+}: {
+  depth: Complexity;
+  setDepth: (d: Complexity) => void;
+  enabled: boolean;
+}) {
+  const { t } = useLingui();
+
+  const opts: { value: Complexity; label: string; description: string }[] = [
+    { value: "easy", label: t`Easy`, description: t`2–3 key phases · easy reading & practice` },
+    { value: "medium", label: t`Medium`, description: t`3–6 phases · balanced reading & practice` },
+    { value: "deep", label: t`Deep`, description: t`5–9 phases · full depth with open-ended builds` },
+  ];
+
   return (
-    <Button type="button" onClick={onClick}>
-      <Trans>← Choose another method</Trans>
-    </Button>
+    <div className={cn("transition-opacity duration-300", enabled ? "opacity-100" : "pointer-events-none opacity-45")}>
+      <div className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-foreground/40">
+        <Trans>Depth</Trans>
+        {!enabled && (
+          <span className="text-[11px] tracking-normal text-foreground/30 normal-case">
+            · <Trans>paste a URL or pick a PDF above to choose</Trans>
+          </span>
+        )}
+      </div>
+      <RadioGroup
+        value={depth}
+        onValueChange={(v) => setDepth(v as Complexity)}
+        disabled={!enabled}
+        className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+      >
+        {opts.map((o) => {
+          const active = depth === o.value;
+          return (
+            <label
+              key={o.value}
+              className={cn(
+                "rounded-lg border px-4 py-3.5 text-left transition-[background-color,border-color] duration-200",
+                active
+                  ? "border-border-active bg-muted"
+                  : "border-border bg-background-layer hover:border-border-hover",
+                enabled ? "cursor-pointer" : "cursor-not-allowed",
+              )}
+            >
+              <div className="mb-1 flex items-center gap-2">
+                <RadioGroupItem value={o.value} />
+                <span className="font-semibold text-foreground">{o.label}</span>
+              </div>
+              <p className="pl-6 text-[12px] leading-normal text-muted-foreground">{o.description}</p>
+            </label>
+          );
+        })}
+      </RadioGroup>
+    </div>
   );
 }

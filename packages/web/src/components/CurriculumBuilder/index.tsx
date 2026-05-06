@@ -1,6 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { LoadingState } from "../LoadingState";
-import { InputModePicker, PdfInput, UrlInput } from "./InputStep";
+import { InputStep } from "./InputStep";
 import { OutlineReviewStep } from "./OutlineReviewStep";
 import { PhaseStep } from "./PhaseStep";
 import { useCurriculumBuilder } from "./useCurriculumBuilder";
@@ -35,34 +35,24 @@ export function CurriculumBuilder() {
   } = useCurriculumBuilder();
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 flex-1">
+    <div className="max-w-4xl mx-auto px-6 py-8 flex-1">
       <h1 className="text-2xl font-semibold text-foreground mb-6">
         <Trans>Create new program</Trans>
       </h1>
 
       {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
-      {step === "idle" && inputMode === null && <InputModePicker onPick={setInputMode} />}
-
-      {step === "idle" && inputMode === "url" && (
-        <UrlInput
+      {step === "idle" && (
+        <InputStep
+          method={inputMode}
+          setMethod={setInputMode}
           url={url}
           setUrl={setUrl}
-          complexity={complexity}
-          onComplexityChange={setComplexity}
-          onGenerate={() => void start()}
-          onBack={() => setInputMode(null)}
-        />
-      )}
-
-      {step === "idle" && inputMode === "pdf" && (
-        <PdfInput
           file={pdfFile}
           setFile={setPdfFile}
           complexity={complexity}
-          onComplexityChange={setComplexity}
+          setComplexity={setComplexity}
           onGenerate={() => void start()}
-          onBack={() => setInputMode(null)}
         />
       )}
 

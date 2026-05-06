@@ -107,7 +107,7 @@ function CardShell({ to, art, title, description, extra, className, ...restProps
       onFocus={() => setHover(true)}
       onBlur={() => setHover(false)}
       className={cn(
-        "group relative block aspect-video overflow-hidden bg-background",
+        "group relative block aspect-video overflow-hidden bg-foreground/2",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30",
         className,
       )}
@@ -117,7 +117,7 @@ function CardShell({ to, art, title, description, extra, className, ...restProps
 
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 p-4 border-t border-border bg-background/90 backdrop-blur-md",
+          "absolute inset-x-0 bottom-0 p-4 border-t border-border bg-background-layer/90 backdrop-blur-md",
           "transition-transform duration-460",
           hover ? "translate-y-0" : "translate-y-[calc(100%-3.5625rem)]",
         )}
@@ -166,15 +166,6 @@ function ConstellationArt() {
   return (
     <div className="absolute inset-0 text-foreground mb-14">
       <svg className="absolute inset-0 w-full h-full" aria-hidden>
-        <defs>
-          <pattern id="cpc-dots" width="14" height="14" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="currentColor" fillOpacity="0.06" />
-          </pattern>
-          <radialGradient id="cpc-vig" cx="50%" cy="55%" r="60%">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </radialGradient>
-        </defs>
         <rect width="100%" height="100%" fill="url(#cpc-dots)" />
         <rect width="100%" height="100%" fill="url(#cpc-vig)" />
       </svg>

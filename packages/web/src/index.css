@@ -74,22 +74,19 @@
   }
 }
 
-.grid-bg-base {
-  background-image:
-    linear-gradient(to right, var(--color-muted-foreground) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-muted-foreground) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
 :root {
   color-scheme: light;
   --background: oklch(1 0 0);
+  --background-layer: oklch(1 0 0);
+  --background-layer-active: oklch(94.611% 0.00011 271.152);
   --foreground: oklch(0.153 0.006 107.1);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.153 0.006 107.1);
   --muted: oklch(0.966 0.005 106.5);
   --muted-foreground: oklch(0.58 0.031 107.3);
   --border: oklch(0.93 0.007 106.5);
+  --border-hover: oklch(85.365% 0.004 106.859);
+  --border-active: oklch(80.064% 0.00408 106.837);
   --sidebar: oklch(0.988 0.003 106.5);
   --input: oklch(0.93 0.007 106.5);
   --primary: oklch(0.228 0.013 107.4);
@@ -120,12 +117,16 @@
 .dark {
   color-scheme: dark;
   --background: oklch(0.153 0.006 107.1);
+  --background-layer: oklch(20.715% 0.00956 107.252);
+  --background-layer-active: oklch(22.493% 0.00752 107.05);
   --foreground: oklch(0.988 0.003 106.5);
   --card: oklch(0.228 0.013 107.4);
   --card-foreground: oklch(0.988 0.003 106.5);
   --muted: oklch(0.286 0.016 107.4);
   --muted-foreground: oklch(0.737 0.021 106.9);
   --border: oklch(1 0 0 / 10%);
+  --border-hover: oklch(100% 0.00011 271.152 / 0.203);
+  --border-active: oklch(100% 0.00011 271.152 / 0.28);
   --sidebar: oklch(0.228 0.013 107.4);
   --input: oklch(1 0 0 / 15%);
   --primary: oklch(0.93 0.007 106.5);
@@ -191,7 +192,7 @@ h4 {
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: "Geist Variable", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -208,6 +209,8 @@ h4 {
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-border-active: var(--border-active);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -223,6 +226,8 @@ h4 {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-background-layer: var(--background-layer);
+  --color-background-layer-active: var(--background-layer-active);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

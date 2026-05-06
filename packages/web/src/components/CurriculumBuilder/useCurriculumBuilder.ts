@@ -224,11 +224,13 @@ export function useCurriculumBuilder() {
 
   function handleStartGenerating() {
     if (selectedPhaseIds.length === 0 || !outline) return;
+    const firstPhaseId = selectedPhases[0]?.id;
+    if (!firstPhaseId) return;
     const freshGenerated: Record<string, Phase> = {};
     setGeneratedPhases(freshGenerated);
     setCurrentPageIndex(0);
     setStep("phase-view");
-    void generatePhase(selectedPhaseIds[0]!, freshGenerated);
+    void generatePhase(firstPhaseId, freshGenerated);
   }
 
   function handleNavigateTo(pageIndex: number, currentGenerated: Record<string, Phase>) {

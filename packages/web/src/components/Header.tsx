@@ -75,7 +75,7 @@ export function Header() {
     <header
       className={cn(
         "sticky top-0 z-50 border-b border-border transition-colors duration-200",
-        scrolled ? "bg-background/50 backdrop-blur-md" : "bg-transparent",
+        scrolled ? "bg-background/50 backdrop-blur-md" : "bg-background",
       )}
     >
       <div className="px-6 py-3 flex items-center justify-between gap-4">
