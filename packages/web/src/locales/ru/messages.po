@@ -17,15 +17,15 @@ msgstr ""
 #~ msgid "{0} phases · {totalTasks} tasks · ~{totalHours}h total"
 #~ msgstr "{0} фаз · {totalTasks} задач · ~{totalHours}ч всего"
 
-#: src/components/CurriculumBuilder/methods/UrlMethod.tsx:51
+#: src/components/CurriculumBuilder/methods/UrlMethod.tsx:56
 msgid "* Some sites block direct access. If this fails, save as PDF and use the upload option instead."
 msgstr "* Некоторые сайты блокируют прямой доступ. Если не получится — сохраните как PDF и используйте загрузку файла."
 
-#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:32
+#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:30
 msgid "* The file stays on your device until you click Generate."
 msgstr "* Файл остаётся на вашем устройстве до нажатия «Сгенерировать»."
 
-#: src/components/Footer.tsx:14
+#: src/components/Footer.tsx:15
 msgid "© {currentYear} Learning Tracker"
 msgstr "© {currentYear} Трекер обучения"
 
@@ -39,119 +39,160 @@ msgstr "© {currentYear} Трекер обучения"
 
 #: src/components/CurriculumBuilder/OutlineReviewStep.tsx:30
 #: src/components/CurriculumBuilder/PhaseStep.tsx:57
-msgid "← Start over"
-msgstr "← Начать заново"
+#~ msgid "← Start over"
+#~ msgstr "← Начать заново"
 
 #: src/components/Dashboard.tsx:165
 #~ msgid "+ Create new program"
 #~ msgstr "+ Создать новую программу"
 
-#: app/routes/topic.choice.tsx:30
+#: app/routes/curriculum.draft.finish.tsx:35
+msgid "<0>{name}</0> is published and ready to study."
+msgstr "<0>{name}</0> опубликована и готова к изучению."
+
+#: app/routes/topic.choice.tsx:32
 msgid "~3 min · personalized"
 msgstr "~3 мин · персонально"
 
-#: app/routes/topic.choice.tsx:27
+#: app/routes/topic.choice.tsx:29
 msgid "01 · Assessment route"
 msgstr "01 · Маршрут с оценкой"
 
-#: app/routes/topic.choice.tsx:36
+#: app/routes/topic.choice.tsx:38
 msgid "02 · Linear route"
 msgstr "02 · Линейный маршрут"
 
+#: src/components/CurriculumBuilder/InputStep.tsx:158
+msgid "2-3 key phases · easy reading & practice"
+msgstr "2-3 ключевые фазы · лёгкое чтение и практика"
+
 #: src/components/CurriculumBuilder/InputStep.tsx:93
-msgid "2–3 key phases · easy reading & practice"
-msgstr "2–3 ключевые фазы · лёгкое чтение и практика"
+#~ msgid "2–3 key phases · easy reading & practice"
+#~ msgstr "2–3 ключевые фазы · лёгкое чтение и практика"
+
+#: src/components/CurriculumBuilder/InputStep.tsx:159
+msgid "3-6 phases · balanced reading & practice"
+msgstr "3-6 фаз · сбалансированное чтение и практика"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:94
-msgid "3–6 phases · balanced reading & practice"
-msgstr "3–6 фаз · сбалансированное чтение и практика"
+#~ msgid "3–6 phases · balanced reading & practice"
+#~ msgstr "3–6 фаз · сбалансированное чтение и практика"
+
+#: src/components/CurriculumBuilder/InputStep.tsx:160
+msgid "5-9 phases · full depth with open-ended builds"
+msgstr "5-9 фаз · максимальная глубина с открытыми проектами"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:95
-msgid "5–9 phases · full depth with open-ended builds"
-msgstr "5–9 фаз · максимальная глубина с открытыми проектами"
+#~ msgid "5–9 phases · full depth with open-ended builds"
+#~ msgstr "5–9 фаз · максимальная глубина с открытыми проектами"
 
 #: src/components/Dashboard.tsx:23
 #~ msgid "A day of deep work done is a day you can defend."
 #~ msgstr "День глубокой работы — это день, который вы можете отстоять."
 
-#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:25
+#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:23
 msgid "A saved job description from your computer."
 msgstr "Сохранённое описание вакансии с вашего компьютера."
 
-#: app/routes/sign-up.tsx:145
+#: src/components/Curriculum.tsx:112
+msgid "All done"
+msgstr "Всё пройдено"
+
+#: src/components/Curriculum.tsx:56
+msgid "All Sections"
+msgstr "Все разделы"
+
+#: app/routes/sign-up.tsx:155
 msgid "Already have an account? <0>Sign in</0>"
 msgstr "Уже есть аккаунт? <0>Войти</0>"
 
-#: app/routes/topic.choice.tsx:29
+#: app/routes/curriculum.$curriculumId.tsx:69
+msgid "An unexpected error occurred. Please try again."
+msgstr "Произошла непредвиденная ошибка. Попробуйте ещё раз."
+
+#: app/routes/topic.choice.tsx:31
 msgid "Answer 4 questions so the AI can focus on your gaps"
 msgstr "Ответьте на 4 вопроса, чтобы ИИ сфокусировался на ваших пробелах"
 
-#: app/routes/topic.assess.tsx:114
+#: app/routes/topic.assess.tsx:119
 msgid "Answer each question in 2–4 sentences. Honest answers get more useful material."
 msgstr "Отвечайте на каждый вопрос в 2–4 предложения. Честные ответы дают более полезный материал."
 
-#: src/components/TopicSidebar.tsx:18
+#: app/routes/topic-layout.tsx:37
 msgid "Assess"
 msgstr "Оценка"
 
-#: src/components/TaskRow.tsx:18
+#: src/components/Curriculum.tsx:193
+#: src/components/TaskRow.tsx:19
 msgid "Assessing"
 msgstr "Оценка"
 
 #: app/routes/topic.gaps.tsx:82
-msgid "Assessment complete"
-msgstr "Оценка завершена"
+#~ msgid "Assessment complete"
+#~ msgstr "Оценка завершена"
 
-#: src/components/TaskRow.tsx:20
+#: src/components/TaskRow.tsx:21
 msgid "Assessment done"
 msgstr "Оценка готова"
 
 #: app/routes/topic.complete.tsx:28
-msgid "Back to curriculum"
-msgstr "К программе"
+#~ msgid "Back to curriculum"
+#~ msgstr "К программе"
 
-#: src/components/Footer.tsx:17
+#: app/routes/curriculum.$curriculumId.tsx:73
+msgid "Back to home"
+msgstr "На главную"
+
+#: src/components/Footer.tsx:18
 msgid "Beta"
 msgstr "Бета"
 
+#: app/routes/curriculum.draft.tsx:191
 #: src/components/TopicHeader.tsx:40
 msgid "Cancel"
 msgstr "Отмена"
 
 #: src/components/TopicSidebar.tsx:17
-msgid "Choice"
-msgstr ""
+#~ msgid "Choice"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/PhaseStep.tsx:80
-msgid "Click any task to deselect it and exclude it from the program."
-msgstr ""
+#~ msgid "Click any task to deselect it and exclude it from the program."
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/InputStep.tsx:140
 #~ msgid "Click to choose a PDF file"
 #~ msgstr "Нажмите, чтобы выбрать PDF-файл"
 
-#: app/routes/topic.write-up.tsx:121
-#: src/components/TopicSidebar.tsx:24
+#: app/routes/topic-layout.tsx:33
+#: app/routes/topic-layout.tsx:43
+#: app/routes/topic.write-up.tsx:125
 msgid "Complete"
-msgstr ""
+msgstr "Завершить"
 
 #: app/routes/topic.write-up.tsx:125
 #~ msgid "Complete →"
 #~ msgstr "Завершить →"
 
-#: src/components/TaskRow.tsx:82
+#: app/routes/topic.complete.tsx:33
+#: src/components/Curriculum.tsx:168
+#: src/components/TaskRow.tsx:83
 msgid "Continue"
 msgstr "Продолжить"
 
+#: app/routes/curriculum.new.tsx:112
+msgid "Couldn't extract text from this PDF — try another file."
+msgstr "Не удалось извлечь текст из этого PDF — попробуйте другой файл."
+
 #: src/components/CurriculumBuilder/useCurriculumBuilder.ts:148
-msgid "Couldn't parse the curriculum outline — try regenerating"
-msgstr ""
+#~ msgid "Couldn't parse the curriculum outline — try regenerating"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/useCurriculumBuilder.ts:211
-msgid "Couldn't parse the generated phase — try regenerating"
-msgstr ""
+#~ msgid "Couldn't parse the generated phase — try regenerating"
+#~ msgstr ""
 
-#: app/routes/sign-up.tsx:140
+#: app/routes/sign-up.tsx:150
 msgid "Create account"
 msgstr "Создать аккаунт"
 
@@ -159,57 +200,78 @@ msgstr "Создать аккаунт"
 #~ msgid "Create new program"
 #~ msgstr "Создать новую программу"
 
-#: src/components/ProgramCard.tsx:74
+#: src/components/ProgramCard.tsx:76
 msgid "Create personal program"
-msgstr ""
+msgstr "Создать персональную программу"
 
-#: app/routes/sign-up.tsx:68
+#: app/routes/sign-up.tsx:75
 msgid "Create your account"
 msgstr "Создайте аккаунт"
 
-#: app/routes/sign-up.tsx:140
+#: app/routes/sign-up.tsx:150
 msgid "Creating account…"
 msgstr "Создание аккаунта…"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:95
+#: app/routes/curriculum.$curriculumId.tsx:61
+msgid "Curriculum not found"
+msgstr "Программа не найдена"
+
+#: src/components/CurriculumBuilder/InputStep.tsx:160
 msgid "Deep"
-msgstr ""
+msgstr "Глубокий"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:101
-msgid "Depth"
-msgstr ""
+#~ msgid "Depth"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/OutlineReviewStep.tsx:37
-msgid "Deselect any phases you don't need:"
-msgstr ""
+#~ msgid "Deselect any phases you don't need:"
+#~ msgstr ""
 
-#: src/components/ProgramCard.tsx:75
+#: src/components/ProgramCard.tsx:77
 msgid "Design your own path. Pick a topic, set the depth, and start building skills."
-msgstr ""
+msgstr "Создайте свой путь. Выберите тему, задайте глубину и начните развивать навыки."
+
+#: app/routes/curriculum.draft.tsx:180
+#: app/routes/curriculum.draft.tsx:194
+msgid "Discard"
+msgstr "Удалить"
+
+#: app/routes/curriculum.draft.tsx:184
+msgid "Discard this draft?"
+msgstr "Удалить этот черновик?"
 
 #: src/components/Dashboard.tsx:19
 #~ msgid "Discomfort is the price of admission to a meaningful career."
 #~ msgstr "Дискомфорт — это плата за вход в значимую карьеру."
 
 #: src/components/CurriculumBuilder/PhaseStep.tsx:105
-msgid "done"
-msgstr ""
+#~ msgid "done"
+#~ msgstr ""
 
-#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:85
+#: app/routes/curriculum.draft.tsx:174
+msgid "Draft"
+msgstr "Черновик"
+
+#: app/routes/curriculum.new.tsx:145
+msgid "Drafts in progress"
+msgstr "Черновики в работе"
+
+#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:83
 msgid "Drop or browse"
-msgstr ""
+msgstr "Перетащите или выберите"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:93
+#: src/components/CurriculumBuilder/InputStep.tsx:158
 msgid "Easy"
-msgstr ""
+msgstr "Лёгкий"
 
-#: app/routes/sign-in.tsx:79
-#: app/routes/sign-up.tsx:101
+#: app/routes/sign-in.tsx:86
+#: app/routes/sign-up.tsx:109
 msgid "Email"
 msgstr "Email"
 
-#: app/routes/topic.feedback.tsx:94
-#: app/routes/topic.gaps.tsx:73
+#: app/routes/topic.feedback.tsx:102
+#: app/routes/topic.gaps.tsx:110
 msgid "Evaluating your answers…"
 msgstr "Оцениваем ваши ответы…"
 
@@ -217,59 +279,78 @@ msgstr "Оцениваем ваши ответы…"
 #~ msgid "Every hour of focused work today is an hour your future self doesn't have to dread."
 #~ msgstr "Каждый час сфокусированной работы сегодня — это час, которого ваше будущее «я» не будет бояться."
 
-#: app/routes/sign-up.tsx:55
+#: app/routes/sign-up.tsx:60
 msgid "Failed to create account"
 msgstr "Не удалось создать аккаунт"
 
 #: src/components/CurriculumBuilder/useCurriculumBuilder.ts:125
-msgid "Failed to extract job posting"
-msgstr ""
+#~ msgid "Failed to extract job posting"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder.tsx:79
 #~ msgid "Failed to generate curriculum"
 #~ msgstr "Не удалось сгенерировать программу"
 
 #: src/components/CurriculumBuilder/useCurriculumBuilder.ts:160
-msgid "Failed to generate outline"
-msgstr ""
+#~ msgid "Failed to generate outline"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/useCurriculumBuilder.ts:220
-msgid "Failed to generate phase"
-msgstr ""
+#~ msgid "Failed to generate phase"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/useCurriculumBuilder.ts:289
-msgid "Failed to save"
-msgstr "Не удалось сохранить"
+#~ msgid "Failed to save"
+#~ msgstr "Не удалось сохранить"
 
-#: app/routes/topic.feedback.tsx:84
-#: src/components/TopicSidebar.tsx:22
+#: app/routes/curriculum.new.tsx:122
+msgid "Failed to start a new program"
+msgstr "Не удалось создать новую программу"
+
+#: app/routes/topic-layout.tsx:31
+#: app/routes/topic-layout.tsx:41
+#: app/routes/topic.feedback.tsx:94
+#: src/components/Curriculum.tsx:201
 msgid "Feedback"
 msgstr "Обратная связь"
 
-#: app/routes/topic.choice.tsx:38
+#: app/routes/curriculum.draft.phases.tsx:220
+#: src/components/CurriculumBuilder/BuilderSidebar.tsx:19
+msgid "Finish"
+msgstr "Завершить"
+
+#: app/routes/topic.choice.tsx:40
 msgid "Full comprehensive material from the beginning"
 msgstr "Полный материал с самого начала"
 
-#: app/routes/topic.choice.tsx:39
+#: app/routes/topic.choice.tsx:41
 msgid "Full path · 8 stages"
-msgstr ""
+msgstr "Полный путь · 8 этапов"
 
-#: src/components/TopicSidebar.tsx:19
+#: app/routes/topic.gaps.tsx:200
+msgid "Gap"
+msgstr "Пробел"
+
+#: app/routes/topic.gaps.tsx:119
+msgid "gaps"
+msgstr "пробелов"
+
+#: app/routes/topic-layout.tsx:38
 msgid "Gaps"
-msgstr ""
+msgstr "Пробелы"
 
 #: app/routes/topic.gaps.tsx:89
-msgid "Gaps to cover"
-msgstr "Пробелы для проработки"
+#~ msgid "Gaps to cover"
+#~ msgstr "Пробелы для проработки"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:107
 #: src/components/CurriculumBuilder/InputStep.tsx:146
 #~ msgid "Generate"
 #~ msgstr "Сгенерировать"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:74
+#: src/components/CurriculumBuilder/InputStep.tsx:139
 msgid "Generate program →"
-msgstr ""
+msgstr "Сгенерировать программу →"
 
 #: src/components/CurriculumBuilder.tsx:71
 #~ msgid "Generated curriculum has an invalid shape — try regenerating"
@@ -279,63 +360,84 @@ msgstr ""
 #~ msgid "Generating curriculum..."
 #~ msgstr "Генерация программы..."
 
-#: src/components/CurriculumBuilder/BuilderContent.tsx:63
+#: app/routes/curriculum.draft.outline.tsx:142
+#: app/routes/curriculum.draft.outline.tsx:157
 msgid "Generating outline…"
-msgstr ""
+msgstr "Создание структуры…"
 
 #: src/components/CurriculumBuilder/PhaseStep.tsx:70
-msgid "Generating phase..."
-msgstr ""
+#~ msgid "Generating phase..."
+#~ msgstr ""
+
+#: app/routes/curriculum.draft.phases.tsx:192
+msgid "Generating phase…"
+msgstr "Создание фазы…"
 
 #: src/components/CurriculumBuilder.tsx:45
 #~ msgid "Generation failed"
 #~ msgstr "Ошибка генерации"
 
-#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:19
+#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:17
 msgid "Have a file?"
-msgstr ""
+msgstr "Есть файл?"
 
-#: app/routes/topic.hands-on.tsx:150
+#: app/routes/topic.gaps.tsx:112
+msgid "Here's what your assessment showed"
+msgstr "Вот что показала ваша оценка"
+
+#: app/routes/topic.hands-on.tsx:141
 msgid "Hide hint"
-msgstr ""
+msgstr "Скрыть подсказку"
+
+#: app/routes/topic.hands-on.tsx:146
+msgid "Hide solution"
+msgstr "Скрыть решение"
+
+#: app/routes/topic.hands-on.tsx:163
+msgid "Hint"
+msgstr "Подсказка"
 
 #: app/routes/topic.hands-on.tsx:100
 #~ msgid "Hint: {0}"
 #~ msgstr "Подсказка: {0}"
 
-#: app/routes/topic.choice.tsx:14
+#: app/routes/topic.choice.tsx:15
 msgid "How do you want to start?"
 msgstr "Как вы хотите начать?"
+
+#: app/routes/topic.gaps.tsx:134
+msgid "Identifying gaps…"
+msgstr "Выявляем пробелы…"
 
 #: src/components/Dashboard.tsx:15
 #~ msgid "If you can't explain it cleanly in writing, you don't understand it."
 #~ msgstr "Если вы не можете чётко объяснить это письменно — значит, вы не понимаете."
 
-#: app/routes/sign-in.tsx:53
+#: app/routes/sign-in.tsx:58
 msgid "Invalid email or password"
 msgstr "Неверный email или пароль"
 
-#: app/routes/sign-up.tsx:90
+#: app/routes/sign-up.tsx:98
 msgid "Ivan K."
 msgstr "Иван К."
 
 #: src/components/CurriculumBuilder/BuilderSidebar.tsx:13
-msgid "Job posting"
-msgstr ""
+#~ msgid "Job posting"
+#~ msgstr ""
 
-#: src/components/Dashboard.tsx:124
+#: src/components/Dashboard.tsx:125
 msgid "Learn Everything"
-msgstr ""
+msgstr "Изучить всё"
 
-#: app/routes/sign-in.tsx:63
-#: app/routes/sign-up.tsx:65
-#: src/components/Header.tsx:86
+#: app/routes/sign-in.tsx:70
+#: app/routes/sign-up.tsx:72
+#: src/components/Header.tsx:94
 msgid "Learning Tracker"
 msgstr "Трекер обучения"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:94
+#: src/components/CurriculumBuilder/InputStep.tsx:159
 msgid "Medium"
-msgstr ""
+msgstr "Средний"
 
 #: app/routes/sign-in.tsx:54
 #: app/routes/sign-up.tsx:55
@@ -346,36 +448,42 @@ msgstr ""
 #~ msgid "Move to reflection →"
 #~ msgstr "К рефлексии →"
 
-#: app/routes/sign-up.tsx:81
+#: src/components/Header.tsx:116
+msgid "My Programs"
+msgstr "Мои программы"
+
+#: app/routes/sign-up.tsx:88
 msgid "Name"
 msgstr "Имя"
 
-#: src/components/Dashboard.tsx:43
+#: src/components/Dashboard.tsx:44
 msgid "New"
 msgstr "Новое"
 
-#: app/routes/curriculum.new.tsx:25
-#: src/components/Header.tsx:109
+#: app/routes/curriculum.draft.tsx:127
+#: app/routes/curriculum.new.tsx:34
+#: src/components/Header.tsx:116
 msgid "New program"
 msgstr "Новая программа"
 
-#: src/components/Dashboard.tsx:145
+#: src/components/Dashboard.tsx:146
 msgid "New Program"
-msgstr ""
+msgstr "Новая программа"
 
 #: src/components/CurriculumBuilder/PhaseStep.tsx:118
-msgid "next"
-msgstr "далее"
+#~ msgid "next"
+#~ msgstr "далее"
 
-#: app/routes/topic.study.tsx:245
+#: app/routes/curriculum.draft.phases.tsx:224
+#: app/routes/topic.study.tsx:269
 msgid "Next"
-msgstr ""
+msgstr "Далее"
 
 #: src/components/Dashboard.tsx:49
 #~ msgid "Next quote"
 #~ msgstr "Следующая цитата"
 
-#: app/routes/sign-in.tsx:123
+#: app/routes/sign-in.tsx:132
 msgid "No account? <0>Sign up</0>"
 msgstr "Нет аккаунта? <0>Зарегистрироваться</0>"
 
@@ -383,9 +491,13 @@ msgstr "Нет аккаунта? <0>Зарегистрироваться</0>"
 #~ msgid "No response body"
 #~ msgstr "Пустой ответ"
 
-#: app/routes/topic.gaps.tsx:101
+#: app/routes/topic.gaps.tsx:141
 msgid "No significant gaps detected — the material will go deep on advanced nuances."
 msgstr "Серьёзных пробелов не найдено — материал углубится в продвинутые нюансы."
+
+#: app/routes/curriculum.draft.finish.tsx:42
+msgid "Open Program"
+msgstr "Открыть программу"
 
 #: src/components/CurriculumBuilder.tsx:349
 #~ msgid "Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')..."
@@ -395,184 +507,241 @@ msgstr "Серьёзных пробелов не найдено — матери
 #~ msgid "Optional: describe what to change before regenerating..."
 #~ msgstr ""
 
-#: src/components/CurriculumBuilder/BuilderSidebar.tsx:14
+#: app/routes/curriculum.draft.outline.tsx:142
+#: src/components/CurriculumBuilder/BuilderSidebar.tsx:17
 msgid "Outline"
-msgstr ""
+msgstr "Структура"
+
+#: app/routes/curriculum.new.tsx:166
+msgid "Outline pending"
+msgstr "Создание структуры"
+
+#: app/routes/topic.study.tsx:208
+#~ msgid "Part {0} of {1}"
+#~ msgstr "Часть {0} из {1}"
 
 #. placeholder {0}: partIdx + 1
-#. placeholder {1}: plan.partPlans.length
-#: app/routes/topic.study.tsx:208
-msgid "Part {0} of {1}"
-msgstr "Часть {0} из {1}"
+#: app/routes/topic.study.tsx:223
+msgid "Part {0} of {totalParts}"
+msgstr "Часть {0} из {totalParts}"
 
-#: src/components/TaskRow.tsx:26
+#: src/components/Curriculum.tsx:190
+msgid "Part {part}"
+msgstr "Часть {part}"
+
+#: src/components/TaskRow.tsx:27
 msgid "Part {part} · Feedback"
 msgstr "Часть {part} · Отзыв"
 
-#: src/components/TaskRow.tsx:24
+#: src/components/TaskRow.tsx:25
 msgid "Part {part} · Practice"
 msgstr "Часть {part} · Практика"
 
-#: src/components/TaskRow.tsx:22
+#: src/components/TaskRow.tsx:23
 msgid "Part {part} · Study"
 msgstr "Часть {part} · Изучение"
 
-#: src/components/TaskRow.tsx:28
+#: src/components/TaskRow.tsx:29
 msgid "Part {part} · Write-up"
 msgstr "Часть {part} · Конспект"
 
-#: app/routes/sign-in.tsx:99
-#: app/routes/sign-up.tsx:121
+#: app/routes/topic.gaps.tsx:200
+msgid "Partial"
+msgstr "Частично"
+
+#: app/routes/topic.gaps.tsx:123
+msgid "partially known"
+msgstr "частично знакомо"
+
+#: app/routes/sign-in.tsx:107
+#: app/routes/sign-up.tsx:130
 msgid "Password"
 msgstr "Пароль"
 
 #: src/components/CurriculumBuilder/methods/UrlMethod.tsx:24
 msgid "Paste a job posting URL"
-msgstr ""
+msgstr "Вставьте ссылку на вакансию"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:47
 #~ msgid "Paste a URL"
 #~ msgstr "Вставить ссылку"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:104
-msgid "paste a URL or pick a PDF above to choose"
-msgstr ""
+#~ msgid "paste a URL or pick a PDF above to choose"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/InputStep.tsx:89
 #~ msgid "Paste job posting URL..."
 #~ msgstr "Вставьте ссылку на вакансию..."
 
-#: src/components/CurriculumBuilder/methods/UrlMethod.tsx:46
+#: src/components/CurriculumBuilder/methods/UrlMethod.tsx:47
 msgid "Paste job URL here.."
-msgstr ""
+msgstr "Вставьте ссылку на вакансию.."
 
-#. placeholder {0}: currentPageIndex + 1
-#: src/components/CurriculumBuilder/PhaseStep.tsx:51
+#. placeholder {0}: currentIdx + 1
+#: app/routes/curriculum.draft.phases.tsx:182
 msgid "Phase {0} of {total}"
-msgstr ""
+msgstr "Фаза {0} из {total}"
 
-#: src/components/CurriculumBuilder/BuilderSidebar.tsx:15
+#: app/routes/curriculum.draft.phases.tsx:164
+msgid "Phase not found."
+msgstr "Фаза не найдена."
+
+#: src/components/CurriculumBuilder/BuilderSidebar.tsx:18
 msgid "Phases"
-msgstr ""
+msgstr "Фазы"
+
+#: app/routes/curriculum.new.tsx:166
+msgid "Phases pending"
+msgstr "Создание фаз"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:61
 #~ msgid "Pick a saved PDF of the job description from your computer"
 #~ msgstr "Выберите сохранённый PDF с описанием вакансии с компьютера"
 
-#: app/routes/topic.study.tsx:241
-#: src/components/TopicSidebar.tsx:21
+#: app/routes/topic-layout.tsx:30
+#: app/routes/topic-layout.tsx:40
+#: app/routes/topic.study.tsx:265
+#: src/components/Curriculum.tsx:199
 msgid "Practice"
 msgstr "Практика"
 
-#: app/routes/topic.assess.tsx:95
+#: app/routes/topic.assess.tsx:133
 msgid "Preparing assessment questions…"
 msgstr "Готовим вопросы для оценки…"
 
 #: app/routes/topic.study.tsx:220
-msgid "Preparing study material…"
+#~ msgid "Preparing study material…"
+#~ msgstr "Готовим учебный материал…"
+
+#: app/routes/topic.study.tsx:234
+msgid "Preparing your study material…"
 msgstr "Готовим учебный материал…"
 
-#: app/routes/topic.study.tsx:193
-msgid "Preparing your study material…"
-msgstr ""
-
 #: src/components/CurriculumBuilder/PhaseStep.tsx:94
-msgid "previous"
-msgstr "назад"
+#~ msgid "previous"
+#~ msgstr "назад"
 
-#: app/routes/topic.study.tsx:236
+#: app/routes/curriculum.draft.phases.tsx:215
+#: app/routes/topic.study.tsx:260
 msgid "Previous"
-msgstr ""
+msgstr "Назад"
 
 #: src/components/Dashboard.tsx:39
 #~ msgid "Previous quote"
 #~ msgstr "Предыдущая цитата"
 
-#: src/components/Dashboard.tsx:152
+#: src/components/Curriculum.tsx:224
+msgid "Program Completed"
+msgstr "Программа завершена"
+
+#: app/routes/curriculum.draft.finish.tsx:32
+msgid "Program Ready!"
+msgstr "Программа готова!"
+
+#: src/components/Dashboard.tsx:153
 msgid "Programs"
 msgstr "Программы"
 
-#: src/components/ProgramCard.tsx:40
+#: src/components/ProgramCard.tsx:42
 msgid "Progress"
 msgstr "Прогресс"
 
-#: app/routes/topic.assess.tsx:107
+#: app/routes/topic.assess.tsx:116
 msgid "Quick Assessment"
 msgstr "Быстрая оценка"
 
-#: app/routes/topic.choice.tsx:28
+#: app/routes/topic.choice.tsx:30
 msgid "Quick assessment first"
 msgstr "Сначала быстрая оценка"
 
 #: src/components/CurriculumBuilder/BuilderContent.tsx:57
-msgid "Reading job posting…"
-msgstr ""
+#~ msgid "Reading job posting…"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/methods/UrlMethod.tsx:21
 msgid "Recommended"
-msgstr ""
+msgstr "Рекомендуем"
 
-#: app/routes/topic.write-up.tsx:86
+#: app/routes/topic.write-up.tsx:91
 msgid "Reflect"
 msgstr "Рефлексия"
 
-#: app/routes/topic.feedback.tsx:106
+#: app/routes/topic.feedback.tsx:124
 msgid "Reflection"
-msgstr ""
+msgstr "Рефлексия"
 
-#: app/routes/topic.assess.tsx:110
+#: app/routes/curriculum.draft.outline.tsx:148
+#: app/routes/topic.assess.tsx:124
 msgid "Regenerate"
 msgstr "Сгенерировать заново"
 
+#: src/components/Curriculum.tsx:228
+msgid "remaining"
+msgstr "осталось"
+
+#: app/routes/curriculum.new.tsx:172
+msgid "Resume"
+msgstr "Продолжить"
+
+#: src/components/Curriculum.tsx:195
+msgid "Reviewing gaps"
+msgstr "Анализ пробелов"
+
+#: src/components/Curriculum.tsx:119
+msgid "Revisit any section below to review what you learned."
+msgstr "Вернитесь к любому разделу ниже, чтобы повторить пройденное."
+
 #: src/components/CurriculumBuilder/BuilderSidebar.tsx:16
-msgid "Save"
-msgstr ""
+#~ msgid "Save"
+#~ msgstr ""
 
 #: src/components/CurriculumBuilder/PhaseStep.tsx:108
-msgid "Save program"
-msgstr "Сохранить программу"
+#~ msgid "Save program"
+#~ msgstr "Сохранить программу"
 
 #: src/components/CurriculumBuilder/index.tsx:134
 #~ msgid "Saving..."
 #~ msgstr "Сохранение..."
 
-#: app/routes/topic.hands-on.tsx:108
+#: app/routes/topic.hands-on.tsx:154
 msgid "See solution"
 msgstr "Показать решение"
 
-#: src/components/Footer.tsx:31
+#: src/components/Footer.tsx:24
 msgid "Send feedback"
-msgstr ""
+msgstr "Оставить отзыв"
 
 #: src/components/Dashboard.tsx:21
 #~ msgid "Ship something small today. Momentum is built, not found."
 #~ msgstr "Выпустите что-то маленькое сегодня. Импульс создаётся, а не находится."
 
-#: app/routes/topic.hands-on.tsx:150
+#: app/routes/topic.hands-on.tsx:141
 msgid "Show hint"
-msgstr ""
+msgstr "Показать подсказку"
 
-#: app/routes/sign-in.tsx:118
+#: app/routes/sign-in.tsx:127
+#: src/components/Header.tsx:145
 msgid "Sign in"
 msgstr "Войти"
 
-#: app/routes/sign-in.tsx:66
+#: app/routes/sign-in.tsx:73
 msgid "Sign in to your account"
 msgstr "Войдите в свой аккаунт"
 
-#: src/components/Header.tsx:134
+#: src/components/Header.tsx:139
 msgid "Sign out"
 msgstr "Выйти"
 
-#: app/routes/sign-in.tsx:118
+#: app/routes/sign-in.tsx:127
 msgid "Signing in…"
 msgstr "Вход…"
 
-#: src/components/Dashboard.tsx:77
+#: src/components/Dashboard.tsx:78
 msgid "Skills"
 msgstr "Навыки"
 
-#: app/routes/topic.hands-on.tsx:118
+#: app/routes/topic.hands-on.tsx:172
 msgid "Solution"
 msgstr "Решение"
 
@@ -580,19 +749,25 @@ msgstr "Решение"
 #~ msgid "Some sites render their content with JavaScript and cannot be read this way. If generation fails, save the page as a PDF in your browser and use the PDF upload option instead."
 #~ msgstr "Некоторые сайты отрисовывают содержимое через JavaScript, и их нельзя прочитать таким способом. Если генерация не сработает — сохраните страницу как PDF в браузере и используйте загрузку PDF."
 
-#: src/components/TaskRow.tsx:82
+#: app/routes/curriculum.$curriculumId.tsx:61
+msgid "Something went wrong"
+msgstr "Что-то пошло не так"
+
+#: src/components/Curriculum.tsx:168
+#: src/components/TaskRow.tsx:83
 msgid "Start"
 msgstr "Начать"
 
-#: app/routes/topic.choice.tsx:37
+#: app/routes/topic.choice.tsx:39
 msgid "Start from scratch"
 msgstr "Начать с нуля"
 
-#: src/components/CurriculumBuilder/OutlineReviewStep.tsx:54
+#: app/routes/curriculum.draft.outline.tsx:185
 msgid "Start generating"
-msgstr ""
+msgstr "Начать генерацию"
 
-#: src/components/TaskRow.tsx:78
+#: src/components/Curriculum.tsx:164
+#: src/components/TaskRow.tsx:79
 #: src/components/TopicHeader.tsx:29
 #: src/components/TopicHeader.tsx:43
 msgid "Start over"
@@ -602,48 +777,54 @@ msgstr "Начать заново"
 msgid "Start over?"
 msgstr "Начать заново?"
 
-#: app/routes/topic.gaps.tsx:108
+#: app/routes/topic.gaps.tsx:158
 msgid "Start studying"
 msgstr "Начать изучение"
 
-#: src/components/TopicSidebar.tsx:20
+#: app/routes/topic-layout.tsx:29
+#: app/routes/topic-layout.tsx:39
+#: src/components/Curriculum.tsx:197
 msgid "Study"
-msgstr ""
+msgstr "Изучение"
 
-#: app/routes/topic.assess.tsx:136
+#: app/routes/topic.assess.tsx:167
 msgid "Submit answers"
-msgstr ""
+msgstr "Отправить ответы"
 
 #: app/routes/topic.assess.tsx:130
 #~ msgid "Submit answers →"
 #~ msgstr "Отправить ответы →"
 
-#: app/routes/topic.hands-on.tsx:138
+#: app/routes/topic.hands-on.tsx:184
 msgid "Submit for feedback"
-msgstr ""
+msgstr "Отправить на проверку"
 
 #: app/routes/topic.hands-on.tsx:136
 #~ msgid "Submit for feedback →"
 #~ msgstr "Отправить на проверку →"
 
-#: app/routes/topic.write-up.tsx:118
+#: app/routes/topic.write-up.tsx:122
 msgid "Submit reflection"
 msgstr "Отправить рефлексию"
 
-#: app/routes/topic.choice.tsx:17
+#: app/routes/topic.choice.tsx:18
 msgid "Take a quick test to surface gaps and personalize the material, or dive straight in from the beginning."
 msgstr "Пройдите быстрый тест, чтобы выявить пробелы и персонализировать материал, или начните сразу с самого начала."
 
 #. placeholder {0}: i + 1
-#: app/routes/topic.hands-on.tsx:99
+#: app/routes/topic.hands-on.tsx:120
 msgid "Task {0}"
 msgstr "Задача {0}"
 
-#: app/routes/topic.assess.tsx:127
-#: app/routes/topic.hands-on.tsx:129
-#: app/routes/topic.write-up.tsx:97
+#: app/routes/topic.assess.tsx:156
+#: app/routes/topic.hands-on.tsx:133
+#: app/routes/topic.write-up.tsx:103
 msgid "Text input"
 msgstr "Поле ввода"
+
+#: app/routes/curriculum.draft.tsx:187
+msgid "The draft and any generated content will be permanently deleted."
+msgstr "Черновик и весь созданный контент будут безвозвратно удалены."
 
 #: src/components/Dashboard.tsx:16
 #~ msgid "The expert in anything was once a beginner who refused to quit."
@@ -653,23 +834,39 @@ msgstr "Поле ввода"
 #~ msgid "The gap between where you are and where you want to be is closed one rep at a time."
 #~ msgstr "Разрыв между тем, где вы сейчас, и тем, где хотите быть, закрывается одним повторением за раз."
 
-#: src/components/Header.tsx:130
+#: app/routes/curriculum.$curriculumId.tsx:65
+msgid "This program doesn't exist or you don't have access. Browse available programs from the home page."
+msgstr "Эта программа не существует или у вас нет доступа. Просмотрите доступные программы на главной странице."
+
+#: src/components/Header.tsx:135
 msgid "Toggle theme"
 msgstr "Переключить тему"
 
 #: app/routes/topic.complete.tsx:19
-msgid "Topic Complete"
-msgstr "Тема завершена"
+#~ msgid "Topic Complete"
+#~ msgstr "Тема завершена"
 
-#: src/components/Dashboard.tsx:132
+#: app/routes/topic.complete.tsx:21
+msgid "Topic Complete!"
+msgstr "Тема завершена!"
+
+#: src/components/PhaseCard.tsx:46
+msgid "topics"
+msgstr "тем"
+
+#: src/components/Dashboard.tsx:133
 msgid "Turn any topic into a focused study plan. Track tasks, build skills, and stay consistent."
-msgstr ""
+msgstr "Превратите любую тему в чёткий план обучения. Отслеживайте задачи, развивайте навыки и сохраняйте регулярность."
 
-#: app/routes/topic.write-up.tsx:106
+#: app/routes/topic.write-up.tsx:112
 msgid "Tutor feedback"
 msgstr "Отзыв наставника"
 
-#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:22
+#: app/routes/curriculum.new.tsx:160
+msgid "Untitled draft"
+msgstr "Черновик без названия"
+
+#: src/components/CurriculumBuilder/methods/PdfMethod.tsx:20
 msgid "Upload a PDF"
 msgstr "Загрузить PDF"
 
@@ -679,15 +876,17 @@ msgstr "Загрузить PDF"
 
 #: src/components/CurriculumBuilder/methods/UrlMethod.tsx:27
 msgid "We read the role, company, and required skills, then draft a personal program in seconds."
-msgstr ""
+msgstr "Мы анализируем роль, компанию и требуемые навыки, а затем за секунды создаём персональную программу."
 
-#: app/routes/topic.write-up.tsx:94
+#: app/routes/topic.write-up.tsx:101
 msgid "Write your reflection in your own words…"
 msgstr "Напишите вашу рефлексию своими словами…"
 
-#: src/components/TopicSidebar.tsx:23
+#: app/routes/topic-layout.tsx:32
+#: app/routes/topic-layout.tsx:42
+#: src/components/Curriculum.tsx:203
 msgid "Write-up"
-msgstr ""
+msgstr "Конспект"
 
 #: src/components/Dashboard.tsx:24
 #~ msgid "You are not behind. You are exactly where your effort has put you — and effort is still yours to give."
@@ -697,20 +896,24 @@ msgstr ""
 #~ msgid "You don't rise to the level of your goals — you fall to the level of your systems."
 #~ msgstr "Вы не поднимаетесь до уровня своих целей — вы падаете до уровня своих систем."
 
-#: app/routes/topic.complete.tsx:22
+#: src/components/Curriculum.tsx:116
+msgid "You finished every topic"
+msgstr "Вы прошли все темы"
+
+#: app/routes/topic.complete.tsx:24
 msgid "You passed the final test for <0>{taskTitle}</0>. It's been marked as done."
 msgstr "Вы прошли финальный тест по <0>{taskTitle}</0>. Тема отмечена как завершённая."
 
-#: app/routes/sign-in.tsx:88
-#: app/routes/sign-up.tsx:110
+#: app/routes/sign-in.tsx:96
+#: app/routes/sign-up.tsx:119
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: app/routes/topic.hands-on.tsx:127
+#: app/routes/topic.hands-on.tsx:131
 msgid "Your answer, code, or reasoning…"
 msgstr "Ваш ответ, код или рассуждение…"
 
-#: app/routes/topic.assess.tsx:125
+#: app/routes/topic.assess.tsx:154
 msgid "Your answer…"
 msgstr "Ваш ответ…"
 
