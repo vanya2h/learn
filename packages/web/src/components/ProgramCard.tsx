@@ -6,6 +6,7 @@ import type { CurriculumDef } from "../data/types";
 import { GridBackground } from "./GridBg";
 import { ProgramCover } from "./ProgramCover";
 
+import { getCurriculumLinks } from "~/lib/routes";
 import { cn } from "~/lib/utils";
 
 export type ProgramCardProps = Omit<LinkProps, "to"> & {
@@ -52,7 +53,7 @@ export function ProgramCard({ curriculum, progress, className, ...restProps }: P
 
   return (
     <CardShell
-      to={`/curriculum/${id}`}
+      to={getCurriculumLinks().byId(id)}
       art={art}
       title={name}
       description={description}
@@ -70,7 +71,7 @@ export function CreatePersonalProgramCard({ className, ...restProps }: CreatePer
 
   return (
     <CardShell
-      to="/curriculum/new"
+      to={getCurriculumLinks().new}
       art={<ConstellationArt />}
       title={t`Create personal program`}
       description={t`Design your own path. Pick a topic, set the depth, and start building skills.`}

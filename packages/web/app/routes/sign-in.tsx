@@ -6,6 +6,7 @@ import { z } from "zod";
 import { AuthLayout } from "../../src/components/AuthLayout";
 import { authClient } from "../../src/lib/authClient";
 import { safeRedirectPath } from "../../src/lib/redirect";
+import { getAuthLinks } from "../../src/lib/routes";
 import { auth } from "../../src/server/auth";
 import type { Route } from "./+types/sign-in";
 
@@ -60,7 +61,7 @@ export default function SignIn() {
     }
   };
 
-  const signUpHref = redirectTo === "/" ? "/sign-up" : `/sign-up?redirect=${encodeURIComponent(redirectTo)}`;
+  const signUpHref = getAuthLinks().signUpWithRedirect(redirectTo);
 
   return (
     <AuthLayout>

@@ -5,6 +5,7 @@ import { getCurriculum } from "../../src/data/curriculum";
 import { useAllCurriculums } from "../../src/hooks/useAllCurriculums";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
 import { getLocaleFromRequest } from "../../src/lib/i18n";
+import { getHomeRoute } from "../../src/lib/routes";
 import { auth } from "../../src/server/auth";
 import { db } from "../../src/server/db";
 import type { Route } from "./+types/curriculum.$curriculumId";
@@ -68,7 +69,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <Trans>An unexpected error occurred. Please try again.</Trans>
         )}
       </p>
-      <Button size="lg" render={<Link to="/" />} className="mt-8">
+      <Button size="lg" render={<Link to={getHomeRoute()} />} className="mt-8">
         <Trans>Back to home</Trans>
       </Button>
     </main>

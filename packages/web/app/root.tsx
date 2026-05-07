@@ -46,6 +46,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       ),
     },
     customCurriculums: customCurriculums
+      .filter((c) => c.status === "published")
       .map((c) =>
         parseCurriculumDef({
           ...c,
@@ -55,6 +56,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         }),
       )
       .filter((c) => c !== null),
+    hasDrafts: customCurriculums.some((c) => c.status === "draft"),
   };
 }
 

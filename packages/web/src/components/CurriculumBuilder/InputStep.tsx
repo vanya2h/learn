@@ -1,13 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { type Complexity, COMPLEXITY_LEVELS } from "../../data/types";
 import { Card } from "../Card";
 import { MethodPicker } from "./methods/MethodPicker";
 import { BuilderActionBar } from "./BuilderActionBar";
-import type { InputMode } from "./useCurriculumBuilder";
 
 import { Button } from "~/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
@@ -39,6 +37,10 @@ const inputSchema = z
 
 type InputFormValues = z.infer<typeof inputSchema>;
 
+export type InputStepValues =
+  | { inputMode: "url"; url: string; complexity: Complexity }
+  | { inputMode: "pdf"; file: File; complexity: Complexity };
+
 function isValidHttpUrl(value: string): boolean {
   if (!value) return false;
   try {
@@ -49,33 +51,17 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
-type InputStepProps = {
-  method: InputMode;
-  setMethod: (m: InputMode) => void;
-  url: string;
-  setUrl: (v: string) => void;
-  file: File | null;
-  setFile: (f: File | null) => void;
-  complexity: Complexity;
-  setComplexity: (v: Complexity) => void;
-  onGenerate: () => void;
+export type InputStepProps = {
+  defaultComplexity?: Complexity;
+  generating?: boolean;
+  onGenerate: (values: InputStepValues) => void;
 };
 
-export function InputStep({
-  method,
-  setMethod,
-  url,
-  setUrl,
-  file,
-  setFile,
-  complexity,
-  setComplexity,
-  onGenerate,
-}: InputStepProps) {
+export function InputStep({ defaultComplexity = "medium", generating = false, onGenerate }: InputStepProps) {
   const form = useForm<InputFormValues>({
     resolver: zodResolver(inputSchema),
     mode: "onChange",
-    defaultValues: { inputMode: method, url, file, complexity },
+    defaultValues: { inputMode: null, url: "", file: null, complexity: defaultComplexity },
   });
 
   const {
@@ -90,54 +76,39 @@ export function InputStep({
   const watchedFile = useWatch({ control, name: "file" });
   const watchedComplexity = useWatch({ control, name: "complexity" });
 
-  useEffect(() => {
-    setValue("inputMode", method, { shouldValidate: true });
-  }, [method, setValue]);
-
   function handleUrlChange(v: string) {
     setValue("url", v, { shouldValidate: true, shouldTouch: true });
-    setUrl(v);
     if (v.trim()) {
-      if (watchedFile) {
-        setValue("file", null);
-        setFile(null);
-      }
-      if (watchedMode !== "url") {
-        setValue("inputMode", "url", { shouldValidate: true });
-        setMethod("url");
-      }
+      if (watchedFile) setValue("file", null);
+      if (watchedMode !== "url") setValue("inputMode", "url", { shouldValidate: true });
     } else if (watchedMode === "url") {
       setValue("inputMode", null, { shouldValidate: true });
-      setMethod(null);
     }
   }
 
   function handleFileChange(f: File | null) {
     setValue("file", f, { shouldValidate: true, shouldTouch: true });
-    setFile(f);
     if (f) {
-      if (watchedUrl) {
-        setValue("url", "");
-        setUrl("");
-      }
-      if (watchedMode !== "pdf") {
-        setValue("inputMode", "pdf", { shouldValidate: true });
-        setMethod("pdf");
-      }
+      if (watchedUrl) setValue("url", "");
+      if (watchedMode !== "pdf") setValue("inputMode", "pdf", { shouldValidate: true });
     } else if (watchedMode === "pdf") {
       setValue("inputMode", null, { shouldValidate: true });
-      setMethod(null);
     }
   }
 
   function handleComplexityChange(v: Complexity) {
     setValue("complexity", v, { shouldValidate: true });
-    setComplexity(v);
   }
 
   const urlError = touchedFields.url ? errors.url?.message : undefined;
 
-  const submit = handleSubmit(() => onGenerate());
+  const submit = handleSubmit((data) => {
+    if (data.inputMode === "url") {
+      onGenerate({ inputMode: "url", url: data.url, complexity: data.complexity });
+    } else if (data.inputMode === "pdf" && data.file) {
+      onGenerate({ inputMode: "pdf", file: data.file, complexity: data.complexity });
+    }
+  });
 
   return (
     <form
@@ -148,21 +119,23 @@ export function InputStep({
           void submit();
         }
       }}
-      className="flex w-full flex-col gap-4 mt-[8vh]"
+      className="flex w-full flex-col gap-4"
     >
-      <MethodPicker
-        url={watchedUrl}
-        onUrlChange={handleUrlChange}
-        urlError={urlError}
-        file={watchedFile}
-        onFileChange={handleFileChange}
-        activeMethod={watchedMode}
-      />
+      <Card.List>
+        <MethodPicker
+          url={watchedUrl}
+          onUrlChange={handleUrlChange}
+          urlError={urlError}
+          file={watchedFile}
+          onFileChange={handleFileChange}
+          activeMethod={watchedMode}
+        />
 
-      <DepthRow depth={watchedComplexity} setDepth={handleComplexityChange} enabled={isValid} />
+        <DepthRow depth={watchedComplexity} setDepth={handleComplexityChange} enabled={isValid} />
+      </Card.List>
 
       <BuilderActionBar>
-        <Button className="ml-auto" type="button" onClick={() => void submit()} disabled={!isValid}>
+        <Button className="ml-auto" type="button" onClick={() => void submit()} disabled={!isValid || generating}>
           <Trans>Generate program →</Trans>
         </Button>
       </BuilderActionBar>
@@ -188,28 +161,40 @@ function DepthRow({
   ];
 
   return (
-    <div className={cn("transition-opacity duration-300", enabled ? "opacity-100" : "pointer-events-none opacity-45")}>
+    <Card.Entry
+      className={cn(
+        "p-0 last:pb-0 transition-opacity duration-300",
+        enabled ? "opacity-100" : "pointer-events-none opacity-45",
+      )}
+    >
       <RadioGroup
         value={depth}
         onValueChange={(v) => setDepth(v as Complexity)}
         disabled={!enabled}
-        className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-0"
       >
-        {opts.map((o) => {
+        {opts.map((o, i) => {
           const active = depth === o.value;
+          const isLast = i === opts.length - 1;
           return (
-            <label key={o.value} className={cn(enabled ? "cursor-pointer" : "cursor-not-allowed")}>
-              <Card hoverable active={active} className="px-4 py-3.5">
-                <div className="mb-1 flex items-center gap-2">
-                  <RadioGroupItem value={o.value} />
-                  <span className="font-semibold text-foreground">{o.label}</span>
-                </div>
-                <p className="pl-6 text-[12px] leading-normal text-muted-foreground">{o.description}</p>
-              </Card>
+            <label
+              key={o.value}
+              className={cn(
+                "px-6 py-4 transition-[background-color] duration-300 ease-out",
+                enabled ? "cursor-pointer" : "cursor-not-allowed",
+                active ? "bg-card-active" : enabled && "hover:bg-card-hover",
+                !isLast && "border-b border-border sm:border-b-0 sm:border-r",
+              )}
+            >
+              <div className="mb-1 flex items-center gap-2">
+                <RadioGroupItem value={o.value} />
+                <span className="font-semibold text-foreground">{o.label}</span>
+              </div>
+              <p className="pl-6 text-[12px] leading-normal text-muted-foreground">{o.description}</p>
             </label>
           );
         })}
       </RadioGroup>
-    </div>
+    </Card.Entry>
   );
 }

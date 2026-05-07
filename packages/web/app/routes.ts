@@ -7,6 +7,12 @@ export default [
   layout("./routes/app-layout.tsx", [
     index("./routes/home.tsx"),
     route("curriculum/new", "./routes/curriculum.new.tsx"),
+    route("curriculum/draft/:id", "./routes/curriculum.draft.tsx", [
+      index("./routes/curriculum.draft.index.tsx"),
+      route("outline", "./routes/curriculum.draft.outline.tsx"),
+      route("phases/:phaseId", "./routes/curriculum.draft.phases.tsx"),
+      route("finish", "./routes/curriculum.draft.finish.tsx"),
+    ]),
     route("curriculum/:curriculumId", "./routes/curriculum.$curriculumId.tsx"),
     route("topic/:curriculumId/:taskId", "./routes/topic-layout.tsx", [
       index("./routes/topic.index.tsx"),

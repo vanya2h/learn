@@ -13,6 +13,7 @@ import { useTopicSession } from "../../src/hooks/useTopicSession";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
 import { getLocaleFromRequest } from "../../src/lib/i18n";
 import { highestPhase, parseTopicSessionState, PHASE_ORDER } from "../../src/lib/phase";
+import { getCurriculumLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
@@ -85,14 +86,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   let taskInfo = findTask(listCurriculums(locale), params.taskId);
 
   if (!taskInfo) {
-    const custom = await db.customCurriculum.findMany({ where: { userId: session.user.id } });
+    const custom = await db.customCurriculum.findMany({
+      where: { userId: session.user.id, status: "published" },
+    });
     const customCurriculums = custom
       .map((c) => parseCurriculumDef({ ...c, description: c.description ?? undefined }))
       .filter((c) => c !== null);
     taskInfo = findTask(customCurriculums, params.taskId);
   }
 
-  if (!taskInfo) return redirect(`/curriculum/${params.curriculumId}`);
+  if (!taskInfo) return redirect(getCurriculumLinks().byId(params.curriculumId));
 
   const record = await db.topicSession.findUnique({
     where: { userId_taskId: { userId: session.user.id, taskId: params.taskId } },
@@ -117,7 +120,9 @@ function TopicBreadcrumb() {
   return (
     <>
       <BreadcrumbItem>
-        <BreadcrumbLink render={<Link to={`/curriculum/${curriculumId}`} />}>{curriculumName}</BreadcrumbLink>
+        <BreadcrumbLink render={<Link to={curriculumId ? getCurriculumLinks().byId(curriculumId) : "#"} />}>
+          {curriculumName}
+        </BreadcrumbLink>
       </BreadcrumbItem>
       <BreadcrumbSeparator />
       <BreadcrumbItem className="text-muted-foreground">

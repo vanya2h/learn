@@ -4,10 +4,18 @@ import type { Prisma } from "@prisma/client-generated";
 import { Hono } from "hono";
 import { extractText, getDocumentProxy } from "unpdf";
 import { z } from "zod";
-import { COMPLEXITY_LEVELS, OutlinePhaseSchema, PhaseSchema, SkillSchema } from "../../data/types";
-import { generateGradient } from "../../lib/gradient";
+import {
+  COMPLEXITY_LEVELS,
+  OutlinePhaseSchema,
+  parseCurriculumOutline,
+  parsePhase,
+  PhaseSchema,
+  SkillSchema,
+} from "../../data/types";
+import { generateGradient, GradientCoverSchema } from "../../lib/gradient";
 import type { Locale } from "../../lib/i18n";
 import { LOCALES, localizeSystem } from "../../lib/i18n";
+import { parseJSON } from "../../lib/json";
 import { db } from "../db";
 import type { AuthEnv } from "../middleware/requireAuth";
 
@@ -135,7 +143,13 @@ function cleanHtml(html: string): string {
     .slice(0, 15000);
 }
 
-function streamLLM(system: string, userMessage: string, locale: Locale | undefined, maxTokens = 4000): Response {
+function streamLLM(
+  system: string,
+  userMessage: string,
+  locale: Locale | undefined,
+  maxTokens = 4000,
+  onComplete?: (fullText: string) => Promise<void> | void,
+): Response {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
 
@@ -147,14 +161,18 @@ function streamLLM(system: string, userMessage: string, locale: Locale | undefin
     messages: [{ role: "user", content: userMessage }],
   });
 
+  let accumulated = "";
+
   const body = new ReadableStream({
     async start(controller) {
       try {
         for await (const event of stream) {
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            accumulated += event.delta.text;
             controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(event.delta.text)}\n\n`));
           }
         }
+        if (onComplete) await onComplete(accumulated);
         controller.close();
       } catch (err) {
         console.error("[curriculum] stream error:", err);
@@ -173,6 +191,20 @@ function streamLLM(system: string, userMessage: string, locale: Locale | undefin
       Connection: "keep-alive",
     },
   });
+}
+
+async function extractFromUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; CurriculumBot/1.0)" },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const text = cleanHtml(html);
+    return text.length < 300 ? null : text;
+  } catch {
+    return null;
+  }
 }
 
 const generateSchema = z.object({
@@ -213,6 +245,40 @@ const generatePhaseSchema = z.object({
   locale: z.enum(LOCALES).optional(),
 });
 
+const SelectionsSchema = z.object({
+  selectedPhaseIds: z.array(z.string()),
+  deselectedTaskIds: z.array(z.string()),
+  currentPhaseIdx: z.number().int().min(0).optional(),
+});
+
+const draftCreateSchema = z
+  .object({
+    inputMode: z.enum(["url", "pdf"]),
+    url: z.url().optional(),
+    textContent: z.string().min(100).optional(),
+    complexity: z.enum(COMPLEXITY_LEVELS),
+    cover: GradientCoverSchema.optional(),
+  })
+  .refine((d) => (d.inputMode === "url" ? !!d.url : !!d.textContent), {
+    message: "url required for URL mode; textContent required for PDF mode",
+  });
+
+const draftUpdateSchema = z.object({
+  selections: SelectionsSchema.optional(),
+  complexity: z.enum(COMPLEXITY_LEVELS).optional(),
+});
+
+const draftStreamSchema = z.object({
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
+
+const draftStreamPhaseSchema = z.object({
+  phaseId: z.string(),
+  feedback: z.string().optional(),
+  locale: z.enum(LOCALES).optional(),
+});
+
 const saveSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
@@ -225,20 +291,8 @@ const saveSchema = z.object({
 export const curriculumRoute = new Hono<AuthEnv>()
   .post("/curriculums/extract", zValidator("json", extractSchema), async (c) => {
     const { url } = c.req.valid("json");
-
-    let pageText: string;
-    try {
-      const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; CurriculumBot/1.0)" },
-      });
-      if (!res.ok) return c.json({ error: PDF_FALLBACK_HINT }, 400);
-      pageText = await res.text();
-    } catch {
-      return c.json({ error: PDF_FALLBACK_HINT }, 400);
-    }
-
-    const text = cleanHtml(pageText);
-    if (text.length < 300) return c.json({ error: PDF_FALLBACK_HINT }, 400);
+    const text = await extractFromUrl(url);
+    if (!text) return c.json({ error: PDF_FALLBACK_HINT }, 400);
     return c.json({ text });
   })
   .post("/curriculums/extract-pdf", zValidator("form", extractPdfSchema), async (c) => {
@@ -367,4 +421,210 @@ export const curriculumRoute = new Hono<AuthEnv>()
 
     await db.customCurriculum.deleteMany({ where: { id, userId } });
     return c.json({ ok: true });
+  })
+  .get("/curriculums/drafts", async (c) => {
+    const userId = c.get("user").id;
+    const drafts = await db.customCurriculum.findMany({
+      where: { userId, status: "draft" },
+      orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        jobUrl: true,
+        cover: true,
+        complexity: true,
+        outline: true,
+        updatedAt: true,
+        createdAt: true,
+      },
+    });
+    return c.json({ drafts });
+  })
+  .post("/curriculums/drafts", zValidator("json", draftCreateSchema), async (c) => {
+    const userId = c.get("user").id;
+    const { inputMode, url, textContent, complexity, cover } = c.req.valid("json");
+
+    const draft = await db.customCurriculum.create({
+      data: {
+        userId,
+        status: "draft",
+        complexity,
+        cover: (cover ?? generateGradient()) as Prisma.InputJsonValue,
+        jobUrl: inputMode === "url" ? url : null,
+        textContent: inputMode === "pdf" ? (textContent ?? null) : null,
+      },
+    });
+
+    return c.json({ id: draft.id });
+  })
+  .patch("/curriculums/drafts/:id", zValidator("json", draftUpdateSchema), async (c) => {
+    const userId = c.get("user").id;
+    const id = c.req.param("id");
+    const updates = c.req.valid("json");
+
+    const draft = await db.customCurriculum.findFirst({ where: { id, userId, status: "draft" } });
+    if (!draft) return c.json({ error: "Draft not found" }, 404);
+
+    await db.customCurriculum.update({
+      where: { id },
+      data: {
+        ...(updates.complexity ? { complexity: updates.complexity } : {}),
+        ...(updates.selections ? { selections: updates.selections as Prisma.InputJsonValue } : {}),
+      },
+    });
+    return c.json({ ok: true });
+  })
+  .delete("/curriculums/drafts/:id", async (c) => {
+    const userId = c.get("user").id;
+    const id = c.req.param("id");
+
+    await db.customCurriculum.deleteMany({ where: { id, userId, status: "draft" } });
+    return c.json({ ok: true });
+  })
+  .post("/curriculums/drafts/:id/extract", async (c) => {
+    const userId = c.get("user").id;
+    const id = c.req.param("id");
+
+    const draft = await db.customCurriculum.findFirst({ where: { id, userId, status: "draft" } });
+    if (!draft) return c.json({ error: "Draft not found" }, 404);
+    if (draft.textContent) return c.json({ ok: true, alreadyExtracted: true });
+    if (!draft.jobUrl) return c.json({ error: "Draft has no jobUrl to extract from" }, 400);
+
+    const text = await extractFromUrl(draft.jobUrl);
+    if (!text) return c.json({ error: PDF_FALLBACK_HINT }, 400);
+
+    await db.customCurriculum.update({ where: { id }, data: { textContent: text } });
+    return c.json({ ok: true });
+  })
+  .post("/curriculums/drafts/:id/generate-outline", zValidator("json", draftStreamSchema), async (c) => {
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+    const userId = c.get("user").id;
+    const id = c.req.param("id");
+    const { feedback, locale } = c.req.valid("json");
+
+    const draft = await db.customCurriculum.findFirst({ where: { id, userId, status: "draft" } });
+    if (!draft) return c.json({ error: "Draft not found" }, 404);
+    if (!draft.textContent) return c.json({ error: "No extracted text yet" }, 400);
+
+    const userMessage = [
+      `Job posting:\n\n${draft.textContent}`,
+      `\n\nComplexity: ${draft.complexity}`,
+      feedback ? `\n\nFeedback on previous outline:\n${feedback}` : "",
+    ].join("");
+
+    return streamLLM(OUTLINE_SYSTEM, userMessage, locale, 2000, async (fullText) => {
+      try {
+        const parsed = parseCurriculumOutline(parseJSON<unknown>(fullText));
+        if (!parsed) {
+          console.error("[draft generate-outline] failed to parse");
+          return;
+        }
+        await db.customCurriculum.update({
+          where: { id },
+          data: {
+            outline: parsed as unknown as Prisma.InputJsonValue,
+            name: parsed.name,
+            description: parsed.description,
+            generatedPhases: {} as Prisma.InputJsonValue,
+            selections: {
+              selectedPhaseIds: parsed.phases.map((p) => p.id),
+              deselectedTaskIds: [],
+              currentPhaseIdx: 0,
+            } as Prisma.InputJsonValue,
+          },
+        });
+      } catch (err) {
+        console.error("[draft generate-outline] persist error:", err);
+      }
+    });
+  })
+  .post("/curriculums/drafts/:id/generate-phase", zValidator("json", draftStreamPhaseSchema), async (c) => {
+    if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
+    const userId = c.get("user").id;
+    const id = c.req.param("id");
+    const { phaseId, feedback, locale } = c.req.valid("json");
+
+    const draft = await db.customCurriculum.findFirst({ where: { id, userId, status: "draft" } });
+    if (!draft) return c.json({ error: "Draft not found" }, 404);
+    if (!draft.textContent) return c.json({ error: "No extracted text yet" }, 400);
+
+    const outline = parseCurriculumOutline(draft.outline);
+    if (!outline) return c.json({ error: "Invalid or missing outline" }, 400);
+
+    const phaseIndex = outline.phases.findIndex((p) => p.id === phaseId);
+    if (phaseIndex === -1) return c.json({ error: "Phase not in outline" }, 400);
+    const phase = outline.phases[phaseIndex]!;
+
+    const generatedPhases = (draft.generatedPhases ?? {}) as Record<string, unknown>;
+    const completedPhases = outline.phases
+      .filter((p) => p.id !== phaseId && generatedPhases[p.id])
+      .map((p) => generatedPhases[p.id]);
+
+    const userMessage = [
+      `Job posting:\n\n${draft.textContent}`,
+      `\n\nComplexity: ${draft.complexity}`,
+      `\n\nCurriculum outline:\n${JSON.stringify(outline, null, 2)}`,
+      completedPhases.length > 0
+        ? `\nAlready generated phases (for context — do not duplicate tasks):\n${JSON.stringify(completedPhases, null, 2)}\n`
+        : "",
+      `\n\nGenerate tasks for phase ${phaseIndex + 1} of ${outline.phases.length}: "${phase.title}" (id: "${phaseId}")`,
+      feedback ? `\n\nFeedback to incorporate: ${feedback}` : "",
+    ].join("");
+
+    return streamLLM(PHASE_SYSTEM, userMessage, locale, 1500, async (fullText) => {
+      try {
+        const parsed = parsePhase(parseJSON<unknown>(fullText));
+        if (!parsed) {
+          console.error("[draft generate-phase] failed to parse");
+          return;
+        }
+        const next = { ...generatedPhases, [phaseId]: parsed };
+        await db.customCurriculum.update({
+          where: { id },
+          data: { generatedPhases: next as Prisma.InputJsonValue },
+        });
+      } catch (err) {
+        console.error("[draft generate-phase] persist error:", err);
+      }
+    });
+  })
+  .post("/curriculums/drafts/:id/publish", async (c) => {
+    const userId = c.get("user").id;
+    const id = c.req.param("id");
+
+    const draft = await db.customCurriculum.findFirst({ where: { id, userId, status: "draft" } });
+    if (!draft) return c.json({ error: "Draft not found" }, 404);
+
+    const outline = parseCurriculumOutline(draft.outline);
+    if (!outline) return c.json({ error: "Outline missing or invalid" }, 400);
+
+    const selections = SelectionsSchema.safeParse(draft.selections);
+    if (!selections.success) return c.json({ error: "Selections missing or invalid" }, 400);
+    const { selectedPhaseIds, deselectedTaskIds } = selections.data;
+
+    const generatedPhases = (draft.generatedPhases ?? {}) as Record<string, unknown>;
+    const finalPhases = outline.phases
+      .filter((p) => selectedPhaseIds.includes(p.id))
+      .map((p) => {
+        const generated = parsePhase(generatedPhases[p.id]);
+        if (!generated) return null;
+        return { ...generated, tasks: generated.tasks.filter((t) => !deselectedTaskIds.includes(t.id)) };
+      })
+      .filter((p): p is NonNullable<typeof p> => p !== null && p.tasks.length > 0);
+
+    if (finalPhases.length === 0) return c.json({ error: "No generated phases to publish" }, 400);
+
+    await db.customCurriculum.update({
+      where: { id },
+      data: {
+        status: "published",
+        name: outline.name,
+        description: outline.description,
+        phases: finalPhases as unknown as Prisma.InputJsonValue,
+        skills: outline.skills ? (outline.skills as unknown as Prisma.InputJsonValue) : undefined,
+      },
+    });
+
+    return c.json({ id });
   });

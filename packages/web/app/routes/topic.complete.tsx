@@ -1,5 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { useNavigate, useParams, useRouteLoaderData } from "react-router";
+import { getCurriculumLinks } from "../../src/lib/routes";
 import type { loader as layoutLoader } from "./topic-layout";
 
 import { Card } from "~/components/Card";
@@ -25,7 +26,10 @@ export default function CompletePage() {
               been marked as done.
             </Trans>
           </p>
-          <Button className="mt-6 ml-auto" onClick={() => void navigate(`/curriculum/${curriculumId}`)}>
+          <Button
+            className="mt-6 ml-auto"
+            onClick={() => curriculumId && void navigate(getCurriculumLinks().byId(curriculumId))}
+          >
             <Trans>Continue</Trans>
           </Button>
         </Card>

@@ -1,11 +1,12 @@
 import { Trans } from "@lingui/react/macro";
-import { DoorOpenIcon, MoonIcon, PlusIcon, SunIcon } from "@phosphor-icons/react";
+import { DoorOpenIcon, MoonIcon, PlusIcon, SquaresFourIcon, SunIcon } from "@phosphor-icons/react";
 import { Fragment, useEffect, useState } from "react";
 import { Link, useLocation, useMatches, useNavigate } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
 import { useTheme } from "../hooks/useTheme";
 import { authClient } from "../lib/authClient";
 import type { BreadcrumbHandle } from "../lib/breadcrumbs";
+import { getAuthLinks, getCurriculumLinks, getHomeRoute } from "../lib/routes";
 import type { AuthUser } from "../server/auth";
 
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
@@ -53,13 +54,15 @@ function UserAvatar({ user }: { user: AuthUser }) {
 }
 
 export function Header() {
-  const user = (useRootData()?.user ?? null) as AuthUser | null;
+  const root = useRootData();
+  const user = (root?.user ?? null) as AuthUser | null;
+  const hasDrafts = root?.hasDrafts ?? false;
   const { toggle, theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
-  const signInHref = `/sign-in?redirect=${encodeURIComponent(location.pathname + location.search)}`;
+  const signInHref = getAuthLinks().signInWithRedirect(location.pathname + location.search);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 0);
@@ -84,7 +87,10 @@ export function Header() {
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
           <div className="shrink-0">
             <h1 className="text-lg sm:text-2xl font-semibold leading-none">
-              <Link to="/" className="text-foreground hover:opacity-75 transition-opacity whitespace-nowrap">
+              <Link
+                to={getHomeRoute()}
+                className="text-foreground hover:opacity-75 transition-opacity whitespace-nowrap"
+              >
                 <Trans>Learning Tracker</Trans>
               </Link>
             </h1>
@@ -104,10 +110,10 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
-          <Button render={<Link to="/curriculum/new" />}>
-            <PlusIcon className="sm:hidden" />
+          <Button render={<Link to={getCurriculumLinks().new} />}>
+            {hasDrafts ? <SquaresFourIcon className="sm:hidden" /> : <PlusIcon className="sm:hidden" />}
             <span className="hidden sm:inline">
-              <Trans>New program</Trans>
+              {hasDrafts ? <Trans>My Programs</Trans> : <Trans>New program</Trans>}
             </span>
           </Button>
           {user ? (
@@ -128,7 +134,7 @@ export function Header() {
                   {theme === "dark" ? <SunIcon size={14} /> : <MoonIcon size={14} />}
                   <Trans>Toggle theme</Trans>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => authClient.signOut().then(() => navigate("/"))}>
+                <DropdownMenuItem onClick={() => authClient.signOut().then(() => navigate(getHomeRoute()))}>
                   <DoorOpenIcon size={14} />
                   <Trans>Sign out</Trans>
                 </DropdownMenuItem>

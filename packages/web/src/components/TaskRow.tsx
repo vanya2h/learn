@@ -5,6 +5,7 @@ import type { Task } from "../data/types";
 import type { ActiveSession } from "../hooks/useProgress";
 import { useProgress } from "../hooks/useProgress";
 import { apiClient } from "../lib/apiClient";
+import { getTopicLinks } from "../lib/routes";
 
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -72,13 +73,13 @@ export function TaskRow({ task, curriculumId }: { task: Task; curriculumId: stri
               variant="secondary"
               onClick={() => {
                 void parseResponse(apiClient.api["topic-sessions"][":taskId"].$delete({ param: { taskId: task.id } }));
-                navigate(`/topic/${curriculumId}/${task.id}`);
+                navigate(getTopicLinks(curriculumId, task.id).index);
               }}
             >
               <Trans>Start over</Trans>
             </Button>
           )}
-          <Button size="xs" variant="default" onClick={() => navigate(`/topic/${curriculumId}/${task.id}`)}>
+          <Button size="xs" variant="default" onClick={() => navigate(getTopicLinks(curriculumId, task.id).index)}>
             {activeSession ? <Trans>Continue</Trans> : <Trans>Start</Trans>}
           </Button>
         </div>

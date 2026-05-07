@@ -126,18 +126,23 @@ model TopicSession {
 // ─── Custom curriculums ───────────────────────────────────────────────────────
 
 model CustomCurriculum {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  description String?
-  jobUrl      String?
-  cover       Json?
-  phases      Json
-  skills      Json?
-  complexity  String   @default("deep")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String   @default("published")
+  name            String   @default("")
+  description     String?
+  jobUrl          String?
+  textContent     String?
+  cover           Json?
+  outline         Json?
+  generatedPhases Json?
+  selections      Json?
+  phases          Json?
+  skills          Json?
+  complexity      String   @default("deep")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("custom_curriculums")
 }

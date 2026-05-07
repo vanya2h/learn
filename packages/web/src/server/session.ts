@@ -1,4 +1,5 @@
 import { redirect } from "react-router";
+import { getAuthLinks } from "../lib/routes";
 import { auth } from "./auth";
 
 export async function requireSession(request: Request) {
@@ -6,7 +7,7 @@ export async function requireSession(request: Request) {
   if (!session) {
     const url = new URL(request.url);
     const target = `${url.pathname}${url.search}`;
-    throw redirect(`/sign-in?redirect=${encodeURIComponent(target)}`);
+    throw redirect(getAuthLinks().signInWithRedirect(target));
   }
   return session;
 }

@@ -6,6 +6,7 @@ import { useAllCurriculums } from "../hooks/useAllCurriculums";
 import { useProgress } from "../hooks/useProgress";
 import { useTheme } from "../hooks/useTheme";
 import { GRADIENT_PRESETS } from "../lib/gradient";
+import { getCurriculumLinks } from "../lib/routes";
 import { computeUnlockedSkills } from "../lib/skills";
 import { AnimatedText } from "./AnimatedText";
 import { GradientBackground } from "./GradientBg";
@@ -139,7 +140,7 @@ export function Dashboard() {
           <Button
             size="lg"
             variant="default"
-            render={<Link to="/curriculum/new" />}
+            render={<Link to={getCurriculumLinks().new} />}
             className="mt-10 active:scale-[0.98] transition-all animate-fade-rise [animation-delay:1500ms]"
           >
             <Trans>New Program</Trans>
