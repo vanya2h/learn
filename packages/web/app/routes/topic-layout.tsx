@@ -154,6 +154,7 @@ export default function TopicLayout() {
   return (
     <TopicActionBarSlotContext value={actionBarSlot}>
       <TopicHeader taskTitle={task.title} curriculumName={curriculumName} onStartOver={startOver} />
+
       <div className="flex flex-1">
         <TopicSidebar items={items} reachedIndex={reachedIndex} />
         <div className="flex-1 min-w-0 border-l border-border flex flex-col relative">

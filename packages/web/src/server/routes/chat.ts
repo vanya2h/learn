@@ -3,6 +3,8 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { LOCALES, localizeSystem } from "../../lib/i18n";
+import { appendProfileToSystem, getProfileContext } from "../lib/profileContext";
+import type { AuthEnv } from "../middleware/requireAuth";
 
 const chatSchema = z.object({
   messages: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })),
@@ -11,7 +13,7 @@ const chatSchema = z.object({
   locale: z.enum(LOCALES).optional(),
 });
 
-export const chatRoute = new Hono().post("/chat", zValidator("json", chatSchema), async (c) => {
+export const chatRoute = new Hono<AuthEnv>().post("/chat", zValidator("json", chatSchema), async (c) => {
   const { messages, system, maxTokens, locale } = c.req.valid("json");
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -21,11 +23,13 @@ export const chatRoute = new Hono().post("/chat", zValidator("json", chatSchema)
   const anthropic = new Anthropic({ apiKey });
 
   const localizedSystem = system && locale ? localizeSystem(locale, system) : system;
+  const profile = await getProfileContext(c.var.user.id);
+  const finalSystem = localizedSystem ? appendProfileToSystem(localizedSystem, profile) : localizedSystem;
 
   const stream = anthropic.messages.stream({
     model: "claude-sonnet-4-6",
     max_tokens: maxTokens,
-    system: localizedSystem,
+    system: finalSystem,
     messages,
   });
 

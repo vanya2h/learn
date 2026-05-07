@@ -11,21 +11,23 @@ datasource db {
 // ─── Better Auth tables ───────────────────────────────────────────────────────
 
 model User {
-  id            String   @id
-  name          String
-  email         String   @unique
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
+  id                 String   @id
+  name               String
+  email              String   @unique
+  emailVerified      Boolean
+  image              String?
+  createdAt          DateTime
+  updatedAt          DateTime
+  onboardingSkipped  Boolean  @default(false)
 
-  sessions        Session[]
-  accounts        Account[]
-  taskCompletions TaskCompletion[]
-  dailyActivities DailyActivity[]
-  settings        AppSetting[]
+  sessions           Session[]
+  accounts           Account[]
+  taskCompletions    TaskCompletion[]
+  dailyActivities    DailyActivity[]
+  settings           AppSetting[]
   topicSessions      TopicSession[]
   customCurriculums  CustomCurriculum[]
+  profile            UserProfile?
 
   @@map("users")
 }
@@ -121,6 +123,20 @@ model TopicSession {
 
   @@unique([userId, taskId])
   @@map("topic_sessions")
+}
+
+// ─── User profile (CV-derived context) ───────────────────────────────────────
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  markdown    String
+  targetRoles String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("user_profiles")
 }
 
 // ─── Custom curriculums ───────────────────────────────────────────────────────

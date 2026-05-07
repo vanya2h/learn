@@ -13,20 +13,38 @@ import "../src/index.css";
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = getLocaleFromRequest(request);
   const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) return { locale, user: null, progress: null };
+  if (!session) return { locale, user: null, progress: null, onboarding: null, profile: null };
 
   const userId = session.user.id;
-  const [completions, activities, startedAt, topicSessions, customCurriculums] = await Promise.all([
-    db.taskCompletion.findMany({ where: { userId } }),
-    db.dailyActivity.findMany({ where: { userId } }),
-    db.appSetting.findUnique({ where: { key_userId: { key: "startedAt", userId } } }),
-    db.topicSession.findMany({ where: { userId } }),
-    db.customCurriculum.findMany({ where: { userId } }),
-  ]);
+  const [completions, activities, startedAt, topicSessions, customCurriculums, userRecord, profile] = await Promise.all(
+    [
+      db.taskCompletion.findMany({ where: { userId } }),
+      db.dailyActivity.findMany({ where: { userId } }),
+      db.appSetting.findUnique({ where: { key_userId: { key: "startedAt", userId } } }),
+      db.topicSession.findMany({ where: { userId } }),
+      db.customCurriculum.findMany({ where: { userId } }),
+      db.user.findUnique({ where: { id: userId }, select: { onboardingSkipped: true } }),
+      db.userProfile.findUnique({
+        where: { userId },
+        select: { markdown: true, targetRoles: true, updatedAt: true },
+      }),
+    ],
+  );
 
   return {
     locale,
     user: session.user,
+    onboarding: {
+      skipped: userRecord?.onboardingSkipped ?? false,
+      hasProfile: !!profile && profile.markdown.trim().length > 0,
+    },
+    profile: profile
+      ? {
+          markdown: profile.markdown,
+          targetRoles: profile.targetRoles,
+          updatedAt: profile.updatedAt.toISOString(),
+        }
+      : null,
     progress: {
       completedTaskIds: Object.fromEntries(completions.map((t) => [t.taskId, t.completedAt.toISOString()])),
       activity: Object.fromEntries(

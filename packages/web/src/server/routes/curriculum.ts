@@ -17,6 +17,7 @@ import type { Locale } from "../../lib/i18n";
 import { LOCALES, localizeSystem } from "../../lib/i18n";
 import { parseJSON } from "../../lib/json";
 import { db } from "../db";
+import { appendProfileToSystem, getProfileContext, type ProfileContext } from "../lib/profileContext";
 import type { AuthEnv } from "../middleware/requireAuth";
 
 const GENERATE_SYSTEM = `You generate interview-prep curriculums from job postings.
@@ -149,15 +150,18 @@ function streamLLM(
   locale: Locale | undefined,
   maxTokens = 4000,
   onComplete?: (fullText: string) => Promise<void> | void,
+  profile?: ProfileContext | null,
 ): Response {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
 
   const anthropic = new Anthropic({ apiKey });
+  const localized = locale ? localizeSystem(locale, system) : system;
+  const finalSystem = appendProfileToSystem(localized, profile ?? null);
   const stream = anthropic.messages.stream({
     model: "claude-sonnet-4-6",
     max_tokens: maxTokens,
-    system: locale ? localizeSystem(locale, system) : system,
+    system: finalSystem,
     messages: [{ role: "user", content: userMessage }],
   });
 
@@ -316,6 +320,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
   .post("/curriculums/generate-outline", zValidator("json", generateOutlineSchema), async (c) => {
     if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
     const { textContent, complexity, feedback, locale } = c.req.valid("json");
+    const profile = await getProfileContext(c.var.user.id);
 
     const userMessage = [
       `Job posting:\n\n${textContent}`,
@@ -323,7 +328,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
       feedback ? `\n\nFeedback on previous outline:\n${feedback}` : "",
     ].join("");
 
-    return streamLLM(OUTLINE_SYSTEM, userMessage, locale, 2000);
+    return streamLLM(OUTLINE_SYSTEM, userMessage, locale, 2000, undefined, profile);
   })
   .post("/curriculums/generate-phase", zValidator("json", generatePhaseSchema), async (c) => {
     if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
@@ -346,7 +351,8 @@ export const curriculumRoute = new Hono<AuthEnv>()
       feedback ? `\n\nFeedback to incorporate: ${feedback}` : "",
     ].join("");
 
-    return streamLLM(PHASE_SYSTEM, userMessage, locale, 1500);
+    const profile = await getProfileContext(c.var.user.id);
+    return streamLLM(PHASE_SYSTEM, userMessage, locale, 1500, undefined, profile);
   })
   .post("/curriculums/generate", zValidator("json", generateSchema), async (c) => {
     const { url, feedback, locale } = c.req.valid("json");
@@ -370,7 +376,8 @@ export const curriculumRoute = new Hono<AuthEnv>()
       ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
       : `Job posting:\n\n${textContent}`;
 
-    return streamLLM(GENERATE_SYSTEM, userMessage, locale);
+    const profile = await getProfileContext(c.var.user.id);
+    return streamLLM(GENERATE_SYSTEM, userMessage, locale, 4000, undefined, profile);
   })
   .post("/curriculums/generate-from-pdf", zValidator("form", generateFromPdfSchema), async (c) => {
     const { file, feedback, locale } = c.req.valid("form");
@@ -394,7 +401,8 @@ export const curriculumRoute = new Hono<AuthEnv>()
       ? `Job posting:\n\n${textContent}\n\nUser feedback on previous generation:\n${feedback}`
       : `Job posting:\n\n${textContent}`;
 
-    return streamLLM(GENERATE_SYSTEM, userMessage, locale);
+    const profile = await getProfileContext(c.var.user.id);
+    return streamLLM(GENERATE_SYSTEM, userMessage, locale, 4000, undefined, profile);
   })
   .post("/curriculums", zValidator("json", saveSchema), async (c) => {
     const userId = c.get("user").id;
@@ -513,31 +521,39 @@ export const curriculumRoute = new Hono<AuthEnv>()
       feedback ? `\n\nFeedback on previous outline:\n${feedback}` : "",
     ].join("");
 
-    return streamLLM(OUTLINE_SYSTEM, userMessage, locale, 2000, async (fullText) => {
-      try {
-        const parsed = parseCurriculumOutline(parseJSON<unknown>(fullText));
-        if (!parsed) {
-          console.error("[draft generate-outline] failed to parse");
-          return;
+    const profile = await getProfileContext(userId);
+    return streamLLM(
+      OUTLINE_SYSTEM,
+      userMessage,
+      locale,
+      2000,
+      async (fullText) => {
+        try {
+          const parsed = parseCurriculumOutline(parseJSON<unknown>(fullText));
+          if (!parsed) {
+            console.error("[draft generate-outline] failed to parse");
+            return;
+          }
+          await db.customCurriculum.update({
+            where: { id },
+            data: {
+              outline: parsed as unknown as Prisma.InputJsonValue,
+              name: parsed.name,
+              description: parsed.description,
+              generatedPhases: {} as Prisma.InputJsonValue,
+              selections: {
+                selectedPhaseIds: parsed.phases.map((p) => p.id),
+                deselectedTaskIds: [],
+                currentPhaseIdx: 0,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        } catch (err) {
+          console.error("[draft generate-outline] persist error:", err);
         }
-        await db.customCurriculum.update({
-          where: { id },
-          data: {
-            outline: parsed as unknown as Prisma.InputJsonValue,
-            name: parsed.name,
-            description: parsed.description,
-            generatedPhases: {} as Prisma.InputJsonValue,
-            selections: {
-              selectedPhaseIds: parsed.phases.map((p) => p.id),
-              deselectedTaskIds: [],
-              currentPhaseIdx: 0,
-            } as Prisma.InputJsonValue,
-          },
-        });
-      } catch (err) {
-        console.error("[draft generate-outline] persist error:", err);
-      }
-    });
+      },
+      profile,
+    );
   })
   .post("/curriculums/drafts/:id/generate-phase", zValidator("json", draftStreamPhaseSchema), async (c) => {
     if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
@@ -572,22 +588,30 @@ export const curriculumRoute = new Hono<AuthEnv>()
       feedback ? `\n\nFeedback to incorporate: ${feedback}` : "",
     ].join("");
 
-    return streamLLM(PHASE_SYSTEM, userMessage, locale, 1500, async (fullText) => {
-      try {
-        const parsed = parsePhase(parseJSON<unknown>(fullText));
-        if (!parsed) {
-          console.error("[draft generate-phase] failed to parse");
-          return;
+    const profile = await getProfileContext(userId);
+    return streamLLM(
+      PHASE_SYSTEM,
+      userMessage,
+      locale,
+      1500,
+      async (fullText) => {
+        try {
+          const parsed = parsePhase(parseJSON<unknown>(fullText));
+          if (!parsed) {
+            console.error("[draft generate-phase] failed to parse");
+            return;
+          }
+          const next = { ...generatedPhases, [phaseId]: parsed };
+          await db.customCurriculum.update({
+            where: { id },
+            data: { generatedPhases: next as Prisma.InputJsonValue },
+          });
+        } catch (err) {
+          console.error("[draft generate-phase] persist error:", err);
         }
-        const next = { ...generatedPhases, [phaseId]: parsed };
-        await db.customCurriculum.update({
-          where: { id },
-          data: { generatedPhases: next as Prisma.InputJsonValue },
-        });
-      } catch (err) {
-        console.error("[draft generate-phase] persist error:", err);
-      }
-    });
+      },
+      profile,
+    );
   })
   .post("/curriculums/drafts/:id/publish", async (c) => {
     const userId = c.get("user").id;

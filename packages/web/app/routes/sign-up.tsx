@@ -6,7 +6,7 @@ import { z } from "zod";
 import { AuthLayout } from "../../src/components/AuthLayout";
 import { authClient } from "../../src/lib/authClient";
 import { safeRedirectPath } from "../../src/lib/redirect";
-import { getAuthLinks } from "../../src/lib/routes";
+import { getAuthLinks, getProfileRoute } from "../../src/lib/routes";
 import { auth } from "../../src/server/auth";
 import type { Route } from "./+types/sign-up";
 
@@ -59,7 +59,7 @@ export default function SignUp() {
     if (error) {
       setError("root", { message: error.message ?? t`Failed to create account` });
     } else {
-      navigate(redirectTo);
+      navigate(getProfileRoute());
     }
   };
 

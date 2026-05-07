@@ -1,12 +1,12 @@
 import { Trans } from "@lingui/react/macro";
-import { DoorOpenIcon, MoonIcon, PlusIcon, SquaresFourIcon, SunIcon } from "@phosphor-icons/react";
+import { DoorOpenIcon, MoonIcon, PlusIcon, SquaresFourIcon, SunIcon, UserIcon } from "@phosphor-icons/react";
 import { Fragment, useEffect, useState } from "react";
 import { Link, useLocation, useMatches, useNavigate } from "react-router";
 import { useRootData } from "../../app/hooks/useRootData";
 import { useTheme } from "../hooks/useTheme";
 import { authClient } from "../lib/authClient";
 import type { BreadcrumbHandle } from "../lib/breadcrumbs";
-import { getAuthLinks, getCurriculumLinks, getHomeRoute } from "../lib/routes";
+import { getAuthLinks, getCurriculumLinks, getHomeRoute, getProfileRoute } from "../lib/routes";
 import type { AuthUser } from "../server/auth";
 
 import { Breadcrumb, BreadcrumbList, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
@@ -130,6 +130,10 @@ export function Header() {
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem render={<Link to={getProfileRoute()} />}>
+                  <UserIcon size={14} />
+                  <Trans>Profile</Trans>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={toggle} className="whitespace-nowrap">
                   {theme === "dark" ? <SunIcon size={14} /> : <MoonIcon size={14} />}
                   <Trans>Toggle theme</Trans>

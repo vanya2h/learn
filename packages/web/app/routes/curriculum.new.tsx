@@ -132,7 +132,7 @@ export default function NewCurriculumPage() {
         </div>
         <div className="relative grow flex flex-col">
           <GridBackground />
-          <TopicContainer className="py-8 mt-[8vh] grow">
+          <TopicContainer className="py-8 grow">
             {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
             <InputStep onGenerate={(values) => void handleGenerate(values)} generating={generating} />

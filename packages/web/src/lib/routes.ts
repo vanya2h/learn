@@ -6,6 +6,10 @@ export function getHomeRoute() {
   return "/";
 }
 
+export function getProfileRoute() {
+  return "/profile";
+}
+
 export function getAuthLinks() {
   const base = "";
   return {
