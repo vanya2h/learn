@@ -114,6 +114,8 @@
   --sidebar-accent-foreground: oklch(0.228 0.013 107.4);
   --sidebar-border: oklch(0.93 0.007 106.5);
   --sidebar-ring: oklch(0.737 0.021 106.9);
+  --brand: oklch(0.78 0.21 130);
+  --brand-foreground: oklch(0.18 0.04 130);
 }
 
 .dark {
@@ -156,6 +158,8 @@
   --sidebar-accent-foreground: oklch(0.988 0.003 106.5);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.58 0.031 107.3);
+  --brand: oklch(0.93 0.22 130);
+  --brand-foreground: oklch(0.18 0.04 130);
 }
 
 html {
@@ -234,6 +238,8 @@ h4 {
   --color-background: var(--background);
   --color-background-layer: var(--background-layer);
   --color-background-layer-active: var(--background-layer-active);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

@@ -157,7 +157,7 @@ export default function TopicLayout() {
               <ProgramCover shape="wave" preset={cover} />
             </div>
           )}
-          <div className="relative grow backdrop-blur-xl bg-background/90 flex flex-col">
+          <div className="relative grow flex flex-col">
             <GridBackground />
             <div className="flex-1 flex flex-col">
               <Outlet />

@@ -1,39 +1,69 @@
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { Trans } from "@lingui/react/macro";
+import { ArrowRightIcon, CaretDownIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import type { Phase } from "../data/types";
-import { usePhaseOpen } from "../hooks/usePhaseOpen";
+import { Ring } from "./Ring";
 import { TaskRow } from "./TaskRow";
 
 import { cn } from "~/lib/utils";
 
-type Props = { phase: Phase; curriculumId: string; index: number };
+export type PhaseCardProps = React.ComponentProps<"div"> & {
+  phase: Phase;
+  curriculumId: string;
+  index: number;
+  completedTaskIds: Record<string, string>;
+};
 
-export function PhaseCard({ phase, curriculumId, index }: Props) {
-  const { open, toggle } = usePhaseOpen(`${curriculumId}:${phase.id}`, index === 0);
+export function PhaseCard({ phase, curriculumId, index, completedTaskIds, className, ...restProps }: PhaseCardProps) {
+  const [open, setOpen] = useState(false);
+
+  const completedCount = phase.tasks.filter((task) => completedTaskIds[task.id]).length;
+  const totalMinutes = phase.tasks.reduce((acc, task) => acc + (task.estMinutes ?? 0), 0);
+  const percent = phase.tasks.length === 0 ? 0 : Math.round((completedCount / phase.tasks.length) * 100);
+  const panelId = `phase-panel-${curriculumId}-${phase.id}`;
 
   return (
-    <div className="border-b border-border">
+    <div className={cn("border-b border-border last:border-b-0", className)} {...restProps}>
       <button
-        onClick={toggle}
-        className="group w-full flex items-center justify-between gap-6 px-6 py-6 text-left transition-colors cursor-pointer bg-background-layer/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30"
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
+        aria-controls={panelId}
+        className={cn(
+          "group w-full flex items-center gap-5 px-6 py-5 text-left transition-colors",
+          "hover:bg-card-hover",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/30",
+          open ? "bg-card-active" : "",
+        )}
       >
+        <Ring percent={percent} size={36} stroke={2.5} />
+
+        <span className="font-mono text-sm tabular-nums text-foreground/40 shrink-0">{formatIndex(index + 1)}</span>
+
         <div className="flex-1 min-w-0">
-          <h3 className="text-2xl font-semibold text-foreground leading-tight">
-            <span className="text-foreground/50">{formatIndex(index + 1)}</span>. {phase.title}
-          </h3>
-          <p className="mt-1.5 text-base text-muted-foreground leading-relaxed line-clamp-1">{phase.subtitle}</p>
+          <div className="text-base font-semibold tracking-[-0.01em] text-foreground truncate">{phase.title}</div>
+          <div className="mt-1 font-mono text-[11px] tracking-[0.04em] text-foreground/40">
+            {completedCount}/{phase.tasks.length} <Trans>topics</Trans>
+            {totalMinutes > 0 && ` · ${formatHours(totalMinutes)}`}
+          </div>
         </div>
-        <div className="flex items-center gap-5 shrink-0">
-          <span
-            className={cn("text-foreground/40 transition-transform duration-300", open && "rotate-180")}
-            aria-hidden
-          >
-            <CaretDownIcon size={18} weight="bold" />
-          </span>
-        </div>
+
+        <span className="font-mono text-sm tabular-nums text-foreground/50 shrink-0">{percent}%</span>
+
+        <span
+          className={cn(
+            "shrink-0 grid place-items-center size-6 text-foreground/40 transition-[transform,color] duration-300",
+            "group-hover:text-foreground",
+            open && "rotate-90",
+          )}
+          aria-hidden
+        >
+          {open ? <CaretDownIcon size={14} weight="bold" /> : <ArrowRightIcon size={14} weight="bold" />}
+        </span>
       </button>
+
       {open && (
-        <div className="border-t border-border px-6 py-4">
+        <div id={panelId} className="border-t border-border px-3 py-3">
           {phase.tasks.map((task) => (
             <TaskRow key={task.id} task={task} curriculumId={curriculumId} />
           ))}
@@ -43,6 +73,12 @@ export function PhaseCard({ phase, curriculumId, index }: Props) {
   );
 }
 
-function formatIndex(index: number) {
-  return index < 10 ? `0${index}` : `${index}`;
+function formatIndex(n: number) {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+
+function formatHours(minutes: number) {
+  if (minutes < 60) return `${minutes}m`;
+  const hours = minutes / 60;
+  return Number.isInteger(hours) ? `${hours}h` : `${hours.toFixed(1)}h`;
 }
