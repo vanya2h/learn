@@ -59,7 +59,7 @@ export function InputStep({
   }
 
   return (
-    <div className="flex w-full flex-col gap-7">
+    <div className="flex w-full flex-col gap-4 mt-[8vh]">
       <MethodPicker
         url={url}
         onUrlChange={handleUrlChange}
@@ -99,19 +99,11 @@ function DepthRow({
 
   return (
     <div className={cn("transition-opacity duration-300", enabled ? "opacity-100" : "pointer-events-none opacity-45")}>
-      <div className="mb-2.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-foreground/40">
-        <Trans>Depth</Trans>
-        {!enabled && (
-          <span className="text-[11px] tracking-normal text-foreground/30 normal-case">
-            · <Trans>paste a URL or pick a PDF above to choose</Trans>
-          </span>
-        )}
-      </div>
       <RadioGroup
         value={depth}
         onValueChange={(v) => setDepth(v as Complexity)}
         disabled={!enabled}
-        className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-3"
       >
         {opts.map((o) => {
           const active = depth === o.value;

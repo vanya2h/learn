@@ -140,7 +140,9 @@ function NextUpCard({ curriculum, nextUp }: { curriculum: CurriculumDef; nextUp:
       </div>
 
       <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] text-foreground leading-tight">{task.title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2">{task.notes ?? phase.subtitle}</p>
+      <p className="mt-2 max-w-2xl leading-relaxed text-muted-foreground line-clamp-2">
+        {task.notes ?? phase.subtitle}
+      </p>
       <div className="grow" />
       <div className="mt-6 flex items-end justify-between gap-6 flex-wrap">
         <div className="flex-1 min-w-0">

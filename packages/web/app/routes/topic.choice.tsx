@@ -1,46 +1,49 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { CardShell } from "../../src/components/ProgramCard";
 
+import { Card } from "~/components/Card";
 import { cn } from "~/lib/utils";
 
 export default function ChoicePage() {
   const { t } = useLingui();
 
   return (
-    <section>
-      <div className="max-w-240 mx-auto">
-        <div className="text-center mt-[10vh]">
+    <section className="px-6 py-8">
+      <div className="max-w-240 mx-auto flex flex-col gap-4">
+        <Card className="mt-[8vh]">
           <h2 className="text-3xl font-semibold tracking-tight text-foreground">
             <Trans>How do you want to start?</Trans>
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
             <Trans>
               Take a quick test to surface gaps and personalize the material, or dive straight in from the beginning.
             </Trans>
           </p>
-        </div>
+        </Card>
 
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2">
-          <CardShell
-            withGrid={false}
-            to="../assess"
-            relative="path"
-            art={<LoopArt label={t`01 · Assessment route`} />}
-            title={t`Quick assessment first`}
-            description={t`Answer 4 questions so the AI can focus on your gaps`}
-            extra={<Meta>{t`~3 min · personalized`}</Meta>}
-            className="border-b border-border md:border-b-0 md:border-r"
-          />
-          <CardShell
-            withGrid={false}
-            to="../study"
-            relative="path"
-            art={<LineArt label={t`02 · Linear route`} />}
-            title={t`Start from scratch`}
-            description={t`Full comprehensive material from the beginning`}
-            extra={<Meta>{t`Full path · 8 stages`}</Meta>}
-          />
-        </div>
+        <Card className="overflow-hidden p-0">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <CardShell
+              withGrid={false}
+              to="../assess"
+              relative="path"
+              art={<LoopArt label={t`01 · Assessment route`} />}
+              title={t`Quick assessment first`}
+              description={t`Answer 4 questions so the AI can focus on your gaps`}
+              extra={<Meta>{t`~3 min · personalized`}</Meta>}
+              className="border-b border-border md:border-b-0 md:border-r"
+            />
+            <CardShell
+              withGrid={false}
+              to="../study"
+              relative="path"
+              art={<LineArt label={t`02 · Linear route`} />}
+              title={t`Start from scratch`}
+              description={t`Full comprehensive material from the beginning`}
+              extra={<Meta>{t`Full path · 8 stages`}</Meta>}
+            />
+          </div>
+        </Card>
       </div>
     </section>
   );

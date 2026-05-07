@@ -15,7 +15,10 @@ export function TopicActionBar({ className, children, ...restProps }: TopicActio
   if (!slot) return null;
   return createPortal(
     <div
-      className={cn("border-t border-border min-h-16 transition-colors", stuck && "bg-background/80 backdrop-blur-md")}
+      className={cn(
+        "border-t border-border min-h-16 transition-colors",
+        stuck ? "bg-background/80 backdrop-blur-md" : "bg-background/40",
+      )}
     >
       <TopicContainer {...restProps} className={cn("flex items-center gap-3 py-3", className)}>
         {children}

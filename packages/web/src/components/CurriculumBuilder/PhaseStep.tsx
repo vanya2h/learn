@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import type { OutlinePhase, Phase, Task } from "../../data/types";
+import { Card } from "../Card";
 import { BuilderActionBar } from "./BuilderActionBar";
 import { SelectableCard } from "./SelectableCard";
 
@@ -17,7 +18,7 @@ export function PhaseStep({
   onToggleTask,
   onNavigateTo,
   onSave,
-  onStartOver,
+  //   onStartOver,
 }: {
   selectedPhases: OutlinePhase[];
   currentPageIndex: number;
@@ -43,25 +44,19 @@ export function PhaseStep({
   if (!outlinePhase) return null;
 
   return (
-    <div className="mt-6">
-      <div className="flex justify-between items-center gap-4 mb-2">
-        <p className="text-xs text-muted-foreground">
+    <div className="mt-6 flex flex-col gap-4">
+      <Card>
+        <h2 className="text-2xl font-semibold text-foreground mb-1">{outlinePhase.title}</h2>
+        <p className="text-sm text-muted-foreground">{outlinePhase.subtitle}</p>
+        <p className="text-xs text-muted-foreground mt-4">
           <Trans>
             Phase {currentPageIndex + 1} of {total}
           </Trans>
         </p>
-        <div className="shrink-0">
-          <Button variant="secondary" size="sm" type="button" onClick={onStartOver} disabled={isGenerating}>
-            <Trans>← Start over</Trans>
-          </Button>
-        </div>
-      </div>
-
-      <h2 className="text-2xl font-semibold text-foreground mb-1">{outlinePhase.title}</h2>
-      <p className="text-sm text-muted-foreground mb-6">{outlinePhase.subtitle}</p>
+      </Card>
 
       {isGeneratingThis && !generatedPhase && (
-        <>
+        <Card>
           <div className="flex items-center gap-2 mb-4 text-foreground/40">
             <Spinner />
             <p className="text-sm">
@@ -69,20 +64,15 @@ export function PhaseStep({
             </p>
           </div>
           <TaskList tasks={streamedTasks} readOnly />
-        </>
+        </Card>
       )}
 
       {generatedPhase && (
-        <>
-          <p className="text-xs text-muted-foreground mb-3">
-            <Trans>Click any task to deselect it and exclude it from the program.</Trans>
-          </p>
-          <TaskList
-            tasks={generatedPhase.tasks}
-            isSelected={(task) => !deselectedTaskIds.has(task.id)}
-            onToggle={onToggleTask}
-          />
-        </>
+        <TaskList
+          tasks={generatedPhase.tasks}
+          isSelected={(task) => !deselectedTaskIds.has(task.id)}
+          onToggle={onToggleTask}
+        />
       )}
 
       <BuilderActionBar>

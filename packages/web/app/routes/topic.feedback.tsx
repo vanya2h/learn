@@ -13,6 +13,7 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.feedback";
 
+import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 
@@ -82,26 +83,29 @@ export default function FeedbackPage() {
 
   return (
     <>
-      <TopicContainer className="py-8">
-        <p className="text-xs text-muted-foreground mb-2">
-          <Trans>Feedback</Trans>
-        </p>
+      <TopicContainer className="py-8 flex flex-col gap-4">
+        <Card>
+          <p className="text-xs text-muted-foreground mb-2">
+            <Trans>Feedback</Trans>
+          </p>
+          <h2 className="text-2xl font-semibold text-foreground">{partPlan?.title ?? ""}</h2>
+        </Card>
 
-        <h2 className="text-2xl font-semibold text-foreground mb-6">{partPlan?.title ?? ""}</h2>
+        <Card>
+          {streaming && (
+            <>
+              <div className="flex items-center gap-2 mb-6 text-foreground/40">
+                <Spinner />
+                <p className="text-sm">
+                  <Trans>Evaluating your answers…</Trans>
+                </p>
+              </div>
+              {feedback && <Markdown isAnimating>{feedback}</Markdown>}
+            </>
+          )}
 
-        {streaming && (
-          <>
-            <div className="flex items-center gap-2 mb-6 text-foreground/40">
-              <Spinner />
-              <p className="text-sm">
-                <Trans>Evaluating your answers…</Trans>
-              </p>
-            </div>
-            {feedback && <Markdown isAnimating>{feedback}</Markdown>}
-          </>
-        )}
-
-        {!streaming && feedback && <Markdown>{feedback}</Markdown>}
+          {!streaming && feedback && <Markdown>{feedback}</Markdown>}
+        </Card>
       </TopicContainer>
 
       {!data.readOnly && (

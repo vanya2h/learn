@@ -20,7 +20,7 @@ export function CurriculumBuilder() {
           <div className="absolute inset-0">
             <ProgramCover shape="wave" preset={cover} />
           </div>
-          <div className="relative grow bg-background/80 flex flex-col">
+          <div className="relative grow flex flex-col">
             <GridBackground />
             <div className="flex-1 flex flex-col">
               <BuilderContent {...builder} />

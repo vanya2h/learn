@@ -13,6 +13,7 @@ import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.assess";
 import type { loader as layoutLoader } from "./topic-layout";
 
+import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 
@@ -103,37 +104,42 @@ export default function AssessPage() {
 
   return (
     <>
-      <TopicContainer className="py-8">
-        <div className="flex items-center justify-between mb-1 gap-6">
-          <h2 className="text-2xl font-semibold text-foreground">
-            <Trans>Quick Assessment</Trans>
-          </h2>
-          {!readOnly && (
-            <Button variant="secondary" size="sm" onClick={() => void generateQuestions()} disabled={loading}>
-              <Trans>Regenerate</Trans>
-            </Button>
-          )}
-        </div>
-        <p className="text-sm text-muted-foreground mb-8">
-          <Trans>Answer each question in 2–4 sentences. Honest answers get more useful material.</Trans>
-        </p>
-        <div className="flex flex-col gap-6">
-          {questions.map((q, i) => (
-            <div key={i}>
-              <p className="text-sm font-medium text-foreground mb-2">
-                {i + 1}. {q}
-              </p>
-              <Textarea
-                value={answers[i] ?? ""}
-                onChange={(e) => handleAnswerChange(i, e.target.value)}
-                placeholder={t`Your answer…`}
-                rows={3}
-                aria-label={t`Text input`}
-                disabled={readOnly}
-              />
-            </div>
-          ))}
-        </div>
+      <TopicContainer className="py-8 flex flex-col gap-4">
+        <Card>
+          <div className="flex items-center justify-between gap-6">
+            <h2 className="text-2xl font-semibold text-foreground">
+              <Trans>Quick Assessment</Trans>
+            </h2>
+            {!readOnly && (
+              <Button variant="secondary" size="sm" onClick={() => void generateQuestions()} disabled={loading}>
+                <Trans>Regenerate</Trans>
+              </Button>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            <Trans>Answer each question in 2–4 sentences. Honest answers get more useful material.</Trans>
+          </p>
+        </Card>
+
+        <Card>
+          <div className="flex flex-col gap-6">
+            {questions.map((q, i) => (
+              <div key={i}>
+                <p className="text-sm font-medium text-foreground mb-2">
+                  {i + 1}. {q}
+                </p>
+                <Textarea
+                  value={answers[i] ?? ""}
+                  onChange={(e) => handleAnswerChange(i, e.target.value)}
+                  placeholder={t`Your answer…`}
+                  rows={3}
+                  aria-label={t`Text input`}
+                  disabled={readOnly}
+                />
+              </div>
+            ))}
+          </div>
+        </Card>
       </TopicContainer>
 
       {!readOnly && (

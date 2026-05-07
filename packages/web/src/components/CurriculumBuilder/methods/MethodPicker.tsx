@@ -13,7 +13,7 @@ type MethodPickerProps = {
 
 export function MethodPicker({ url, onUrlChange, file, onFileChange, activeMethod, onSubmit }: MethodPickerProps) {
   return (
-    <div className="flex w-full flex-col gap-5 sm:flex-row">
+    <div className="flex w-full flex-col gap-4 sm:flex-row">
       <UrlMethodCard
         url={url}
         onUrlChange={onUrlChange}

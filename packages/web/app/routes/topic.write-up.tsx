@@ -12,6 +12,7 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.write-up";
 
+import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { Textarea } from "~/components/ui/textarea";
@@ -82,35 +83,35 @@ export default function WriteUpPage() {
 
   return (
     <>
-      <TopicContainer className="py-8">
-        <h2 className="text-xl font-semibold">
-          <Trans>Reflect</Trans>
-        </h2>
-        <p className="mt-2 text-foreground">{part.writeUpPrompt}</p>
-
-        {!feedback && !streaming && (
-          <Textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={t`Write your reflection in your own words…`}
-            rows={5}
-            className="mt-4"
-            aria-label={t`Text input`}
-          />
-        )}
+      <TopicContainer className="py-8 flex flex-col gap-4">
+        <Card>
+          <h2 className="text-xl font-semibold">
+            <Trans>Reflect</Trans>
+          </h2>
+          <p className="mt-2 text-foreground">{part.writeUpPrompt}</p>
+          {!streaming && (
+            <div className="mt-4">
+              <Textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={t`Write your reflection in your own words…`}
+                rows={4}
+                aria-label={t`Text input`}
+              />
+            </div>
+          )}
+        </Card>
 
         {(feedback || streaming) && (
-          <div className="mt-8">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                {streaming && <Spinner />}
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  <Trans>Tutor feedback</Trans>
-                </p>
-              </div>
-              <Markdown isAnimating={streaming}>{feedback}</Markdown>
+          <Card>
+            <div className="flex items-center gap-2 mb-2">
+              {streaming && <Spinner />}
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <Trans>Tutor feedback</Trans>
+              </p>
             </div>
-          </div>
+            <Markdown isAnimating={streaming}>{feedback}</Markdown>
+          </Card>
         )}
       </TopicContainer>
 

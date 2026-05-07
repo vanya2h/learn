@@ -1,5 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { LoadingState } from "../LoadingState";
+import { TopicContainer } from "../TopicContainer";
 import { InputStep } from "./InputStep";
 import { OutlineReviewStep } from "./OutlineReviewStep";
 import { PhaseStep } from "./PhaseStep";
@@ -35,7 +36,7 @@ export function BuilderContent({
   startOver,
 }: BuilderContentProps) {
   return (
-    <div className="max-w-4xl w-full mx-auto px-6 py-8">
+    <TopicContainer>
       {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
       {step === "idle" && (
@@ -90,6 +91,6 @@ export function BuilderContent({
       )}
 
       {step === "saving" && <LoadingState>Saving..</LoadingState>}
-    </div>
+    </TopicContainer>
   );
 }

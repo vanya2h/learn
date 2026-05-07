@@ -1,5 +1,6 @@
 import { createContext, use, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { TopicContainer } from "../TopicContainer";
 
 import { cn } from "~/lib/utils";
 
@@ -14,11 +15,14 @@ export function BuilderActionBar({ className, children, ...restProps }: BuilderA
   if (!slot) return null;
   return createPortal(
     <div
-      className={cn("border-t border-border min-h-16 transition-colors", stuck && "bg-background/80 backdrop-blur-md")}
+      className={cn(
+        "border-t border-border min-h-16 transition-colors",
+        stuck ? "bg-background/80 backdrop-blur-md" : "bg-background/40",
+      )}
     >
-      <div {...restProps} className={cn("max-w-4xl w-full mx-auto px-6 flex items-center gap-3 py-3", className)}>
+      <TopicContainer {...restProps} className={cn("flex items-center gap-3 py-3", className)}>
         {children}
-      </div>
+      </TopicContainer>
     </div>,
     slot,
   );

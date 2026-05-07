@@ -122,7 +122,7 @@ export function CardShell({
 
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 p-4 border-t border-border bg-background-layer/90 backdrop-blur-md",
+          "absolute inset-x-0 bottom-0 p-4 border-t border-border bg-background-layer/50 backdrop-blur-md",
           "transition-transform duration-460",
           hover ? "translate-y-0" : "translate-y-[calc(100%-3.5625rem)]",
         )}
@@ -148,9 +148,7 @@ export function CardShell({
             transitionDelay: hover ? "60ms" : "0ms",
           }}
         >
-          {description && (
-            <p className="text-[13px] leading-normal text-muted-foreground line-clamp-2">{description}</p>
-          )}
+          {description && <p className="text-sm leading-normal text-muted-foreground line-clamp-2">{description}</p>}
           {extra}
         </div>
       </div>

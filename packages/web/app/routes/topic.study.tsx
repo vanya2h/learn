@@ -21,6 +21,7 @@ import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.study";
 import type { loader as layoutLoader } from "./topic-layout";
 
+import { Card } from "~/components/Card";
 import { LoadingState } from "~/components/LoadingState";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
@@ -217,28 +218,31 @@ export default function StudyPage() {
 
   return (
     <>
-      <TopicContainer className="py-8">
-        <p className="text-xs text-muted-foreground mb-2">
-          <Trans>
-            Part {partIdx + 1} of {plan.partPlans.length}
-          </Trans>
-        </p>
+      <TopicContainer className="py-8 flex flex-col gap-4">
+        <Card>
+          <p className="text-xs text-muted-foreground mb-2">
+            <Trans>
+              Part {partIdx + 1} of {plan.partPlans.length}
+            </Trans>
+          </p>
+          <h2 className="text-2xl font-semibold text-foreground">{partPlan?.title ?? ""}</h2>
+        </Card>
 
-        <h2 className="text-2xl font-semibold text-foreground mb-6">{partPlan?.title ?? ""}</h2>
+        <Card>
+          {!part && (
+            <>
+              <div className="flex items-center gap-2 mb-6 text-foreground/40">
+                <Spinner />
+                <p className="text-sm">
+                  <Trans>Preparing study material…</Trans>
+                </p>
+              </div>
+              {partStream && <Markdown isAnimating>{partStream}</Markdown>}
+            </>
+          )}
 
-        {!part && (
-          <>
-            <div className="flex items-center gap-2 mb-6 text-foreground/40">
-              <Spinner />
-              <p className="text-sm">
-                <Trans>Preparing study material…</Trans>
-              </p>
-            </div>
-            {partStream && <Markdown isAnimating>{partStream}</Markdown>}
-          </>
-        )}
-
-        {part && <Markdown>{part.study}</Markdown>}
+          {part && <Markdown>{part.study}</Markdown>}
+        </Card>
       </TopicContainer>
 
       <TopicActionBar>

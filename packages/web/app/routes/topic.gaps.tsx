@@ -13,6 +13,7 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.gaps";
 
+import { Card } from "~/components/Card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 
@@ -84,30 +85,34 @@ export default function GapsPage() {
 
   return (
     <>
-      <TopicContainer className="py-8">
-        <h2 className="text-2xl font-semibold text-foreground mb-1">
-          <Trans>Assessment complete</Trans>
-        </h2>
-        <p className="text-sm text-muted-foreground mb-6">{review.summary}</p>
+      <TopicContainer className="py-8 flex flex-col gap-4">
+        <Card>
+          <h2 className="text-2xl font-semibold text-foreground">
+            <Trans>Assessment complete</Trans>
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">{review.summary}</p>
+        </Card>
 
-        {review.gaps.length > 0 ? (
-          <div className="mb-8">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-              <Trans>Gaps to cover</Trans>
-            </p>
-            <ul className="flex flex-wrap gap-2">
-              {review.gaps.map((gap) => (
-                <li key={gap}>
-                  <Badge variant="secondary">{gap}</Badge>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <div className="mb-8 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 px-4 py-3 text-sm text-green-800 dark:text-green-300">
-            <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
-          </div>
-        )}
+        <Card>
+          {review.gaps.length > 0 ? (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                <Trans>Gaps to cover</Trans>
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {review.gaps.map((gap) => (
+                  <li key={gap}>
+                    <Badge variant="secondary">{gap}</Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 px-4 py-3 text-sm text-green-800 dark:text-green-300">
+              <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
+            </div>
+          )}
+        </Card>
       </TopicContainer>
 
       {!data.readOnly && (
