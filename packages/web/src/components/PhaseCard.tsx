@@ -1,5 +1,5 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
-import type { Phase } from "../data/curriculum";
+import type { Phase } from "../data/types";
 import { usePhaseOpen } from "../hooks/usePhaseOpen";
 import { TaskRow } from "./TaskRow";
 

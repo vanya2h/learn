@@ -18,9 +18,9 @@ export function CurriculumBuilder() {
         <BuilderSidebar step={builder.step} />
         <div className="flex-1 min-w-0 border-l border-border flex flex-col relative">
           <div className="absolute inset-0">
-            <ProgramCover shape="wave" cover={cover} />
+            <ProgramCover shape="wave" preset={cover} />
           </div>
-          <div className="relative grow backdrop-blur-xl bg-background/90 flex flex-col">
+          <div className="relative grow bg-background/80 flex flex-col">
             <GridBackground />
             <div className="flex-1 flex flex-col">
               <BuilderContent {...builder} />

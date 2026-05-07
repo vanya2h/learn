@@ -117,7 +117,7 @@ function DepthRow({
           const active = depth === o.value;
           return (
             <label key={o.value} className={cn(enabled ? "cursor-pointer" : "cursor-not-allowed")}>
-              <Card active={active} className="px-4 py-3.5">
+              <Card hoverable active={active} className="px-4 py-3.5">
                 <div className="mb-1 flex items-center gap-2">
                   <RadioGroupItem value={o.value} />
                   <span className="font-semibold text-foreground">{o.label}</span>

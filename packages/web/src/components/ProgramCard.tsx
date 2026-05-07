@@ -3,6 +3,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react";
 import { type ReactNode, useState } from "react";
 import { Link, type LinkProps } from "react-router";
 import type { CurriculumDef } from "../data/types";
+import { GridBackground } from "./GridBg";
 import { ProgramCover } from "./ProgramCover";
 
 import { cn } from "~/lib/utils";
@@ -20,7 +21,7 @@ export function ProgramCard({ curriculum, progress, className, ...restProps }: P
     <>
       {cover ? (
         <div className="absolute inset-0 bg-white dark:bg-black transition-transform duration-600 ease-out group-hover:scale-[1.04]">
-          <ProgramCover cover={cover} />
+          <ProgramCover withGrid={false} preset={cover} />
         </div>
       ) : (
         <div className="absolute inset-0 bg-muted" />
@@ -85,9 +86,19 @@ export type CardShellProps = Omit<LinkProps, "to" | "children"> & {
   title: string;
   description?: string;
   extra?: ReactNode;
+  withGrid?: boolean;
 };
 
-export function CardShell({ to, art, title, description, extra, className, ...restProps }: CardShellProps) {
+export function CardShell({
+  to,
+  art,
+  withGrid = true,
+  title,
+  description,
+  extra,
+  className,
+  ...restProps
+}: CardShellProps) {
   const [hover, setHover] = useState(false);
 
   return (
@@ -104,7 +115,10 @@ export function CardShell({ to, art, title, description, extra, className, ...re
       )}
       {...restProps}
     >
-      <div className="absolute inset-0 overflow-hidden">{art}</div>
+      <div className="absolute inset-0 overflow-hidden">
+        {art}
+        {withGrid && <GridBackground />}
+      </div>
 
       <div
         className={cn(

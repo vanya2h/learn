@@ -2,7 +2,6 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { Markdown } from "../../src/components/Markdown";
-import { DotLoader } from "../../src/components/Spinner";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { TopicContainer } from "../../src/components/TopicContainer";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
@@ -12,7 +11,9 @@ import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.hands-on";
 
+import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
+import { Spinner } from "~/components/ui/spinner";
 import { Textarea } from "~/components/ui/textarea";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -44,6 +45,7 @@ export default function HandsOnPage() {
 
   const [answers, setAnswers] = useState<Record<string, string>>(savedAnswers);
   const [solutions, setSolutions] = useState<Record<number, { text: string; streaming: boolean }>>({});
+  const [hintShown, setHintShown] = useState<Record<number, boolean>>({});
 
   const { parts } = material;
   const part = parts[partIdx]!;
@@ -78,6 +80,17 @@ export default function HandsOnPage() {
     }
   }
 
+  function handleHideSolution(idx: number) {
+    setSolutions((prev) => {
+      const { [idx]: _, ...rest } = prev;
+      return rest;
+    });
+  }
+
+  function toggleHint(idx: number) {
+    setHintShown((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  }
+
   async function handleSubmit() {
     await saveSession({
       name: "hands-on",
@@ -94,12 +107,22 @@ export default function HandsOnPage() {
         <div className="flex flex-col gap-6">
           {part.handsOn.map((taskItem, i) => (
             <div key={i} className="flex flex-col gap-3">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-xl font-semibold">
-                  <Trans>Task {i + 1}</Trans>
-                </h2>
-                <div className="flex items-center gap-2">
-                  {solutions[i]?.streaming && <DotLoader />}
+              <h2 className="text-xl font-semibold">
+                <Trans>Task {i + 1}</Trans>
+              </h2>
+              <Markdown>{taskItem.task}</Markdown>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {taskItem.hint && (
+                  <Button variant="secondary" size="xs" onClick={() => toggleHint(i)}>
+                    {hintShown[i] ? <Trans>Hide hint</Trans> : <Trans>Show hint</Trans>}
+                  </Button>
+                )}
+                {solutions[i] && !solutions[i].streaming ? (
+                  <Button variant="secondary" size="xs" onClick={() => handleHideSolution(i)}>
+                    <Trans>Hide solution</Trans>
+                  </Button>
+                ) : (
                   <Button
                     size="xs"
                     disabled={solutions[i]?.streaming}
@@ -107,18 +130,26 @@ export default function HandsOnPage() {
                   >
                     <Trans>See solution</Trans>
                   </Button>
-                </div>
+                )}
+                {solutions[i]?.streaming && <Spinner />}
               </div>
-              <Markdown>{taskItem.task}</Markdown>
-              {taskItem.hint && <Hint hint={taskItem.hint} />}
+
+              {taskItem.hint && hintShown[i] && (
+                <Card>
+                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
+                    <Trans>Hint</Trans>
+                  </p>
+                  <p className="text-foreground">{taskItem.hint}</p>
+                </Card>
+              )}
 
               {solutions[i] && (
-                <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                <Card>
                   <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
                     <Trans>Solution</Trans>
                   </p>
                   <Markdown isAnimating={solutions[i].streaming}>{solutions[i].text}</Markdown>
-                </div>
+                </Card>
               )}
 
               <Textarea
@@ -139,17 +170,5 @@ export default function HandsOnPage() {
         </Button>
       </TopicActionBar>
     </>
-  );
-}
-
-function Hint({ hint }: { hint: string }) {
-  const [shown, setShown] = useState(false);
-  return (
-    <div>
-      <Button variant="secondary" size="xs" onClick={() => setShown((s) => !s)}>
-        {shown ? <Trans>Hide hint</Trans> : <Trans>Show hint</Trans>}
-      </Button>
-      {shown && <p className="mt-2 text-xs text-foreground/40 italic">{hint}</p>}
-    </div>
   );
 }

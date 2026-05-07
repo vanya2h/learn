@@ -9,9 +9,17 @@ export type GradientBackgroundProps = React.ComponentProps<"div"> & {
   preset: GradientPreset | GradientCover;
   shape?: GrainGradientProps["shape"];
   speed?: number;
+  withGrid?: boolean;
 };
 
-export function GradientBackground({ preset, shape, speed = 1, className, ...restProps }: GradientBackgroundProps) {
+export function GradientBackground({
+  preset,
+  shape,
+  speed = 1,
+  className,
+  withGrid = true,
+  ...restProps
+}: GradientBackgroundProps) {
   const { theme } = useTheme();
   return (
     <div className={cn("absolute inset-0", className)} {...restProps}>
@@ -27,7 +35,7 @@ export function GradientBackground({ preset, shape, speed = 1, className, ...res
         scale={1.5}
         speed={speed}
       />
-      <GridBackground />
+      {withGrid && <GridBackground />}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { ProgramCover } from "../../src/components/ProgramCover";
 import { TopicActionBarSlotContext } from "../../src/components/TopicActionBar";
 import { TopicHeader } from "../../src/components/TopicHeader";
 import { TopicSidebar } from "../../src/components/TopicSidebar";
-import { CURRICULUMS_BY_LOCALE } from "../../src/data/curriculum";
+import { listCurriculums } from "../../src/data/curriculum";
 import type { CurriculumDef } from "../../src/data/types";
 import { parseCurriculumDef } from "../../src/data/types";
 import { useProgress } from "../../src/hooks/useProgress";
@@ -58,7 +58,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
 
   const locale = getLocaleFromRequest(request);
-  let taskInfo = findTask(CURRICULUMS_BY_LOCALE[locale], params.taskId);
+  let taskInfo = findTask(listCurriculums(locale), params.taskId);
 
   if (!taskInfo) {
     const custom = await db.customCurriculum.findMany({ where: { userId: session.user.id } });
@@ -124,7 +124,7 @@ export default function TopicLayout() {
         <div className="flex-1 min-w-0 border-l border-border flex flex-col relative">
           {cover && (
             <div className="absolute inset-0">
-              <ProgramCover shape="wave" cover={cover} />
+              <ProgramCover shape="wave" preset={cover} />
             </div>
           )}
           <div className="relative grow backdrop-blur-xl bg-background/90 flex flex-col">

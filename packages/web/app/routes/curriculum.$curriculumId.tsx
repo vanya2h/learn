@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { CurriculumView } from "../../src/components/CurriculumView";
-import { CURRICULUMS_BY_LOCALE } from "../../src/data/curriculum";
+import { getCurriculum } from "../../src/data/curriculum";
 import { useAllCurriculums } from "../../src/hooks/useAllCurriculums";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
 import { getLocaleFromRequest } from "../../src/lib/i18n";
@@ -27,7 +27,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
 
   const locale = getLocaleFromRequest(request);
-  const staticCurriculum = CURRICULUMS_BY_LOCALE[locale].find((c) => c.id === params.curriculumId);
+  const staticCurriculum = getCurriculum(params.curriculumId, locale);
   if (staticCurriculum) return { curriculumName: staticCurriculum.name };
 
   const custom = await db.customCurriculum.findFirst({

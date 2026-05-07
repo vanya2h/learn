@@ -1,7 +1,7 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { parseResponse } from "hono/client";
 import { useNavigate } from "react-router";
-import type { Task } from "../data/curriculum";
+import type { Task } from "../data/types";
 import type { ActiveSession } from "../hooks/useProgress";
 import { useProgress } from "../hooks/useProgress";
 import { apiClient } from "../lib/apiClient";

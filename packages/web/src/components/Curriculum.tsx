@@ -1,4 +1,4 @@
-import type { CurriculumDef } from "../data/curriculum";
+import type { CurriculumDef } from "../data/types";
 import { PhaseCard } from "./PhaseCard";
 import { ProgramCover } from "./ProgramCover";
 
@@ -9,7 +9,7 @@ export function Curriculum({ curriculum }: Props) {
     <section className="flex flex-col relative">
       {curriculum.cover && (
         <div className="absolute inset-0">
-          <ProgramCover shape="wave" cover={curriculum.cover} />
+          <ProgramCover shape="wave" preset={curriculum.cover} />
         </div>
       )}
       <div className="relative grow backdrop-blur-xl bg-background/90">

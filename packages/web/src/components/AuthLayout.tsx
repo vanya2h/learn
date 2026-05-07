@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Card } from "./Card";
 import { Footer } from "./Footer";
 import { GradientBackground } from "./GradientBg";
 
@@ -15,9 +14,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         preset={theme === "dark" ? GRADIENT_PRESETS.heroDark : GRADIENT_PRESETS.heroLight}
       />
       <div className="flex-1 flex items-center justify-center px-4 py-16">
-        <Card active={false} className="w-full max-w-md space-y-8 p-6">
-          {children}
-        </Card>
+        <div className="w-full max-w-md space-y-8 p-6">{children}</div>
       </div>
       <Footer />
     </div>

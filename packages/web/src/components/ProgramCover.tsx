@@ -1,8 +1,7 @@
-import type { GrainGradientProps } from "@paper-design/shaders-react";
-import { GradientBackground } from "./GradientBg";
+import { GradientBackground, GradientBackgroundProps } from "./GradientBg";
 
-import type { GradientCover } from "~/lib/gradient";
+export type ProgramCoverProps = GradientBackgroundProps;
 
-export function ProgramCover({ cover, shape = "blob" }: { cover: GradientCover; shape?: GrainGradientProps["shape"] }) {
-  return <GradientBackground preset={cover} shape={shape} speed={0} />;
+export function ProgramCover({ shape = "blob", ...restProps }: ProgramCoverProps) {
+  return <GradientBackground shape={shape} speed={0} {...restProps} />;
 }

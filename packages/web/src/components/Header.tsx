@@ -101,16 +101,14 @@ export function Header() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 text-sm text-muted-foreground shrink-0">
-          <div className="flex items-center gap-2 shrink-0">
-            <Button render={<Link to="/curriculum/new" />}>
-              <PlusIcon className="sm:hidden" />
-              <span className="hidden sm:inline">
-                <Trans>New program</Trans>
-              </span>
-            </Button>
-            <LanguageSwitcher />
-          </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
+          <Button render={<Link to="/curriculum/new" />}>
+            <PlusIcon className="sm:hidden" />
+            <span className="hidden sm:inline">
+              <Trans>New program</Trans>
+            </span>
+          </Button>
+          <LanguageSwitcher />
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger

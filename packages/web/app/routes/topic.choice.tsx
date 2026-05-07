@@ -22,6 +22,7 @@ export default function ChoicePage() {
 
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2">
           <CardShell
+            withGrid={false}
             to="../assess"
             relative="path"
             art={<LoopArt label={t`01 · Assessment route`} />}
@@ -31,6 +32,7 @@ export default function ChoicePage() {
             className="border-b border-border md:border-b-0 md:border-r"
           />
           <CardShell
+            withGrid={false}
             to="../study"
             relative="path"
             art={<LineArt label={t`02 · Linear route`} />}
