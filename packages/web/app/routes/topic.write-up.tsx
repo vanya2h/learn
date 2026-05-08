@@ -9,7 +9,8 @@ import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useProgress } from "../../src/hooks/useProgress";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { parseTopicSessionState, WRITEUP_SYSTEM } from "../../src/lib/phase";
+import { useClaude } from "../../src/lib/claude";
+import { parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.write-up";
@@ -18,8 +19,6 @@ import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { Textarea } from "~/components/ui/textarea";
-
-const TOKENS_WRITEUP = 250;
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
@@ -47,7 +46,8 @@ export default function WriteUpPage() {
   const { material, partIdx, savedFeedback } = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { stream, streaming, abort } = useStreamAI();
+  const { run, streaming, abort } = useStreamAI();
+  const { streamWriteUpFeedback } = useClaude();
   const { saveSession, deleteSession } = useTopicSession(taskId!);
   const { toggleTask } = useProgress();
   const { t } = useLingui();
@@ -60,11 +60,8 @@ export default function WriteUpPage() {
 
   async function handleSubmit() {
     setFeedback("");
-    const result = await stream(
-      WRITEUP_SYSTEM,
-      `Topic: "${part.title}"\nLearner's reflection: "${text}"`,
-      setFeedback,
-      TOKENS_WRITEUP,
+    const result = await run((signal) =>
+      streamWriteUpFeedback({ topic: part.title, reflection: text }, { signal, onUpdate: setFeedback }),
     );
     if (result !== null) {
       void saveSession({

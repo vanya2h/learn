@@ -8,7 +8,7 @@ import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import { parseJSON } from "../../src/lib/json";
-import { ASSESSMENT_SYSTEM, isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.assess";
@@ -18,8 +18,6 @@ import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { Textarea } from "~/components/ui/textarea";
-
-const TOKENS_ASSESSMENT = 300;
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
@@ -40,7 +38,7 @@ export default function AssessPage() {
   const layoutData = useRouteLoaderData<typeof layoutLoader>("routes/topic-layout");
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { streamAI } = useClaude();
+  const { streamAssessment } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
   const { t } = useLingui();
   const abortRef = useRef<AbortController | null>(null);
@@ -64,20 +62,20 @@ export default function AssessPage() {
     setQuestionsStream([]);
     setAnswers({});
     try {
-      const text = await streamAI(
-        ASSESSMENT_SYSTEM,
-        `Topic: "${task.title}"\nCurriculum: ${curriculumName}${complexity ? `\nComplexity: ${complexity}` : ""}`,
-        (acc) => {
-          if (ctrl.signal.aborted) return;
-          try {
-            const { questions: qs } = parseJSON<{ questions?: string[] }>(acc);
-            if (Array.isArray(qs)) setQuestionsStream(qs.filter((q): q is string => typeof q === "string"));
-          } catch {
-            // partial stream not yet parseable
-          }
+      const text = await streamAssessment(
+        { topic: task.title, curriculum: curriculumName ?? "", complexity },
+        {
+          signal: ctrl.signal,
+          onUpdate: (acc) => {
+            if (ctrl.signal.aborted) return;
+            try {
+              const { questions: qs } = parseJSON<{ questions?: string[] }>(acc);
+              if (Array.isArray(qs)) setQuestionsStream(qs.filter((q): q is string => typeof q === "string"));
+            } catch {
+              // partial stream not yet parseable
+            }
+          },
         },
-        TOKENS_ASSESSMENT,
-        ctrl.signal,
       );
       if (ctrl.signal.aborted) return;
       const { questions: qs } = parseJSON<{ questions: string[] }>(text);

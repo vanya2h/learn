@@ -10,14 +10,7 @@ import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { useClaude } from "../../src/lib/claude";
 import type { Material, PhaseByKey } from "../../src/lib/phase";
-import {
-  isPhaseReadOnly,
-  parsePart,
-  parsePlan,
-  parseTopicSessionState,
-  PART_SYSTEM,
-  PLAN_SYSTEM,
-} from "../../src/lib/phase";
+import { isPhaseReadOnly, parsePart, parsePlan, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.study";
@@ -26,9 +19,6 @@ import type { loader as layoutLoader } from "./topic-layout";
 import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
-
-const TOKENS_PLAN = 600;
-const TOKENS_PART = 3000;
 
 type LoaderResult = (PhaseByKey<"study"> | PhaseByKey<"gaps-review"> | { name: null }) & { readOnly: boolean };
 
@@ -52,7 +42,7 @@ export default function StudyPage() {
   const layoutData = useRouteLoaderData<typeof layoutLoader>("routes/topic-layout");
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { streamAI } = useClaude();
+  const { streamStudyPlan, streamStudyPart } = useClaude();
   const { saveSession: rawSaveSession } = useTopicSession(taskId!);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -79,38 +69,30 @@ export default function StudyPage() {
     const partPlan = mat.plan.partPlans[idx];
     if (!partPlan) return;
 
-    const otherParts = mat.plan.partPlans.map((p, i) => `${i + 1}. ${p.title}: ${p.description}`).join("\n");
-
-    const userMsg = [
-      `Topic: "${task?.title}"`,
-      `Curriculum: ${curriculumName}`,
-      complexity ? `Complexity: ${complexity}` : null,
-      mat.assessmentContext ? `Assessment context: ${mat.assessmentContext}` : null,
-      ``,
-      `Generate part ${idx + 1} of ${mat.plan.partPlans.length}: "${partPlan.title}"`,
-      `Scope: ${partPlan.description}`,
-      ``,
-      `Full session outline:`,
-      otherParts,
-    ]
-      .filter((l) => l !== null)
-      .join("\n");
+    if (!task) return;
 
     try {
-      const text = await streamAI(
-        PART_SYSTEM,
-        userMsg,
-        (acc) => {
-          if (!ctrl.signal.aborted) {
-            try {
-              setPartStream(parsePart(acc).study);
-            } catch {
-              // partial stream not yet parseable
-            }
-          }
+      const text = await streamStudyPart(
+        {
+          topic: task.title,
+          curriculum: curriculumName ?? "",
+          complexity,
+          assessmentContext: mat.assessmentContext,
+          partIdx: idx,
+          parts: mat.plan.partPlans,
         },
-        TOKENS_PART,
-        ctrl.signal,
+        {
+          signal: ctrl.signal,
+          onUpdate: (acc) => {
+            if (!ctrl.signal.aborted) {
+              try {
+                setPartStream(parsePart(acc).study);
+              } catch {
+                // partial stream not yet parseable
+              }
+            }
+          },
+        },
       );
       if (ctrl.signal.aborted) return;
 
@@ -137,13 +119,16 @@ export default function StudyPage() {
     const ctrl = newAbort();
     const assessmentContext = loaderData.name === "gaps-review" ? loaderData.context : undefined;
 
-    const complexityLine = complexity ? `\nComplexity: ${complexity}` : "";
-    const userMsg = assessmentContext
-      ? `Plan a study session for: "${task.title}"\nCurriculum: ${curriculumName}${complexityLine}\n\nAssessment context: ${assessmentContext}`
-      : `Plan a study session for: "${task.title}"\nCurriculum: ${curriculumName}${complexityLine}`;
-
     try {
-      const text = await streamAI(PLAN_SYSTEM, userMsg, () => {}, TOKENS_PLAN, ctrl.signal);
+      const text = await streamStudyPlan(
+        {
+          topic: task.title,
+          curriculum: curriculumName ?? "",
+          complexity,
+          assessmentContext,
+        },
+        { signal: ctrl.signal },
+      );
       if (ctrl.signal.aborted) return;
 
       const plan = parsePlan(text);

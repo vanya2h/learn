@@ -8,7 +8,8 @@ import { Markdown } from "../../src/components/Markdown";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { isPhaseReadOnly, parseTopicSessionState, TASK_SOLUTION_SYSTEM } from "../../src/lib/phase";
+import { useClaude } from "../../src/lib/claude";
+import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.hands-on";
@@ -46,7 +47,8 @@ export default function HandsOnPage() {
   const { material, partIdx, savedAnswers, readOnly } = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { stream } = useStreamAI();
+  const { run } = useStreamAI();
+  const { streamTaskSolution } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
   const { t } = useLingui();
 
@@ -69,16 +71,18 @@ export default function HandsOnPage() {
       ...prev,
       [idx]: { text: "", streaming: true },
     }));
-    const msg = hint ? `Task: ${task}\nHint: ${hint}` : `Task: ${task}`;
-    const result = await stream(
-      TASK_SOLUTION_SYSTEM,
-      msg,
-      (acc) =>
-        setSolutions((prev) => ({
-          ...prev,
-          [idx]: { text: acc, streaming: true },
-        })),
-      800,
+    const result = await run((signal) =>
+      streamTaskSolution(
+        { task, hint },
+        {
+          signal,
+          onUpdate: (acc) =>
+            setSolutions((prev) => ({
+              ...prev,
+              [idx]: { text: acc, streaming: true },
+            })),
+        },
+      ),
     );
     if (result !== null) {
       setSolutions((prev) => ({

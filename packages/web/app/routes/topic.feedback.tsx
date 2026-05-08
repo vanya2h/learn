@@ -9,8 +9,9 @@ import { Markdown } from "../../src/components/Markdown";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
+import { useClaude } from "../../src/lib/claude";
 import type { PhaseByKey } from "../../src/lib/phase";
-import { HANDS_ON_EVAL_SYSTEM, isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.feedback";
@@ -18,8 +19,6 @@ import type { Route } from "./+types/topic.feedback";
 import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
-
-const TOKENS_HANDS_ON_EVAL = 500;
 
 type LoaderResult = (PhaseByKey<"feedback"> | PhaseByKey<"hands-on">) & { readOnly: boolean };
 
@@ -47,7 +46,8 @@ export default function FeedbackPage() {
   const data = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { stream, streaming } = useStreamAI();
+  const { run, streaming } = useStreamAI();
+  const { streamHandsOnFeedback } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
 
   const [feedback, setFeedback] = useState(data.name === "feedback" ? data.feedback : "");
@@ -60,11 +60,9 @@ export default function FeedbackPage() {
   useEffect(() => {
     if (data.name === "feedback") return;
 
-    const qa = part.handsOn
-      .map((t, i) => `Task ${i + 1}: ${t.task}\nAnswer ${i + 1}: ${answers[i] ?? "(no answer)"}`)
-      .join("\n\n");
+    const qa = part.handsOn.map((t, i) => ({ task: t.task, answer: answers[i] ?? "" }));
 
-    void stream(HANDS_ON_EVAL_SYSTEM, qa, setFeedback, TOKENS_HANDS_ON_EVAL).then((result) => {
+    void run((signal) => streamHandsOnFeedback({ qa }, { signal, onUpdate: setFeedback })).then((result) => {
       if (result !== null) {
         void saveSession({
           name: "feedback",

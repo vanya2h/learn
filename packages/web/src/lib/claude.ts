@@ -1,6 +1,8 @@
+import type { ClientResponse } from "hono/client";
 import { hc, parseResponse } from "hono/client";
-import { useCallback } from "react";
+import { useMemo } from "react";
 import { useRootData } from "../../app/hooks/useRootData";
+import type { Complexity } from "../data/types";
 import type { AppType } from "../server/app";
 import type { Locale } from "./i18n";
 
@@ -28,40 +30,125 @@ export async function* readSSEStream(body: ReadableStream<Uint8Array>): AsyncGen
   }
 }
 
-export function useClaude() {
+export type StreamOptions = {
+  onUpdate?: (text: string) => void;
+  signal?: AbortSignal;
+};
+
+async function consumeStream(res: ClientResponse<unknown>, opts: StreamOptions): Promise<string> {
+  if (!res.ok) await parseResponse(res);
+  if (!res.body) throw new Error("No response body");
+
+  let acc = "";
+  for await (const delta of readSSEStream(res.body)) {
+    acc += delta;
+    opts.onUpdate?.(acc);
+  }
+  return acc;
+}
+
+type AssessmentInput = {
+  topic: string;
+  curriculum: string;
+  complexity?: Complexity;
+};
+
+type GapsInput = {
+  qa: { q: string; a: string }[];
+};
+
+type StudyPlanInput = {
+  topic: string;
+  curriculum: string;
+  complexity?: Complexity;
+  assessmentContext?: string;
+};
+
+type StudyPartInput = {
+  topic: string;
+  curriculum: string;
+  complexity?: Complexity;
+  assessmentContext?: string;
+  partIdx: number;
+  parts: { title: string; description: string }[];
+};
+
+type TaskSolutionInput = {
+  task: string;
+  hint?: string;
+};
+
+type HandsOnFeedbackInput = {
+  qa: { task: string; answer: string }[];
+};
+
+type WriteUpFeedbackInput = {
+  topic: string;
+  reflection: string;
+};
+
+export type ClaudeClient = {
+  streamAssessment: (input: AssessmentInput, opts?: StreamOptions) => Promise<string>;
+  streamGaps: (input: GapsInput, opts?: StreamOptions) => Promise<string>;
+  streamStudyPlan: (input: StudyPlanInput, opts?: StreamOptions) => Promise<string>;
+  streamStudyPart: (input: StudyPartInput, opts?: StreamOptions) => Promise<string>;
+  streamTaskSolution: (input: TaskSolutionInput, opts?: StreamOptions) => Promise<string>;
+  streamHandsOnFeedback: (input: HandsOnFeedbackInput, opts?: StreamOptions) => Promise<string>;
+  streamWriteUpFeedback: (input: WriteUpFeedbackInput, opts?: StreamOptions) => Promise<string>;
+};
+
+export function useClaude(): ClaudeClient {
   const locale = (useRootData()?.locale ?? "en") as Locale;
 
-  const streamAI = useCallback(
-    async (
-      system: string,
-      message: string,
-      onUpdate: (text: string) => void,
-      maxTokens: number,
-      signal?: AbortSignal,
-    ): Promise<string> => {
-      const res = await client.api.chat.$post(
-        { json: { messages: [{ role: "user", content: message }], system, maxTokens, locale } },
-        { init: { signal } },
-      );
-
-      if (!res.ok) await parseResponse(res);
-      if (!res.body) throw new Error("No response body");
-
-      let accumulated = "";
-      for await (const delta of readSSEStream(res.body)) {
-        accumulated += delta;
-        onUpdate(accumulated);
-      }
-      return accumulated;
-    },
+  return useMemo<ClaudeClient>(
+    () => ({
+      streamAssessment: async (input, opts = {}) => {
+        const res = await client.api.llm.assessment.$post(
+          { json: { ...input, locale } },
+          { init: { signal: opts.signal } },
+        );
+        return consumeStream(res, opts);
+      },
+      streamGaps: async (input, opts = {}) => {
+        const res = await client.api.llm.gaps.$post({ json: { ...input, locale } }, { init: { signal: opts.signal } });
+        return consumeStream(res, opts);
+      },
+      streamStudyPlan: async (input, opts = {}) => {
+        const res = await client.api.llm["study-plan"].$post(
+          { json: { ...input, locale } },
+          { init: { signal: opts.signal } },
+        );
+        return consumeStream(res, opts);
+      },
+      streamStudyPart: async (input, opts = {}) => {
+        const res = await client.api.llm["study-part"].$post(
+          { json: { ...input, locale } },
+          { init: { signal: opts.signal } },
+        );
+        return consumeStream(res, opts);
+      },
+      streamTaskSolution: async (input, opts = {}) => {
+        const res = await client.api.llm["task-solution"].$post(
+          { json: { ...input, locale } },
+          { init: { signal: opts.signal } },
+        );
+        return consumeStream(res, opts);
+      },
+      streamHandsOnFeedback: async (input, opts = {}) => {
+        const res = await client.api.llm["hands-on-feedback"].$post(
+          { json: { ...input, locale } },
+          { init: { signal: opts.signal } },
+        );
+        return consumeStream(res, opts);
+      },
+      streamWriteUpFeedback: async (input, opts = {}) => {
+        const res = await client.api.llm["write-up-feedback"].$post(
+          { json: { ...input, locale } },
+          { init: { signal: opts.signal } },
+        );
+        return consumeStream(res, opts);
+      },
+    }),
     [locale],
   );
-
-  const askAI = useCallback(
-    (system: string, message: string, maxTokens: number, signal?: AbortSignal): Promise<string> =>
-      streamAI(system, message, () => {}, maxTokens, signal),
-    [streamAI],
-  );
-
-  return { streamAI, askAI };
 }

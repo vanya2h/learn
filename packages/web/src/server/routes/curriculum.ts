@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { zValidator } from "@hono/zod-validator";
 import type { Prisma } from "@prisma/client-generated";
 import { Hono } from "hono";
@@ -13,11 +12,11 @@ import {
   SkillSchema,
 } from "../../data/types";
 import { generateGradient, GradientCoverSchema } from "../../lib/gradient";
-import type { Locale } from "../../lib/i18n";
-import { LOCALES, localizeSystem } from "../../lib/i18n";
+import { LOCALES } from "../../lib/i18n";
 import { parseJSON } from "../../lib/json";
 import { db } from "../db";
-import { appendProfileToSystem, getProfileContext, type ProfileContext } from "../lib/profileContext";
+import { getProfileContext } from "../lib/profileContext";
+import { streamLLM } from "../lib/streamLLM";
 import type { AuthEnv } from "../middleware/requireAuth";
 
 const GENERATE_SYSTEM = `You generate interview-prep curriculums from job postings.
@@ -142,59 +141,6 @@ function cleanHtml(html: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 15000);
-}
-
-function streamLLM(
-  system: string,
-  userMessage: string,
-  locale: Locale | undefined,
-  maxTokens = 4000,
-  onComplete?: (fullText: string) => Promise<void> | void,
-  profile?: ProfileContext | null,
-): Response {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
-
-  const anthropic = new Anthropic({ apiKey });
-  const localized = locale ? localizeSystem(locale, system) : system;
-  const finalSystem = appendProfileToSystem(localized, profile ?? null);
-  const stream = anthropic.messages.stream({
-    model: "claude-sonnet-4-6",
-    max_tokens: maxTokens,
-    system: finalSystem,
-    messages: [{ role: "user", content: userMessage }],
-  });
-
-  let accumulated = "";
-
-  const body = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            accumulated += event.delta.text;
-            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(event.delta.text)}\n\n`));
-          }
-        }
-        if (onComplete) await onComplete(accumulated);
-        controller.close();
-      } catch (err) {
-        console.error("[curriculum] stream error:", err);
-        controller.error(err);
-      }
-    },
-    cancel() {
-      stream.abort();
-    },
-  });
-
-  return new Response(body, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    },
-  });
 }
 
 async function extractFromUrl(url: string): Promise<string | null> {
@@ -328,7 +274,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
       feedback ? `\n\nFeedback on previous outline:\n${feedback}` : "",
     ].join("");
 
-    return streamLLM(OUTLINE_SYSTEM, userMessage, locale, 2000, undefined, profile);
+    return streamLLM({ userId: c.var.user.id, system: OUTLINE_SYSTEM, userMessage, locale, maxTokens: 2000, profile });
   })
   .post("/curriculums/generate-phase", zValidator("json", generatePhaseSchema), async (c) => {
     if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
@@ -352,7 +298,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
     ].join("");
 
     const profile = await getProfileContext(c.var.user.id);
-    return streamLLM(PHASE_SYSTEM, userMessage, locale, 1500, undefined, profile);
+    return streamLLM({ userId: c.var.user.id, system: PHASE_SYSTEM, userMessage, locale, maxTokens: 1500, profile });
   })
   .post("/curriculums/generate", zValidator("json", generateSchema), async (c) => {
     const { url, feedback, locale } = c.req.valid("json");
@@ -377,7 +323,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
       : `Job posting:\n\n${textContent}`;
 
     const profile = await getProfileContext(c.var.user.id);
-    return streamLLM(GENERATE_SYSTEM, userMessage, locale, 4000, undefined, profile);
+    return streamLLM({ userId: c.var.user.id, system: GENERATE_SYSTEM, userMessage, locale, maxTokens: 4000, profile });
   })
   .post("/curriculums/generate-from-pdf", zValidator("form", generateFromPdfSchema), async (c) => {
     const { file, feedback, locale } = c.req.valid("form");
@@ -402,7 +348,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
       : `Job posting:\n\n${textContent}`;
 
     const profile = await getProfileContext(c.var.user.id);
-    return streamLLM(GENERATE_SYSTEM, userMessage, locale, 4000, undefined, profile);
+    return streamLLM({ userId: c.var.user.id, system: GENERATE_SYSTEM, userMessage, locale, maxTokens: 4000, profile });
   })
   .post("/curriculums", zValidator("json", saveSchema), async (c) => {
     const userId = c.get("user").id;
@@ -522,12 +468,14 @@ export const curriculumRoute = new Hono<AuthEnv>()
     ].join("");
 
     const profile = await getProfileContext(userId);
-    return streamLLM(
-      OUTLINE_SYSTEM,
+    return streamLLM({
+      userId,
+      system: OUTLINE_SYSTEM,
       userMessage,
       locale,
-      2000,
-      async (fullText) => {
+      maxTokens: 2000,
+      profile,
+      onComplete: async (fullText) => {
         try {
           const parsed = parseCurriculumOutline(parseJSON<unknown>(fullText));
           if (!parsed) {
@@ -552,8 +500,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
           console.error("[draft generate-outline] persist error:", err);
         }
       },
-      profile,
-    );
+    });
   })
   .post("/curriculums/drafts/:id/generate-phase", zValidator("json", draftStreamPhaseSchema), async (c) => {
     if (!process.env.ANTHROPIC_API_KEY) return c.json({ error: "ANTHROPIC_API_KEY is not set" }, 500);
@@ -589,12 +536,14 @@ export const curriculumRoute = new Hono<AuthEnv>()
     ].join("");
 
     const profile = await getProfileContext(userId);
-    return streamLLM(
-      PHASE_SYSTEM,
+    return streamLLM({
+      userId,
+      system: PHASE_SYSTEM,
       userMessage,
       locale,
-      1500,
-      async (fullText) => {
+      maxTokens: 1500,
+      profile,
+      onComplete: async (fullText) => {
         try {
           const parsed = parsePhase(parseJSON<unknown>(fullText));
           if (!parsed) {
@@ -610,8 +559,7 @@ export const curriculumRoute = new Hono<AuthEnv>()
           console.error("[draft generate-phase] persist error:", err);
         }
       },
-      profile,
-    );
+    });
   })
   .post("/curriculums/drafts/:id/publish", async (c) => {
     const userId = c.get("user").id;

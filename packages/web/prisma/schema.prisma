@@ -28,6 +28,7 @@ model User {
   topicSessions      TopicSession[]
   customCurriculums  CustomCurriculum[]
   profile            UserProfile?
+  llmUsage           LlmUsage[]
 
   @@map("users")
 }
@@ -137,6 +138,19 @@ model UserProfile {
   updatedAt   DateTime @updatedAt
 
   @@map("user_profiles")
+}
+
+// ─── LLM rate limiting ───────────────────────────────────────────────────────
+
+model LlmUsage {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalTokens Int
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("llm_usage")
 }
 
 // ─── Custom curriculums ───────────────────────────────────────────────────────

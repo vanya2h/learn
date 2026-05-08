@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { requireAuth } from "./middleware/requireAuth";
-import { chatRoute } from "./routes/chat";
 import { curriculumRoute } from "./routes/curriculum";
+import { llmRoute } from "./routes/llm";
 import { profileRoute } from "./routes/profile";
 import { progressRoute } from "./routes/progress";
 import { topicSessionRoute } from "./routes/topicSession";
@@ -12,16 +12,17 @@ const app = new Hono()
     console.error("[api] unhandled error:", err);
     return c.json({ error: err.message }, 500);
   })
-  // Public: Better Auth handles all /api/auth/** paths
-  .on(["GET", "POST"], "/api/auth/**", (c) => auth.handler(c.req.raw))
+  // Public: Better Auth handles all /api/auth/* paths.
+  // Single `*` (not `**`) — Hono's TrieRouter treats `**` as a literal segment.
+  .on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw))
   // Protected routes
-  .use("/api/chat", requireAuth)
+  .use("/api/llm/*", requireAuth)
   .use("/api/progress/*", requireAuth)
   .use("/api/topic-sessions/*", requireAuth)
   .use("/api/curriculums/*", requireAuth)
   .use("/api/profile", requireAuth)
   .use("/api/profile/*", requireAuth)
-  .route("/api", chatRoute)
+  .route("/api", llmRoute)
   .route("/api", curriculumRoute)
   .route("/api", progressRoute)
   .route("/api", topicSessionRoute)

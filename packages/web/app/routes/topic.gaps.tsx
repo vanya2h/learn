@@ -7,9 +7,10 @@ import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
+import { useClaude } from "../../src/lib/claude";
 import { parseJSON } from "../../src/lib/json";
 import type { GapEntry, GapItem, GapLevel, PhaseByKey } from "../../src/lib/phase";
-import { ASSESSMENT_EVAL_SYSTEM, isLegacyGap, isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { isLegacyGap, isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.gaps";
@@ -18,8 +19,6 @@ import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
-
-const TOKENS_ASSESSMENT_EVAL = 600;
 
 const VALID_LEVELS = ["partially-known", "no-knowledge"] as const satisfies readonly GapLevel[];
 
@@ -49,7 +48,8 @@ export default function GapsPage() {
   const data = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { stream } = useStreamAI();
+  const { run } = useStreamAI();
+  const { streamGaps } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
 
   const [streamReview, setStreamReview] = useState<{ summary?: string; gaps?: GapItem[] }>({});
@@ -63,23 +63,26 @@ export default function GapsPage() {
     if (data.name === "gaps-review") return;
 
     const { questions, answers } = data;
-    const qa = questions.map((q, i) => `Q${i + 1}: ${q}\nA${i + 1}: ${answers[i] ?? "(no answer)"}`).join("\n\n");
+    const qa = questions.map((q, i) => ({ q, a: answers[i] ?? "" }));
 
-    void stream(
-      ASSESSMENT_EVAL_SYSTEM,
-      qa,
-      (acc) => {
-        try {
-          const partial = parseJSON<{ summary?: unknown; gaps?: unknown }>(acc);
-          setStreamReview({
-            summary: typeof partial.summary === "string" ? partial.summary : undefined,
-            gaps: Array.isArray(partial.gaps) ? partial.gaps.filter(isGapItem) : undefined,
-          });
-        } catch {
-          // partial stream not yet parseable
-        }
-      },
-      TOKENS_ASSESSMENT_EVAL,
+    void run((signal) =>
+      streamGaps(
+        { qa },
+        {
+          signal,
+          onUpdate: (acc) => {
+            try {
+              const partial = parseJSON<{ summary?: unknown; gaps?: unknown }>(acc);
+              setStreamReview({
+                summary: typeof partial.summary === "string" ? partial.summary : undefined,
+                gaps: Array.isArray(partial.gaps) ? partial.gaps.filter(isGapItem) : undefined,
+              });
+            } catch {
+              // partial stream not yet parseable
+            }
+          },
+        },
+      ),
     ).then((evalText) => {
       if (evalText === null) return;
       const { summary, gaps } = parseJSON<{ summary: string; gaps: unknown[] }>(evalText);
