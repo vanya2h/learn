@@ -31,7 +31,7 @@ export default function DraftFinishPage() {
     <PageBody>
       <PageContent>
         <ReadingColumn>
-          <Card.List className="my-auto">
+          <Card.List className="m-auto max-w-64">
             <Card.Entry className="gap-2">
               <Card.Heading>
                 <Trans>Program Ready!</Trans>
