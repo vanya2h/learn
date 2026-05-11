@@ -12,6 +12,7 @@ import { apiClient } from "../../src/lib/apiClient";
 import { parseJSON } from "../../src/lib/json";
 import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { getTopicLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import { useLocale } from "../hooks/useLocale";
@@ -53,7 +54,7 @@ function AssessContent({
   loaderData: Awaited<ReturnType<typeof loader>>;
   layoutData: Extract<Awaited<ReturnType<typeof layoutLoader>>, { task: unknown }>;
 }) {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { saveSession } = useTopicSession(taskId!);
   const locale = useLocale();
@@ -99,7 +100,7 @@ function AssessContent({
 
   async function handleSubmit(questions: string[]) {
     await saveSession({ name: "assessing", questions, answers });
-    void navigate("../gaps", { relative: "path" });
+    void navigate(getTopicLinks(curriculumId!, taskId!).gaps);
   }
 
   if (phase.phase === "questions") {

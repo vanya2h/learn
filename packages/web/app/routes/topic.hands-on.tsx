@@ -11,6 +11,7 @@ import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { apiClient } from "../../src/lib/apiClient";
 import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { getTopicLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import { useLocale } from "../hooks/useLocale";
@@ -47,7 +48,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export default function HandsOnPage() {
   const { material, partIdx, savedAnswers, readOnly } = useLoaderData<typeof loader>();
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { saveSession } = useTopicSession(taskId!);
   const { t } = useLingui();
@@ -74,7 +75,7 @@ export default function HandsOnPage() {
 
   async function handleSubmit() {
     await saveSession({ name: "hands-on", material, partIdx, answers });
-    void navigate("../feedback", { relative: "path" });
+    void navigate(getTopicLinks(curriculumId!, taskId!).feedback);
   }
 
   return (
