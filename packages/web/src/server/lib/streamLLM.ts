@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { Locale } from "../../lib/i18n";
 import { localizeSystem } from "../../lib/i18n";
+import { db } from "../db";
 import { getLlmUsageStatus, recordLlmUsage } from "./llmRateLimit";
 import type { ProfileContext } from "./profileContext";
 import { appendProfileToSystem } from "./profileContext";
@@ -19,8 +20,11 @@ export async function streamLLM(opts: StreamLLMOptions): Promise<Response> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
 
-  const status = await getLlmUsageStatus(opts.userId);
-  if (status.remaining <= 0) {
+  const [status, userRecord] = await Promise.all([
+    getLlmUsageStatus(opts.userId),
+    db.user.findUnique({ where: { id: opts.userId }, select: { role: true } }),
+  ]);
+  if (userRecord?.role !== "admin" && status.remaining <= 0) {
     const minutes = Math.max(1, Math.ceil((status.resetAt.getTime() - Date.now()) / 60_000));
     return new Response(
       JSON.stringify({
