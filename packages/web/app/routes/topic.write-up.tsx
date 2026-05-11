@@ -14,6 +14,7 @@ import { apiClient } from "../../src/lib/apiClient";
 import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import type { Material } from "../../src/lib/phase";
 import { parseTopicSessionState } from "../../src/lib/phase";
+import { getTopicLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import { useLocale } from "../hooks/useLocale";
@@ -66,7 +67,7 @@ function WriteUpCompleteView({
   partIdx: number;
   savedFeedback: string;
 }) {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { deleteSession } = useTopicSession(taskId!);
   const { toggleTask } = useProgress();
@@ -76,7 +77,7 @@ function WriteUpCompleteView({
   async function handleComplete() {
     if (taskId) await toggleTask(taskId);
     void deleteSession();
-    void navigate("../complete", { relative: "path" });
+    void navigate(getTopicLinks(curriculumId!, taskId!).complete);
   }
 
   return (
@@ -107,7 +108,7 @@ function WriteUpCompleteView({
 }
 
 function WriteUpReflectionView({ material, partIdx }: { material: Material; partIdx: number }) {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { saveSession, deleteSession } = useTopicSession(taskId!);
   const { toggleTask } = useProgress();
@@ -149,7 +150,7 @@ function WriteUpReflectionView({ material, partIdx }: { material: Material; part
   async function handleComplete() {
     if (taskId) await toggleTask(taskId);
     void deleteSession();
-    void navigate("../complete", { relative: "path" });
+    void navigate(getTopicLinks(curriculumId!, taskId!).complete);
   }
 
   return (

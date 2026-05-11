@@ -14,6 +14,7 @@ import { apiClient } from "../../src/lib/apiClient";
 import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import type { PhaseByKey } from "../../src/lib/phase";
 import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { getTopicLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import { useLocale } from "../hooks/useLocale";
@@ -55,7 +56,7 @@ export default function FeedbackPage() {
 }
 
 function FeedbackDisplay({ data }: { data: FeedbackData }) {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { saveSession } = useTopicSession(taskId!);
 
@@ -64,7 +65,7 @@ function FeedbackDisplay({ data }: { data: FeedbackData }) {
 
   function handleContinue() {
     void saveSession({ name: "write-up", material, partIdx, feedback: "" });
-    void navigate("../write-up", { relative: "path" });
+    void navigate(getTopicLinks(curriculumId!, taskId!).writeUp);
   }
 
   return (
@@ -91,7 +92,7 @@ function FeedbackDisplay({ data }: { data: FeedbackData }) {
 }
 
 function HandsOnFeedbackView({ data }: { data: HandsOnData }) {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { saveSession } = useTopicSession(taskId!);
   const locale = useLocale();
@@ -121,7 +122,7 @@ function HandsOnFeedbackView({ data }: { data: HandsOnData }) {
 
   function handleContinue() {
     void saveSession({ name: "write-up", material, partIdx, feedback: "" });
-    void navigate("../write-up", { relative: "path" });
+    void navigate(getTopicLinks(curriculumId!, taskId!).writeUp);
   }
 
   return (

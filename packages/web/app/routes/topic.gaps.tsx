@@ -13,6 +13,7 @@ import { parseJSON } from "../../src/lib/json";
 import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import type { GapEntry, GapItem, GapLevel, PhaseByKey } from "../../src/lib/phase";
 import { isLegacyGap, isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
+import { getTopicLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
 import { useLocale } from "../hooks/useLocale";
@@ -61,6 +62,7 @@ export default function GapsPage() {
 }
 
 function GapsReviewDisplay({ review }: { review: PhaseByKey<"gaps-review"> & { readOnly: boolean } }) {
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   return (
     <PageBody>
@@ -73,7 +75,7 @@ function GapsReviewDisplay({ review }: { review: PhaseByKey<"gaps-review"> & { r
       </PageContent>
       {!review.readOnly && (
         <TopicActionBar>
-          <Button className="ml-auto" onClick={() => void navigate("../study", { relative: "path" })}>
+          <Button className="ml-auto" onClick={() => void navigate(getTopicLinks(curriculumId!, taskId!).study)}>
             <Trans>Start studying</Trans>
           </Button>
         </TopicActionBar>
@@ -83,7 +85,7 @@ function GapsReviewDisplay({ review }: { review: PhaseByKey<"gaps-review"> & { r
 }
 
 function GapsAssessmentView({ data }: { data: AssessingData }) {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { curriculumId, taskId } = useParams<{ curriculumId: string; taskId: string }>();
   const navigate = useNavigate();
   const { saveSession } = useTopicSession(taskId!);
   const locale = useLocale();
@@ -189,7 +191,7 @@ function GapsAssessmentView({ data }: { data: AssessingData }) {
               <Button
                 className="ml-auto"
                 disabled={!(state.status === "complete" && state.review)}
-                onClick={() => void navigate("../study", { relative: "path" })}
+                onClick={() => void navigate(getTopicLinks(curriculumId!, taskId!).study)}
               >
                 <Trans>Start studying</Trans>
               </Button>
