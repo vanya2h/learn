@@ -1,18 +1,21 @@
 import { Trans } from "@lingui/react/macro";
-import { useEffect, useState } from "react";
+import { Pending } from "@vanya2h/utils-rxjs-react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
+import { map, shareReplay, tap } from "rxjs";
 import { PageBody } from "../../src/components/layout/PageBody";
 import { PageContent } from "../../src/components/layout/PageContent";
 import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
-import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { useClaude } from "../../src/lib/claude";
+import { apiClient } from "../../src/lib/apiClient";
 import { parseJSON } from "../../src/lib/json";
+import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import type { GapEntry, GapItem, GapLevel, PhaseByKey } from "../../src/lib/phase";
 import { isLegacyGap, isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
+import { useLocale } from "../hooks/useLocale";
 import type { Route } from "./+types/topic.gaps";
 
 import { Card } from "~/components/Card";
@@ -23,6 +26,13 @@ import { cn } from "~/lib/utils";
 const VALID_LEVELS = ["partially-known", "no-knowledge"] as const satisfies readonly GapLevel[];
 
 type LoaderResult = (PhaseByKey<"gaps-review"> | PhaseByKey<"assessing">) & { readOnly: boolean };
+
+type GapsStreamState =
+  | { status: "streaming"; text: string }
+  | { status: "complete"; text: string; review: PhaseByKey<"gaps-review"> | null }
+  | { status: "error"; error: unknown };
+
+type AssessingData = PhaseByKey<"assessing"> & { readOnly: boolean };
 
 export async function loader({ request, params }: Route.LoaderArgs): Promise<LoaderResult> {
   const session = await requireSession(request);
@@ -46,127 +56,185 @@ export async function loader({ request, params }: Route.LoaderArgs): Promise<Loa
 
 export default function GapsPage() {
   const data = useLoaderData<typeof loader>();
+  if (data.name === "gaps-review") return <GapsReviewDisplay review={data} />;
+  return <GapsAssessmentView data={data} />;
+}
+
+function GapsReviewDisplay({ review }: { review: PhaseByKey<"gaps-review"> & { readOnly: boolean } }) {
+  const navigate = useNavigate();
+  return (
+    <PageBody>
+      <PageContent>
+        <ReadingColumn>
+          <Card.List>
+            <GapsReviewCards review={review} />
+          </Card.List>
+        </ReadingColumn>
+      </PageContent>
+      {!review.readOnly && (
+        <TopicActionBar>
+          <Button className="ml-auto" onClick={() => void navigate("../study", { relative: "path" })}>
+            <Trans>Start studying</Trans>
+          </Button>
+        </TopicActionBar>
+      )}
+    </PageBody>
+  );
+}
+
+function GapsAssessmentView({ data }: { data: AssessingData }) {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { run } = useStreamAI();
-  const { streamGaps } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
+  const locale = useLocale();
 
-  const [streamReview, setStreamReview] = useState<{ summary?: string; gaps?: GapItem[] }>({});
-  const [review, setReview] = useState<PhaseByKey<"gaps-review"> | null>(
-    data.name === "gaps-review"
-      ? { name: data.name, summary: data.summary, gaps: data.gaps, context: data.context }
-      : null,
-  );
+  const [stream] = useState<LlmStream>(() => {
+    const qa = data.questions.map((q, i) => ({ q, a: data.answers[i] ?? "" }));
+    return createLlmStream((signal) => apiClient.api.llm.gaps.$post({ json: { qa, locale } }, { init: { signal } }));
+  });
 
-  useEffect(() => {
-    if (data.name === "gaps-review") return;
-
-    const { questions, answers } = data;
-    const qa = questions.map((q, i) => ({ q, a: answers[i] ?? "" }));
-
-    void run((signal) =>
-      streamGaps(
-        { qa },
-        {
-          signal,
-          onUpdate: (acc) => {
-            try {
-              const partial = parseJSON<{ summary?: unknown; gaps?: unknown }>(acc);
-              setStreamReview({
-                summary: typeof partial.summary === "string" ? partial.summary : undefined,
-                gaps: Array.isArray(partial.gaps) ? partial.gaps.filter(isGapItem) : undefined,
-              });
-            } catch {
-              // partial stream not yet parseable
-            }
-          },
-        },
+  const state$ = useMemo(
+    () =>
+      stream.state$.pipe(
+        map((s): GapsStreamState => {
+          if (s.status !== "complete") return s;
+          try {
+            const { summary, gaps } = parseJSON<{ summary: string; gaps: unknown[] }>(s.text);
+            const cleanGaps = Array.isArray(gaps) ? gaps.filter(isGapItem) : [];
+            const context =
+              cleanGaps.length > 0
+                ? `Learner level: ${summary}. Key gaps to focus on: ${cleanGaps.map((g) => g.title).join(", ")}.`
+                : `Learner level: ${summary}. Knowledge is solid — go deep and cover advanced nuances.`;
+            return {
+              status: "complete",
+              text: s.text,
+              review: { name: "gaps-review" as const, summary, gaps: cleanGaps, context },
+            };
+          } catch {
+            return { status: "complete", text: s.text, review: null };
+          }
+        }),
+        tap((s) => {
+          if (s.status === "complete" && s.review) void saveSession(s.review);
+        }),
+        shareReplay({ bufferSize: 1, refCount: false }),
       ),
-    ).then((evalText) => {
-      if (evalText === null) return;
-      const { summary, gaps } = parseJSON<{ summary: string; gaps: unknown[] }>(evalText);
-      const cleanGaps = Array.isArray(gaps) ? gaps.filter(isGapItem) : [];
-      const context =
-        cleanGaps.length > 0
-          ? `Learner level: ${summary}. Key gaps to focus on: ${cleanGaps.map((g) => g.title).join(", ")}.`
-          : `Learner level: ${summary}. Knowledge is solid — go deep and cover advanced nuances.`;
-      const result = { name: "gaps-review" as const, summary, gaps: cleanGaps, context };
-      setReview(result);
-      void saveSession(result);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const isLoading = !review;
-  const summary = review?.summary ?? streamReview.summary;
-  const gaps: GapEntry[] = review?.gaps ?? streamReview.gaps ?? [];
-
-  const partialCount = gaps.reduce((acc, g) => acc + (!isLegacyGap(g) && g.level === "partially-known" ? 1 : 0), 0);
+    [stream, saveSession],
+  );
 
   return (
     <PageBody>
       <PageContent>
         <ReadingColumn>
           <Card.List>
-            <Card.Entry className="flex items-baseline justify-between gap-4">
-              <div className="flex flex-col gap-2">
-                <Card.Heading>
-                  {isLoading ? (
-                    <Trans>Evaluating your answers…</Trans>
-                  ) : (
-                    <Trans>Here&apos;s what your assessment showed</Trans>
-                  )}
-                </Card.Heading>
-                {summary && <Card.SubHeading>{summary}</Card.SubHeading>}
-              </div>
-              {!isLoading && gaps.length > 0 && (
-                <span className="font-mono text-[11px] tracking-[0.04em] text-foreground/40 tabular-nums">
-                  {gaps.length} <Trans>gaps</Trans>
-                  {partialCount > 0 && (
+            <Pending value$={state$}>
+              {(state) => {
+                if (state.status === "complete" && state.review) {
+                  return <GapsReviewCards review={state.review} />;
+                }
+                if (state.status === "error") {
+                  return (
                     <>
-                      {" · "}
-                      {partialCount} <Trans>partially known</Trans>
+                      <Card.Entry className="flex items-baseline justify-between gap-4">
+                        <Card.Heading>
+                          <Trans>Evaluating your answers…</Trans>
+                        </Card.Heading>
+                      </Card.Entry>
+                      <Card.Entry className="flex flex-row items-center gap-2 text-destructive">
+                        <p className="text-sm">
+                          <Trans>Failed to evaluate answers.</Trans>
+                        </p>
+                        <Button variant="secondary" size="sm" onClick={() => stream.retry()}>
+                          <Trans>Retry</Trans>
+                        </Button>
+                      </Card.Entry>
                     </>
-                  )}
-                </span>
-              )}
-            </Card.Entry>
-
-            {isLoading && gaps.length === 0 && (
-              <Card.Entry className="flex flex-row items-center gap-2 text-foreground/40">
-                <Spinner />
-                <p className="text-sm">
-                  <Trans>Identifying gaps…</Trans>
-                </p>
-              </Card.Entry>
-            )}
-
-            {!isLoading && gaps.length === 0 && (
-              <Card.Entry className="text-sm text-muted-foreground">
-                <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
-              </Card.Entry>
-            )}
-
-            {gaps.map((gap, i) => (
-              <GapRow key={i} gap={gap} />
-            ))}
+                  );
+                }
+                const partial = tryParseReview(state.text);
+                const gaps = partial?.gaps ?? [];
+                return (
+                  <>
+                    <Card.Entry className="flex items-baseline justify-between gap-4">
+                      <div className="flex flex-col gap-2">
+                        <Card.Heading>
+                          <Trans>Evaluating your answers…</Trans>
+                        </Card.Heading>
+                        {partial?.summary && <Card.SubHeading>{partial.summary}</Card.SubHeading>}
+                      </div>
+                    </Card.Entry>
+                    {gaps.length === 0 && (
+                      <Card.Entry className="flex flex-row items-center gap-2 text-foreground/40">
+                        <Spinner />
+                        <p className="text-sm">
+                          <Trans>Identifying gaps…</Trans>
+                        </p>
+                      </Card.Entry>
+                    )}
+                    {gaps.map((gap, i) => (
+                      <GapRow key={i} gap={gap} />
+                    ))}
+                  </>
+                );
+              }}
+            </Pending>
           </Card.List>
         </ReadingColumn>
       </PageContent>
 
       {!data.readOnly && (
-        <TopicActionBar>
-          <Button
-            className="ml-auto"
-            disabled={isLoading}
-            onClick={() => void navigate("../study", { relative: "path" })}
-          >
-            <Trans>Start studying</Trans>
-          </Button>
-        </TopicActionBar>
+        <Pending value$={state$}>
+          {(state) => (
+            <TopicActionBar>
+              <Button
+                className="ml-auto"
+                disabled={!(state.status === "complete" && state.review)}
+                onClick={() => void navigate("../study", { relative: "path" })}
+              >
+                <Trans>Start studying</Trans>
+              </Button>
+            </TopicActionBar>
+          )}
+        </Pending>
       )}
     </PageBody>
+  );
+}
+
+function GapsReviewCards({ review }: { review: PhaseByKey<"gaps-review"> }) {
+  return (
+    <>
+      <Card.Entry className="flex items-baseline justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <Card.Heading>
+            <Trans>Here&apos;s what your assessment showed</Trans>
+          </Card.Heading>
+          {review.summary && <Card.SubHeading>{review.summary}</Card.SubHeading>}
+        </div>
+        {review.gaps.length > 0 && (
+          <span className="font-mono text-[11px] tracking-[0.04em] text-foreground/40 tabular-nums">
+            {review.gaps.length} <Trans>gaps</Trans>
+            {review.gaps.filter((g) => !isLegacyGap(g) && g.level === "partially-known").length > 0 && (
+              <>
+                {" · "}
+                {review.gaps.filter((g) => !isLegacyGap(g) && g.level === "partially-known").length}{" "}
+                <Trans>partially known</Trans>
+              </>
+            )}
+          </span>
+        )}
+      </Card.Entry>
+
+      {review.gaps.length === 0 && (
+        <Card.Entry className="text-sm text-muted-foreground">
+          <Trans>No significant gaps detected — the material will go deep on advanced nuances.</Trans>
+        </Card.Entry>
+      )}
+
+      {review.gaps.map((gap, i) => (
+        <GapRow key={i} gap={gap} />
+      ))}
+    </>
   );
 }
 
@@ -207,6 +275,18 @@ function LevelPill({ level }: { level: GapLevel }) {
       {isPartial ? <Trans>Partial</Trans> : <Trans>Gap</Trans>}
     </span>
   );
+}
+
+function tryParseReview(text: string): { summary?: string; gaps?: GapItem[] } | null {
+  try {
+    const partial = parseJSON<{ summary?: unknown; gaps?: unknown }>(text);
+    return {
+      summary: typeof partial.summary === "string" ? partial.summary : undefined,
+      gaps: Array.isArray(partial.gaps) ? partial.gaps.filter(isGapItem) : undefined,
+    };
+  } catch {
+    return null;
+  }
 }
 
 function isGapItem(value: unknown): value is GapItem {

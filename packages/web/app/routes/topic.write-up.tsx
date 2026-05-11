@@ -1,18 +1,22 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useState } from "react";
+import { Pending } from "@vanya2h/utils-rxjs-react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
+import { filter, map, merge, Observable, of, shareReplay, tap } from "rxjs";
 import { PageBody } from "../../src/components/layout/PageBody";
 import { PageContent } from "../../src/components/layout/PageContent";
 import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
 import { Markdown } from "../../src/components/Markdown";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useProgress } from "../../src/hooks/useProgress";
-import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { useClaude } from "../../src/lib/claude";
+import { apiClient } from "../../src/lib/apiClient";
+import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
+import type { Material } from "../../src/lib/phase";
 import { parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
+import { useLocale } from "../hooks/useLocale";
 import type { Route } from "./+types/topic.write-up";
 
 import { Card } from "~/components/Card";
@@ -42,39 +46,34 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 }
 
+type ViewState = {
+  feedback: string | null;
+  stream: LlmStream | null;
+};
+
 export default function WriteUpPage() {
   const { material, partIdx, savedFeedback } = useLoaderData<typeof loader>();
+  if (savedFeedback) return <WriteUpCompleteView material={material} partIdx={partIdx} savedFeedback={savedFeedback} />;
+  return <WriteUpReflectionView material={material} partIdx={partIdx} />;
+}
+
+function WriteUpCompleteView({
+  material,
+  partIdx,
+  savedFeedback,
+}: {
+  material: Material;
+  partIdx: number;
+  savedFeedback: string;
+}) {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { run, streaming, abort } = useStreamAI();
-  const { streamWriteUpFeedback } = useClaude();
-  const { saveSession, deleteSession } = useTopicSession(taskId!);
+  const { deleteSession } = useTopicSession(taskId!);
   const { toggleTask } = useProgress();
-  const { t } = useLingui();
 
-  const [text, setText] = useState("");
-  const [feedback, setFeedback] = useState(savedFeedback);
-
-  const { parts } = material;
-  const part = parts[partIdx]!;
-
-  async function handleSubmit() {
-    setFeedback("");
-    const result = await run((signal) =>
-      streamWriteUpFeedback({ topic: part.title, reflection: text }, { signal, onUpdate: setFeedback }),
-    );
-    if (result !== null) {
-      void saveSession({
-        name: "write-up",
-        material,
-        partIdx,
-        feedback: result,
-      });
-    }
-  }
+  const part = material.parts[partIdx]!;
 
   async function handleComplete() {
-    abort();
     if (taskId) await toggleTask(taskId);
     void deleteSession();
     void navigate("../complete", { relative: "path" });
@@ -85,47 +84,163 @@ export default function WriteUpPage() {
       <PageContent>
         <ReadingColumn>
           <Card.List>
-            <Card.Entry>
-              <div className="flex flex-col gap-2">
-                <Card.Heading>
-                  <Trans>Reflect</Trans>
-                </Card.Heading>
-                <Card.SubHeading>{part.writeUpPrompt}</Card.SubHeading>
-              </div>
+            <WriteUpHeading part={part} />
+            <Card.Entry className="gap-2">
+              <Card.Heading>
+                <Trans>Tutor feedback</Trans>
+              </Card.Heading>
+              <Markdown>{savedFeedback}</Markdown>
             </Card.Entry>
-
-            <Card.Entry>
-              <Textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder={t`Write your reflection in your own words…`}
-                rows={4}
-                aria-label={t`Text input`}
-                disabled={streaming || !!feedback}
-              />
-            </Card.Entry>
-
-            {(feedback || streaming) && (
-              <Card.Entry className="gap-2">
-                <Card.Heading className="flex items-center gap-2">
-                  {streaming && <Spinner />}
-                  <Trans>Tutor feedback</Trans>
-                </Card.Heading>
-                <Markdown isAnimating={streaming}>{feedback}</Markdown>
-              </Card.Entry>
-            )}
           </Card.List>
         </ReadingColumn>
       </PageContent>
-
       <TopicActionBar>
-        <Button className="ml-auto" onClick={() => void handleSubmit()} disabled={streaming || !!feedback}>
+        <Button className="ml-auto" disabled>
           <Trans>Submit reflection</Trans>
         </Button>
-        <Button onClick={() => void handleComplete()} disabled={streaming || !feedback}>
+        <Button onClick={() => void handleComplete()}>
           <Trans>Complete</Trans>
         </Button>
       </TopicActionBar>
     </PageBody>
+  );
+}
+
+function WriteUpReflectionView({ material, partIdx }: { material: Material; partIdx: number }) {
+  const { taskId } = useParams<{ taskId: string }>();
+  const navigate = useNavigate();
+  const { saveSession, deleteSession } = useTopicSession(taskId!);
+  const { toggleTask } = useProgress();
+  const { t } = useLingui();
+  const locale = useLocale();
+
+  const part = material.parts[partIdx]!;
+
+  const [text, setText] = useState("");
+  const [stream, setStream] = useState<LlmStream | null>(null);
+
+  const viewState$ = useMemo<Observable<ViewState>>(() => {
+    if (!stream) return of({ feedback: null, stream: null });
+    const terminal$ = stream.state$.pipe(
+      filter((s) => s.status === "complete" || s.status === "error"),
+      map((s) => (s.status === "complete" ? { feedback: s.text, stream: null } : { feedback: null, stream })),
+      tap((vs) => {
+        if (vs.feedback !== null) {
+          void saveSession({ name: "write-up", material, partIdx, feedback: vs.feedback });
+        }
+      }),
+    );
+    return merge(of<ViewState>({ feedback: null, stream }), terminal$).pipe(
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+  }, [stream, saveSession, material, partIdx]);
+
+  function handleSubmit() {
+    setStream(
+      createLlmStream((signal) =>
+        apiClient.api.llm["write-up-feedback"].$post(
+          { json: { topic: part.title, reflection: text, locale } },
+          { init: { signal } },
+        ),
+      ),
+    );
+  }
+
+  async function handleComplete() {
+    if (taskId) await toggleTask(taskId);
+    void deleteSession();
+    void navigate("../complete", { relative: "path" });
+  }
+
+  return (
+    <PageBody>
+      <PageContent>
+        <ReadingColumn>
+          <Card.List>
+            <WriteUpHeading part={part} />
+
+            <Pending value$={viewState$} getDefaultValue={() => ({ feedback: null, stream: null })}>
+              {({ feedback, stream: activeStream }) => (
+                <>
+                  <Card.Entry>
+                    <Textarea
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      placeholder={t`Write your reflection in your own words…`}
+                      rows={4}
+                      aria-label={t`Text input`}
+                      disabled={!!activeStream || !!feedback}
+                    />
+                  </Card.Entry>
+
+                  {activeStream && (
+                    <Pending value$={activeStream.state$}>
+                      {(state) => {
+                        if (state.status === "error") {
+                          return (
+                            <Card.Entry className="flex flex-row items-center gap-2 text-destructive">
+                              <p className="text-sm">
+                                <Trans>Failed to generate feedback.</Trans>
+                              </p>
+                              <Button variant="secondary" size="sm" onClick={() => activeStream.retry()}>
+                                <Trans>Retry</Trans>
+                              </Button>
+                            </Card.Entry>
+                          );
+                        }
+                        return (
+                          <Card.Entry className="gap-2">
+                            <Card.Heading className="flex items-center gap-2">
+                              {state.status === "streaming" && <Spinner />}
+                              <Trans>Tutor feedback</Trans>
+                            </Card.Heading>
+                            <Markdown isAnimating={state.status === "streaming"}>{state.text}</Markdown>
+                          </Card.Entry>
+                        );
+                      }}
+                    </Pending>
+                  )}
+
+                  {!activeStream && feedback && (
+                    <Card.Entry className="gap-2">
+                      <Card.Heading>
+                        <Trans>Tutor feedback</Trans>
+                      </Card.Heading>
+                      <Markdown>{feedback}</Markdown>
+                    </Card.Entry>
+                  )}
+                </>
+              )}
+            </Pending>
+          </Card.List>
+        </ReadingColumn>
+      </PageContent>
+
+      <Pending value$={viewState$} getDefaultValue={() => ({ feedback: null, stream: null })}>
+        {({ feedback, stream: activeStream }) => (
+          <TopicActionBar>
+            <Button className="ml-auto" onClick={() => handleSubmit()} disabled={!!activeStream || !!feedback}>
+              <Trans>Submit reflection</Trans>
+            </Button>
+            <Button onClick={() => void handleComplete()} disabled={!!activeStream || !feedback}>
+              <Trans>Complete</Trans>
+            </Button>
+          </TopicActionBar>
+        )}
+      </Pending>
+    </PageBody>
+  );
+}
+
+function WriteUpHeading({ part }: { part: { writeUpPrompt: string } }) {
+  return (
+    <Card.Entry>
+      <div className="flex flex-col gap-2">
+        <Card.Heading>
+          <Trans>Reflect</Trans>
+        </Card.Heading>
+        <Card.SubHeading>{part.writeUpPrompt}</Card.SubHeading>
+      </div>
+    </Card.Entry>
   );
 }

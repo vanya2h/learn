@@ -1,6 +1,6 @@
-import { type ClientResponse, parseResponse } from "hono/client";
+import type { ClientResponse } from "hono/client";
+import { parseResponse } from "hono/client";
 import { BehaviorSubject, Observable, shareReplay, switchMap } from "rxjs";
-import { readSSEStream } from "./claude";
 
 export type LlmStreamState =
   | { status: "streaming"; text: string }
@@ -14,25 +14,49 @@ export type LlmStream = {
 
 export type LlmFetcher = (signal: AbortSignal) => Promise<ClientResponse<unknown>>;
 
+export async function* readSSEStream(body: ReadableStream<Uint8Array>): AsyncGenerator<string> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          yield JSON.parse(line.slice(6)) as string;
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 const cache = new Map<string, LlmStream>();
 
 export function getLlmStream(key: string, fetcher: LlmFetcher): LlmStream {
   const cached = cache.get(key);
   if (cached) return cached;
 
+  const stream = createLlmStream(fetcher);
+  cache.set(key, stream);
+  return stream;
+}
+
+export function createLlmStream(fetcher: LlmFetcher): LlmStream {
   const nonce$ = new BehaviorSubject(0);
   const state$ = nonce$.pipe(
     switchMap(() => createStream(fetcher)),
     shareReplay({ bufferSize: 1, refCount: false }),
   );
-
-  const stream: LlmStream = {
+  return {
     state$,
     retry: () => nonce$.next(nonce$.value + 1),
   };
-
-  cache.set(key, stream);
-  return stream;
 }
 
 function createStream(fetcher: LlmFetcher): Observable<LlmStreamState> {

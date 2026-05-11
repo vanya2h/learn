@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react";
 import { Pending } from "@vanya2h/utils-rxjs-react";
-import { DetailedError } from "hono/client";
 import isEqual from "lodash/isEqual";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
@@ -24,6 +23,7 @@ import { Markdown } from "../../src/components/Markdown";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
 import { apiClient } from "../../src/lib/apiClient";
+import { getApiErrorMessage } from "../../src/lib/errors";
 import type { Locale } from "../../src/lib/i18n";
 import { getLlmStream } from "../../src/lib/llmStream";
 import type { Material, PhaseByKey } from "../../src/lib/phase";
@@ -44,11 +44,10 @@ type LoaderResult = (PhaseByKey<"study"> | PhaseByKey<"gaps-review"> | { name: n
 type StreamError = { kind: "rate-limit" | "generic"; message: string };
 
 function toStreamError(err: unknown): StreamError {
-  const data = err instanceof DetailedError ? (err.detail?.data as { error?: string } | undefined) : undefined;
-  if (err instanceof DetailedError && err.statusCode === 429) {
-    return { kind: "rate-limit", message: data?.error ?? "" };
+  if (err instanceof Error && "statusCode" in err && (err as { statusCode?: unknown }).statusCode === 429) {
+    return { kind: "rate-limit", message: getApiErrorMessage(err, "") };
   }
-  return { kind: "generic", message: data?.error ?? (err instanceof Error ? err.message : String(err)) };
+  return { kind: "generic", message: getApiErrorMessage(err, String(err)) };
 }
 
 type MaterialUpdate =

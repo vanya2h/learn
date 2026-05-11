@@ -1,8 +1,10 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowRightIcon } from "@phosphor-icons/react";
-import { DetailedError, parseResponse } from "hono/client";
-import { useEffect, useRef, useState } from "react";
-import { redirect, useNavigate, useParams, useRevalidator, useRouteLoaderData } from "react-router";
+import { Pending } from "@vanya2h/utils-rxjs-react";
+import { parseResponse } from "hono/client";
+import { useMemo, useState } from "react";
+import { redirect, useLoaderData, useNavigate, useParams, useRevalidator, useRouteLoaderData } from "react-router";
+import { map, shareReplay, startWith, tap } from "rxjs";
 import { BuilderActionBar } from "../../src/components/CurriculumBuilder/BuilderActionBar";
 import { SelectableCard } from "../../src/components/CurriculumBuilder/SelectableCard";
 import { PageBody } from "../../src/components/layout/PageBody";
@@ -10,18 +12,19 @@ import { PageContent } from "../../src/components/layout/PageContent";
 import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
 import { type CurriculumOutline, parseCurriculumOutline } from "../../src/data/types";
 import { apiClient } from "../../src/lib/apiClient";
-import { readSSEStream } from "../../src/lib/claude";
+import { getApiErrorMessage } from "../../src/lib/errors";
 import { parseJSON } from "../../src/lib/json";
+import { createLlmStream } from "../../src/lib/llmStream";
 import { getCurriculumLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
-import { useRootData } from "../hooks/useRootData";
 import type { Route } from "./+types/curriculum.draft.outline";
 import type { DraftLoaderData } from "./curriculum.draft";
 
 import { Card } from "~/components/Card";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
+import { useLocale } from "~app/hooks/useLocale";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);
@@ -31,97 +34,49 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const links = getCurriculumLinks();
   if (!draft) throw redirect(links.new);
   if (draft.status === "published") throw redirect(links.byId(draft.id));
-  return { hasOutline: !!draft.outline, hasText: !!draft.textContent };
+  return { hasText: !!draft.textContent };
 }
+
+type OutlineState =
+  | { status: "streaming"; outline: CurriculumOutline | null }
+  | { status: "complete"; outline: CurriculumOutline | null }
+  | { status: "error"; message: string };
 
 export default function DraftOutlinePage() {
   const layoutData = useRouteLoaderData<DraftLoaderData>("routes/curriculum.draft");
+  const { hasText } = useLoaderData<typeof loader>();
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { revalidate } = useRevalidator();
-  const root = useRootData();
-  const locale = root?.locale ?? "en";
-  const abortRef = useRef<AbortController | null>(null);
 
   const initialOutline = layoutData?.draft.outline ?? null;
   const initialSelectedIds = layoutData?.draft.selections?.selectedPhaseIds ?? [];
 
-  const [streamOutline, setStreamOutline] = useState<CurriculumOutline | null>(null);
-  const [streaming, setStreaming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  if (!id) return null;
+
+  if (initialOutline) {
+    return <OutlineIdleView id={id} outline={initialOutline} initialSelectedIds={initialSelectedIds} />;
+  }
+
+  return <OutlineStreamView id={id} hasText={hasText} initialSelectedIds={initialSelectedIds} />;
+}
+
+function OutlineIdleView({
+  id,
+  outline,
+  initialSelectedIds,
+}: {
+  id: string;
+  outline: CurriculumOutline;
+  initialSelectedIds: string[];
+}) {
+  const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds);
-
-  const outline = initialOutline ?? streamOutline;
-
-  useEffect(() => {
-    if (!id || initialOutline) return;
-    void run();
-    return () => abortRef.current?.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function ensureExtracted() {
-    if (!id) return;
-    if (!layoutData?.draft.textContent) {
-      await parseResponse(apiClient.api.curriculums.drafts[":id"].extract.$post({ param: { id } }));
-    }
-  }
-
-  async function run(feedback?: string) {
-    if (!id) return;
-    setError(null);
-    setStreaming(true);
-    setStreamOutline(null);
-
-    try {
-      await ensureExtracted();
-
-      abortRef.current?.abort();
-      const ctrl = new AbortController();
-      abortRef.current = ctrl;
-
-      const res = await apiClient.api.curriculums.drafts[":id"]["generate-outline"].$post(
-        { param: { id }, json: { feedback, locale } },
-        { init: { signal: ctrl.signal } },
-      );
-      if (!res.ok) await parseResponse(res);
-      if (!res.body) throw new Error("No response body");
-
-      let accumulated = "";
-      for await (const delta of readSSEStream(res.body)) {
-        accumulated += delta;
-        try {
-          const partial = parseCurriculumOutline(parseJSON<unknown>(accumulated));
-          if (partial) setStreamOutline(partial);
-        } catch {
-          // partial stream not yet parseable
-        }
-      }
-
-      const final = parseCurriculumOutline(parseJSON<unknown>(accumulated));
-      if (!final) {
-        setError("Couldn't parse the curriculum outline — try regenerating");
-        setStreaming(false);
-        return;
-      }
-      setStreamOutline(final);
-      setSelectedIds(final.phases.map((p) => p.id));
-      setStreaming(false);
-      revalidate();
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      const data = err instanceof DetailedError ? (err.detail?.data as { error?: string } | undefined) : undefined;
-      setError(data?.error ?? "Failed to generate outline");
-      setStreaming(false);
-    }
-  }
 
   function toggle(phaseId: string) {
     setSelectedIds((prev) => (prev.includes(phaseId) ? prev.filter((p) => p !== phaseId) : [...prev, phaseId]));
   }
 
   async function startGenerating() {
-    if (!id || !outline || selectedIds.length === 0) return;
+    if (selectedIds.length === 0) return;
     await parseResponse(
       apiClient.api.curriculums.drafts[":id"].$patch({
         param: { id },
@@ -136,59 +91,172 @@ export default function DraftOutlinePage() {
     <PageBody>
       <PageContent>
         <ReadingColumn>
-          {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
-
           <Card.List>
             <Card.Entry className="flex items-baseline justify-between gap-4">
               <div className="flex flex-col gap-2">
-                <Card.Heading>
-                  {outline?.name || (streaming ? <Trans>Generating outline…</Trans> : <Trans>Outline</Trans>)}
-                </Card.Heading>
-                {outline?.description && <Card.SubHeading>{outline.description}</Card.SubHeading>}
+                <Card.Heading>{outline.name || <Trans>Outline</Trans>}</Card.Heading>
+                {outline.description && <Card.SubHeading>{outline.description}</Card.SubHeading>}
               </div>
-              {!streaming && initialOutline && (
-                <Button className="hidden md:block" variant="ghost" size="sm" onClick={() => void run()}>
-                  <Trans>Regenerate</Trans>
-                </Button>
-              )}
             </Card.Entry>
 
-            {streaming && !outline && (
-              <Card.Entry className="flex items-center gap-2 text-foreground/40">
-                <Spinner />
-                <p className="text-sm">
-                  <Trans>Generating outline…</Trans>
-                </p>
-              </Card.Entry>
-            )}
-
-            {(outline?.phases.length || 0) > 0 && (
-              <>
-                {outline?.phases.map((phase) => (
-                  <SelectableCard
-                    key={phase.id}
-                    selected={selectedIds.includes(phase.id)}
-                    onToggle={streaming ? undefined : () => toggle(phase.id)}
-                    readOnly={streaming}
-                    title={phase.title}
-                    description={phase.subtitle}
-                  />
-                ))}
-              </>
-            )}
+            {outline.phases.map((phase) => (
+              <SelectableCard
+                key={phase.id}
+                selected={selectedIds.includes(phase.id)}
+                onToggle={() => toggle(phase.id)}
+                readOnly={false}
+                title={phase.title}
+                description={phase.subtitle}
+              />
+            ))}
           </Card.List>
         </ReadingColumn>
       </PageContent>
 
       <BuilderActionBar>
-        <Button
-          className="ml-auto"
-          onClick={() => void startGenerating()}
-          disabled={streaming || !outline || selectedIds.length === 0}
-        >
+        <Button className="ml-auto" onClick={() => void startGenerating()} disabled={selectedIds.length === 0}>
           <Trans>Start generating</Trans> <ArrowRightIcon className="inline ml-1" />
         </Button>
       </BuilderActionBar>
+    </PageBody>
+  );
+}
+
+function OutlineStreamView({
+  id,
+  hasText,
+  initialSelectedIds,
+}: {
+  id: string;
+  hasText: boolean;
+  initialSelectedIds: string[];
+}) {
+  const navigate = useNavigate();
+  const { revalidate } = useRevalidator();
+  const locale = useLocale();
+  const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds);
+
+  const stream = useMemo(() => {
+    return createLlmStream(async (signal) => {
+      if (!hasText) {
+        await parseResponse(apiClient.api.curriculums.drafts[":id"].extract.$post({ param: { id } }));
+      }
+      return apiClient.api.curriculums.drafts[":id"]["generate-outline"].$post(
+        { param: { id }, json: { locale } },
+        { init: { signal } },
+      );
+    });
+  }, [hasText, id, locale]);
+
+  const viewState$ = useMemo(
+    () =>
+      stream.state$.pipe(
+        map((s): OutlineState => {
+          if (s.status === "error") {
+            return { status: "error", message: getApiErrorMessage(s.error, "Failed to generate outline") };
+          }
+          let outline: CurriculumOutline | null = null;
+          try {
+            outline = parseCurriculumOutline(parseJSON<unknown>(s.text)) ?? null;
+          } catch {
+            // partial stream not yet parseable
+          }
+          return { status: s.status === "complete" ? "complete" : "streaming", outline };
+        }),
+        tap((s) => {
+          if (s.status !== "complete") return;
+          if (s.outline) setSelectedIds(s.outline.phases.map((p) => p.id));
+          revalidate();
+        }),
+        startWith<OutlineState>({ status: "streaming", outline: null }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      ),
+    [stream, revalidate],
+  );
+
+  function toggle(phaseId: string) {
+    setSelectedIds((prev) => (prev.includes(phaseId) ? prev.filter((p) => p !== phaseId) : [...prev, phaseId]));
+  }
+
+  async function startGenerating(outline: CurriculumOutline | null) {
+    if (!outline || selectedIds.length === 0) return;
+    await parseResponse(
+      apiClient.api.curriculums.drafts[":id"].$patch({
+        param: { id },
+        json: { selections: { selectedPhaseIds: selectedIds, deselectedTaskIds: [], currentPhaseIdx: 0 } },
+      }),
+    );
+    const firstPhase = outline.phases.find((p) => selectedIds.includes(p.id));
+    if (firstPhase) void navigate(getCurriculumLinks().draft(id).phases(firstPhase.id));
+  }
+
+  return (
+    <PageBody>
+      <PageContent>
+        <ReadingColumn>
+          <Pending value$={viewState$} getDefaultValue={() => ({ status: "streaming", outline: null }) as OutlineState}>
+            {(state) => {
+              const isStreaming = state.status === "streaming";
+              const errorMsg = state.status === "error" ? state.message : null;
+              const outline = state.status === "streaming" || state.status === "complete" ? state.outline : null;
+
+              return (
+                <>
+                  {errorMsg && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{errorMsg}</p>}
+                  <Card.List>
+                    <Card.Entry className="flex items-baseline justify-between gap-4">
+                      <div className="flex flex-col gap-2">
+                        <Card.Heading>{outline?.name || <Trans>Generating outline…</Trans>}</Card.Heading>
+                        {outline?.description && <Card.SubHeading>{outline.description}</Card.SubHeading>}
+                      </div>
+                    </Card.Entry>
+
+                    {isStreaming && !outline && (
+                      <Card.Entry className="flex items-center gap-2 text-foreground/40">
+                        <Spinner />
+                        <p className="text-sm">
+                          <Trans>Generating outline…</Trans>
+                        </p>
+                      </Card.Entry>
+                    )}
+
+                    {(outline?.phases.length || 0) > 0 &&
+                      outline?.phases.map((phase) => (
+                        <SelectableCard
+                          key={phase.id}
+                          selected={selectedIds.includes(phase.id)}
+                          onToggle={isStreaming ? undefined : () => toggle(phase.id)}
+                          readOnly={isStreaming}
+                          title={phase.title}
+                          description={phase.subtitle}
+                        />
+                      ))}
+                  </Card.List>
+                </>
+              );
+            }}
+          </Pending>
+        </ReadingColumn>
+      </PageContent>
+
+      <Pending value$={viewState$} getDefaultValue={() => ({ status: "streaming", outline: null }) as OutlineState}>
+        {(state) => {
+          const isStreaming = state.status === "streaming";
+          const outline = state.status === "streaming" || state.status === "complete" ? state.outline : null;
+
+          return (
+            <BuilderActionBar>
+              <Button
+                className="ml-auto"
+                onClick={() => void startGenerating(outline)}
+                disabled={isStreaming || !outline || selectedIds.length === 0}
+              >
+                <Trans>Start generating</Trans> <ArrowRightIcon className="inline ml-1" />
+              </Button>
+            </BuilderActionBar>
+          );
+        }}
+      </Pending>
     </PageBody>
   );
 }

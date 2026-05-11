@@ -1,19 +1,22 @@
 import { Trans } from "@lingui/react/macro";
 import { ArrowRightIcon } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { Pending } from "@vanya2h/utils-rxjs-react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
+import { shareReplay, tap } from "rxjs";
 import { PageBody } from "../../src/components/layout/PageBody";
 import { PageContent } from "../../src/components/layout/PageContent";
 import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
 import { Markdown } from "../../src/components/Markdown";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
-import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { useClaude } from "../../src/lib/claude";
+import { apiClient } from "../../src/lib/apiClient";
+import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import type { PhaseByKey } from "../../src/lib/phase";
 import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
+import { useLocale } from "../hooks/useLocale";
 import type { Route } from "./+types/topic.feedback";
 
 import { Card } from "~/components/Card";
@@ -21,6 +24,9 @@ import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 
 type LoaderResult = (PhaseByKey<"feedback"> | PhaseByKey<"hands-on">) & { readOnly: boolean };
+
+type FeedbackData = PhaseByKey<"feedback"> & { readOnly: boolean };
+type HandsOnData = PhaseByKey<"hands-on"> & { readOnly: boolean };
 
 export async function loader({ request, params }: Route.LoaderArgs): Promise<LoaderResult> {
   const session = await requireSession(request);
@@ -44,37 +50,17 @@ export async function loader({ request, params }: Route.LoaderArgs): Promise<Loa
 
 export default function FeedbackPage() {
   const data = useLoaderData<typeof loader>();
+  if (data.name === "feedback") return <FeedbackDisplay data={data} />;
+  return <HandsOnFeedbackView data={data} />;
+}
+
+function FeedbackDisplay({ data }: { data: FeedbackData }) {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { run, streaming } = useStreamAI();
-  const { streamHandsOnFeedback } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
 
-  const [feedback, setFeedback] = useState(data.name === "feedback" ? data.feedback : "");
-
-  const { material, partIdx, answers } = data;
-  const { parts, plan } = material;
-  const part = parts[partIdx]!;
-  const partPlan = plan.partPlans[partIdx];
-
-  useEffect(() => {
-    if (data.name === "feedback") return;
-
-    const qa = part.handsOn.map((t, i) => ({ task: t.task, answer: answers[i] ?? "" }));
-
-    void run((signal) => streamHandsOnFeedback({ qa }, { signal, onUpdate: setFeedback })).then((result) => {
-      if (result !== null) {
-        void saveSession({
-          name: "feedback",
-          material,
-          partIdx,
-          answers,
-          feedback: result,
-        });
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { material, partIdx } = data;
+  const partPlan = material.plan.partPlans[partIdx];
 
   function handleContinue() {
     void saveSession({ name: "write-up", material, partIdx, feedback: "" });
@@ -86,47 +72,133 @@ export default function FeedbackPage() {
       <PageContent>
         <ReadingColumn>
           <Card.List>
-            <Card.Entry className="flex items-baseline justify-between gap-4">
-              <div className="flex flex-col gap-2">
-                <Card.Heading>{partPlan?.title ?? ""}</Card.Heading>
-                {partPlan?.description && <Card.SubHeading>{partPlan.description}</Card.SubHeading>}
-              </div>
-              <span className="hidden md:inline shrink-0 font-mono text-[11px] tracking-[0.04em] text-foreground/40 tabular-nums">
-                <Trans>Feedback</Trans>
-              </span>
+            <FeedbackHeading partPlan={partPlan} />
+            <Card.Entry>
+              <Markdown>{data.feedback}</Markdown>
             </Card.Entry>
-
-            {streaming && (
-              <Card.Entry className="flex flex-row items-center gap-2 text-foreground/40">
-                <Spinner />
-                <p className="text-sm">
-                  <Trans>Evaluating your answers…</Trans>
-                </p>
-              </Card.Entry>
-            )}
-
-            {streaming && feedback && (
-              <Card.Entry>
-                <Markdown isAnimating>{feedback}</Markdown>
-              </Card.Entry>
-            )}
-
-            {!streaming && feedback && (
-              <Card.Entry>
-                <Markdown>{feedback}</Markdown>
-              </Card.Entry>
-            )}
           </Card.List>
         </ReadingColumn>
       </PageContent>
-
       {!data.readOnly && (
         <TopicActionBar>
-          <Button className="ml-auto" disabled={streaming || !feedback} onClick={handleContinue}>
+          <Button className="ml-auto" onClick={handleContinue}>
             <Trans>Reflection</Trans> <ArrowRightIcon />
           </Button>
         </TopicActionBar>
       )}
     </PageBody>
+  );
+}
+
+function HandsOnFeedbackView({ data }: { data: HandsOnData }) {
+  const { taskId } = useParams<{ taskId: string }>();
+  const navigate = useNavigate();
+  const { saveSession } = useTopicSession(taskId!);
+  const locale = useLocale();
+
+  const { material, partIdx, answers } = data;
+  const part = material.parts[partIdx]!;
+  const partPlan = material.plan.partPlans[partIdx];
+
+  const [stream] = useState<LlmStream>(() => {
+    const qa = part.handsOn.map((t, i) => ({ task: t.task, answer: answers[i] ?? "" }));
+    return createLlmStream((signal) =>
+      apiClient.api.llm["hands-on-feedback"].$post({ json: { qa, locale } }, { init: { signal } }),
+    );
+  });
+
+  const state$ = useMemo(
+    () =>
+      stream.state$.pipe(
+        tap((state) => {
+          if (state.status !== "complete") return;
+          void saveSession({ name: "feedback", material, partIdx, answers, feedback: state.text });
+        }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      ),
+    [stream, saveSession, material, partIdx, answers],
+  );
+
+  function handleContinue() {
+    void saveSession({ name: "write-up", material, partIdx, feedback: "" });
+    void navigate("../write-up", { relative: "path" });
+  }
+
+  return (
+    <PageBody>
+      <PageContent>
+        <ReadingColumn>
+          <Card.List>
+            <FeedbackHeading partPlan={partPlan} />
+            <Pending value$={state$}>
+              {(state) => {
+                if (state.status === "error") {
+                  return (
+                    <Card.Entry className="flex flex-row items-center gap-2 text-destructive">
+                      <p className="text-sm">
+                        <Trans>Failed to generate feedback.</Trans>
+                      </p>
+                      <Button variant="secondary" size="sm" onClick={() => stream.retry()}>
+                        <Trans>Retry</Trans>
+                      </Button>
+                    </Card.Entry>
+                  );
+                }
+                if (state.status === "complete") {
+                  return (
+                    <Card.Entry>
+                      <Markdown>{state.text}</Markdown>
+                    </Card.Entry>
+                  );
+                }
+                return (
+                  <>
+                    {!state.text && (
+                      <Card.Entry className="flex flex-row items-center gap-2 text-foreground/40">
+                        <Spinner />
+                        <p className="text-sm">
+                          <Trans>Evaluating your answers…</Trans>
+                        </p>
+                      </Card.Entry>
+                    )}
+                    {state.text && (
+                      <Card.Entry>
+                        <Markdown isAnimating>{state.text}</Markdown>
+                      </Card.Entry>
+                    )}
+                  </>
+                );
+              }}
+            </Pending>
+          </Card.List>
+        </ReadingColumn>
+      </PageContent>
+
+      {!data.readOnly && (
+        <Pending value$={state$}>
+          {(state) => (
+            <TopicActionBar>
+              <Button className="ml-auto" disabled={state.status !== "complete"} onClick={handleContinue}>
+                <Trans>Reflection</Trans> <ArrowRightIcon />
+              </Button>
+            </TopicActionBar>
+          )}
+        </Pending>
+      )}
+    </PageBody>
+  );
+}
+
+function FeedbackHeading({ partPlan }: { partPlan: { title?: string; description?: string } | undefined }) {
+  return (
+    <Card.Entry className="flex items-baseline justify-between gap-4">
+      <div className="flex flex-col gap-2">
+        <Card.Heading>{partPlan?.title ?? ""}</Card.Heading>
+        {partPlan?.description && <Card.SubHeading>{partPlan.description}</Card.SubHeading>}
+      </div>
+      <span className="hidden md:inline shrink-0 font-mono text-[11px] tracking-[0.04em] text-foreground/40 tabular-nums">
+        <Trans>Feedback</Trans>
+      </span>
+    </Card.Entry>
   );
 }

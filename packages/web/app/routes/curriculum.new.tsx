@@ -1,5 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { DetailedError, parseResponse } from "hono/client";
+import { parseResponse } from "hono/client";
 import { useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
 import { InputStep, type InputStepValues } from "../../src/components/CurriculumBuilder/InputStep";
@@ -9,6 +9,7 @@ import { PageContent } from "../../src/components/layout/PageContent";
 import { ProgramCover } from "../../src/components/ProgramCover";
 import { apiClient } from "../../src/lib/apiClient";
 import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
+import { getApiErrorMessage } from "../../src/lib/errors";
 import { generateGradient, type GradientCover, GradientCoverSchema } from "../../src/lib/gradient";
 import { getCurriculumLinks } from "../../src/lib/routes";
 import { db } from "../../src/server/db";
@@ -118,8 +119,7 @@ export default function NewCurriculumPage() {
       const result = await parseResponse(apiClient.api.curriculums.drafts.$post({ json }));
       void navigate(getCurriculumLinks().draft(result.id).outline);
     } catch (err) {
-      const data = err instanceof DetailedError ? (err.detail?.data as { error?: string } | undefined) : undefined;
-      setError(data?.error ?? t`Failed to start a new program`);
+      setError(getApiErrorMessage(err, t`Failed to start a new program`));
       setGenerating(false);
     }
   }

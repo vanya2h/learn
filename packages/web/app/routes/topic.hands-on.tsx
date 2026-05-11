@@ -1,4 +1,5 @@
 import { Trans, useLingui } from "@lingui/react/macro";
+import { Pending } from "@vanya2h/utils-rxjs-react";
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { PageBody } from "../../src/components/layout/PageBody";
@@ -6,12 +7,13 @@ import { PageContent } from "../../src/components/layout/PageContent";
 import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
 import { Markdown } from "../../src/components/Markdown";
 import { TopicActionBar } from "../../src/components/TopicActionBar";
-import { useStreamAI } from "../../src/hooks/useStreamAI";
 import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { useClaude } from "../../src/lib/claude";
+import { apiClient } from "../../src/lib/apiClient";
+import { createLlmStream, type LlmStream } from "../../src/lib/llmStream";
 import { isPhaseReadOnly, parseTopicSessionState } from "../../src/lib/phase";
 import { db } from "../../src/server/db";
 import { requireSession } from "../../src/server/session";
+import { useLocale } from "../hooks/useLocale";
 import type { Route } from "./+types/topic.hands-on";
 
 import { Card } from "~/components/Card";
@@ -47,13 +49,12 @@ export default function HandsOnPage() {
   const { material, partIdx, savedAnswers, readOnly } = useLoaderData<typeof loader>();
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
-  const { run } = useStreamAI();
-  const { streamTaskSolution } = useClaude();
   const { saveSession } = useTopicSession(taskId!);
   const { t } = useLingui();
+  const locale = useLocale();
 
   const [answers, setAnswers] = useState<Record<string, string>>(savedAnswers);
-  const [solutions, setSolutions] = useState<Record<number, { text: string; streaming: boolean }>>({});
+  const [streams, setStreams] = useState<Record<number, LlmStream>>({});
   const [solutionShown, setSolutionShown] = useState<Record<number, boolean>>({});
   const [hintShown, setHintShown] = useState<Record<number, boolean>>({});
 
@@ -61,58 +62,18 @@ export default function HandsOnPage() {
   const part = parts[partIdx]!;
   const allAnswered = part.handsOn.every((_, i) => (answers[i] ?? "").trim().length > 0);
 
-  async function handleSolution(idx: number, task: string, hint?: string) {
-    if (solutions[idx] && !solutions[idx].streaming) {
-      setSolutionShown((prev) => ({ ...prev, [idx]: true }));
-      return;
-    }
+  function handleSolution(idx: number, task: string, hint?: string) {
     setSolutionShown((prev) => ({ ...prev, [idx]: true }));
-    setSolutions((prev) => ({
+    setStreams((prev) => ({
       ...prev,
-      [idx]: { text: "", streaming: true },
-    }));
-    const result = await run((signal) =>
-      streamTaskSolution(
-        { task, hint },
-        {
-          signal,
-          onUpdate: (acc) =>
-            setSolutions((prev) => ({
-              ...prev,
-              [idx]: { text: acc, streaming: true },
-            })),
-        },
+      [idx]: createLlmStream((signal) =>
+        apiClient.api.llm["task-solution"].$post({ json: { task, hint, locale } }, { init: { signal } }),
       ),
-    );
-    if (result !== null) {
-      setSolutions((prev) => ({
-        ...prev,
-        [idx]: { ...prev[idx]!, streaming: false },
-      }));
-    } else {
-      setSolutions((prev) => {
-        const { [idx]: _, ...rest } = prev;
-        return rest;
-      });
-      setSolutionShown((prev) => ({ ...prev, [idx]: false }));
-    }
-  }
-
-  function handleHideSolution(idx: number) {
-    setSolutionShown((prev) => ({ ...prev, [idx]: false }));
-  }
-
-  function toggleHint(idx: number) {
-    setHintShown((prev) => ({ ...prev, [idx]: !prev[idx] }));
+    }));
   }
 
   async function handleSubmit() {
-    await saveSession({
-      name: "hands-on",
-      material,
-      partIdx,
-      answers,
-    });
+    await saveSession({ name: "hands-on", material, partIdx, answers });
     void navigate("../feedback", { relative: "path" });
   }
 
@@ -144,24 +105,44 @@ export default function HandsOnPage() {
 
               <Card.Entry className="flex flex-row flex-wrap items-center gap-2">
                 {taskItem.hint && (
-                  <Button variant="secondary" size="xs" onClick={() => toggleHint(i)}>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    onClick={() => setHintShown((prev) => ({ ...prev, [i]: !prev[i] }))}
+                  >
                     {hintShown[i] ? <Trans>Hide hint</Trans> : <Trans>Show hint</Trans>}
                   </Button>
                 )}
-                {solutionShown[i] && !solutions[i]?.streaming ? (
-                  <Button variant="secondary" size="xs" onClick={() => handleHideSolution(i)}>
-                    <Trans>Hide solution</Trans>
-                  </Button>
+                {streams[i] ? (
+                  <Pending value$={streams[i].state$}>
+                    {(state) => (
+                      <>
+                        {solutionShown[i] && state.status !== "streaming" ? (
+                          <Button
+                            variant="secondary"
+                            size="xs"
+                            onClick={() => setSolutionShown((p) => ({ ...p, [i]: false }))}
+                          >
+                            <Trans>Hide solution</Trans>
+                          </Button>
+                        ) : (
+                          <Button
+                            size="xs"
+                            disabled={state.status === "streaming"}
+                            onClick={() => setSolutionShown((p) => ({ ...p, [i]: true }))}
+                          >
+                            <Trans>See solution</Trans>
+                          </Button>
+                        )}
+                        {state.status === "streaming" && <Spinner />}
+                      </>
+                    )}
+                  </Pending>
                 ) : (
-                  <Button
-                    size="xs"
-                    disabled={solutions[i]?.streaming}
-                    onClick={() => void handleSolution(i, taskItem.task, taskItem.hint)}
-                  >
+                  <Button size="xs" onClick={() => handleSolution(i, taskItem.task, taskItem.hint)}>
                     <Trans>See solution</Trans>
                   </Button>
                 )}
-                {solutions[i]?.streaming && <Spinner />}
               </Card.Entry>
 
               {taskItem.hint && hintShown[i] && (
@@ -173,13 +154,32 @@ export default function HandsOnPage() {
                 </Card.Entry>
               )}
 
-              {solutionShown[i] && solutions[i] && (
-                <Card.Entry className="gap-2">
-                  <Card.Heading>
-                    <Trans>Solution</Trans>
-                  </Card.Heading>
-                  <Markdown isAnimating={solutions[i].streaming}>{solutions[i].text}</Markdown>
-                </Card.Entry>
+              {streams[i] && solutionShown[i] && (
+                <Pending value$={streams[i].state$}>
+                  {(state) => {
+                    if (state.status === "error") {
+                      return (
+                        <Card.Entry className="gap-2">
+                          <Card.Heading>
+                            <Trans>Solution</Trans>
+                          </Card.Heading>
+                          <p className="text-sm text-destructive">
+                            <Trans>Failed to generate solution.</Trans>
+                          </p>
+                        </Card.Entry>
+                      );
+                    }
+                    if (!state.text) return null;
+                    return (
+                      <Card.Entry className="gap-2">
+                        <Card.Heading>
+                          <Trans>Solution</Trans>
+                        </Card.Heading>
+                        <Markdown isAnimating={state.status === "streaming"}>{state.text}</Markdown>
+                      </Card.Entry>
+                    );
+                  }}
+                </Pending>
               )}
             </Card.List>
           ))}
