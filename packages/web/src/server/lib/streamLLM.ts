@@ -25,6 +25,9 @@ export async function streamLLM(opts: StreamLLMOptions): Promise<Response> {
     return new Response(
       JSON.stringify({
         error: `Rate limit exceeded. You've used ${status.used} of ${status.limit} tokens this hour. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+        resetAt: status.resetAt.toISOString(),
+        used: status.used,
+        limit: status.limit,
       }),
       {
         status: 429,

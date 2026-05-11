@@ -1,6 +1,7 @@
 import type { ClientResponse } from "hono/client";
-import { parseResponse } from "hono/client";
+import { DetailedError, parseResponse } from "hono/client";
 import { BehaviorSubject, Observable, shareReplay, switchMap } from "rxjs";
+import { rateLimitBus } from "./rateLimitBus";
 
 export type LlmStreamState =
   | { status: "streaming"; text: string }
@@ -81,6 +82,14 @@ function createStream(fetcher: LlmFetcher): Observable<LlmStreamState> {
         subscriber.complete();
       } catch (err) {
         if (controller.signal.aborted) return;
+        if (err instanceof DetailedError && (err as { statusCode?: unknown }).statusCode === 429) {
+          const data = err.detail.data;
+          rateLimitBus.emit("rateLimit", {
+            resetAt: typeof data?.resetAt === "string" ? new Date(data.resetAt) : new Date(Date.now() + 3_600_000),
+            used: typeof data?.used === "number" ? data.used : 0,
+            limit: typeof data?.limit === "number" ? data.limit : 10_000,
+          });
+        }
         subscriber.next({ status: "error", error: err });
         subscriber.complete();
       }

@@ -1,6 +1,7 @@
 import { I18nProvider } from "@lingui/react";
 import { useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
+import { RateLimitModal } from "../src/components/RateLimitModal";
 import type { Complexity } from "../src/data/types";
 import { parseCurriculumDef } from "../src/data/types";
 import { activateLocale, getLocaleFromRequest, i18n } from "../src/lib/i18n";
@@ -116,6 +117,7 @@ export default function App() {
   return (
     <I18nProvider i18n={i18n}>
       <Outlet />
+      <RateLimitModal />
     </I18nProvider>
   );
 }
