@@ -19,6 +19,7 @@ model User {
   createdAt          DateTime
   updatedAt          DateTime
   onboardingSkipped  Boolean  @default(false)
+  role               String   @default("user")
 
   sessions           Session[]
   accounts           Account[]
