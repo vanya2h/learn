@@ -1,6 +1,6 @@
 import { db } from "../db";
 
-export const LLM_RATE_LIMIT_TOKENS = 10_000;
+export const LLM_RATE_LIMIT_TOKENS = 100_000;
 export const LLM_RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 export type LlmRateLimitStatus = {
