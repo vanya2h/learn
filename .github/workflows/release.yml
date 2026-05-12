@@ -48,6 +48,13 @@ jobs:
       - name: Version packages
         run: npx changeset version
 
+      - name: Generate locales
+        run: |
+          pnpm --filter web run i18n:extract
+          pnpm --filter web run i18n:compile
+          git add packages/web/src/locales
+          git diff --staged --quiet || git commit -m "chore: update locales"
+
       - name: Push version bumps
         run: git push
 
