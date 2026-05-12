@@ -1,10 +1,10 @@
 import { Trans, useLingui } from "@lingui/react/macro";
-import { PageBody } from "../../src/components/layout/PageBody";
-import { PageContent } from "../../src/components/layout/PageContent";
-import { CardShell } from "../../src/components/ProgramCard";
 
 import { Card } from "~/components/Card";
 import { BigColumn } from "~/components/layout/BigColumn";
+import { PageBody } from "~/components/layout/PageBody";
+import { PageContent } from "~/components/layout/PageContent";
+import { CardShell } from "~/components/ProgramCard";
 import { cn } from "~/lib/utils";
 
 export default function ChoicePage() {

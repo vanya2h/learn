@@ -3,15 +3,15 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useForm } from "react-hook-form";
 import { Link, redirect, useLoaderData, useNavigate } from "react-router";
 import { z } from "zod";
-import { AuthLayout } from "../../src/components/AuthLayout";
-import { authClient } from "../../src/lib/authClient";
-import { safeRedirectPath } from "../../src/lib/redirect";
-import { getAuthLinks, getProfileRoute } from "../../src/lib/routes";
-import { auth } from "../../src/server/auth";
 import type { Route } from "./+types/sign-up";
 
+import { AuthLayout } from "~/components/AuthLayout";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { authClient } from "~/lib/authClient";
+import { safeRedirectPath } from "~/lib/redirect";
+import { getAuthLinks, getProfileRoute } from "~/lib/routes";
+import { auth } from "~/server/auth";
 
 export function meta(): Route.MetaDescriptors {
   return [{ title: "Sign Up — Sheafu" }, { name: "description", content: "Create your Sheafu account." }];

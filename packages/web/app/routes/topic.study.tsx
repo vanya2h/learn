@@ -16,28 +16,28 @@ import {
   Subject,
   tap,
 } from "rxjs";
-import { PageBody } from "../../src/components/layout/PageBody";
-import { PageContent } from "../../src/components/layout/PageContent";
-import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
-import { Markdown } from "../../src/components/Markdown";
-import { TopicActionBar } from "../../src/components/TopicActionBar";
-import { useTopicSession } from "../../src/hooks/useTopicSession";
-import { apiClient } from "../../src/lib/apiClient";
-import { getApiErrorMessage } from "../../src/lib/errors";
-import type { Locale } from "../../src/lib/i18n";
-import { getLlmStream } from "../../src/lib/llmStream";
-import type { Material, PhaseByKey } from "../../src/lib/phase";
-import { isPhaseReadOnly, parsePart, parsePlan, parseTopicSessionState } from "../../src/lib/phase";
-import { getTopicLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
-import { useLocale } from "../hooks/useLocale";
 import type { Route } from "./+types/topic.study";
 import type { loader as layoutLoader } from "./topic-layout";
 
 import { Card } from "~/components/Card";
+import { PageBody } from "~/components/layout/PageBody";
+import { PageContent } from "~/components/layout/PageContent";
+import { ReadingColumn } from "~/components/layout/ReadingColumn";
+import { Markdown } from "~/components/Markdown";
+import { TopicActionBar } from "~/components/TopicActionBar";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
+import { useTopicSession } from "~/hooks/useTopicSession";
+import { apiClient } from "~/lib/apiClient";
+import { getApiErrorMessage } from "~/lib/errors";
+import type { Locale } from "~/lib/i18n";
+import { getLlmStream } from "~/lib/llmStream";
+import type { Material, PhaseByKey } from "~/lib/phase";
+import { isPhaseReadOnly, parsePart, parsePlan, parseTopicSessionState } from "~/lib/phase";
+import { getTopicLinks } from "~/lib/routes";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
+import { useLocale } from "~app/hooks/useLocale";
 
 type LoaderResult = (PhaseByKey<"study"> | PhaseByKey<"gaps-review"> | { name: null }) & { readOnly: boolean };
 

@@ -1,5 +1,6 @@
 import { useRouteLoaderData } from "react-router";
-import type { loader } from "../root";
+
+import type { loader } from "~app/root";
 
 type RootData = Awaited<ReturnType<typeof loader>>;
 

@@ -1,9 +1,10 @@
 import { redirect } from "react-router";
-import { Dashboard } from "../../src/components/Dashboard";
-import { getProfileRoute } from "../../src/lib/routes";
-import { auth } from "../../src/server/auth";
-import { db } from "../../src/server/db";
 import type { Route } from "./+types/home";
+
+import { Dashboard } from "~/components/Dashboard";
+import { getProfileRoute } from "~/lib/routes";
+import { auth } from "~/server/auth";
+import { db } from "~/server/db";
 
 export function meta(): Route.MetaDescriptors {
   return [

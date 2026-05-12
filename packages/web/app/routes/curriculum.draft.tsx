@@ -2,20 +2,13 @@ import { Trans } from "@lingui/react/macro";
 import { parseResponse } from "hono/client";
 import { useState } from "react";
 import { Outlet, redirect, useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
-import { BuilderActionBarSlotContext } from "../../src/components/CurriculumBuilder/BuilderActionBar";
-import { BuilderSidebar, type DraftStep } from "../../src/components/CurriculumBuilder/BuilderSidebar";
-import { GridBackground } from "../../src/components/GridBg";
-import { Inset } from "../../src/components/layout/Inset";
-import { ProgramCover } from "../../src/components/ProgramCover";
-import { type CurriculumOutline, parseCurriculumOutline } from "../../src/data/types";
-import { apiClient } from "../../src/lib/apiClient";
-import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
-import { type GradientCover, GradientCoverSchema } from "../../src/lib/gradient";
-import { getCurriculumLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/curriculum.draft";
 
+import { BuilderActionBarSlotContext } from "~/components/CurriculumBuilder/BuilderActionBar";
+import { BuilderSidebar, type DraftStep } from "~/components/CurriculumBuilder/BuilderSidebar";
+import { GridBackground } from "~/components/GridBg";
+import { Inset } from "~/components/layout/Inset";
+import { ProgramCover } from "~/components/ProgramCover";
 import { BreadcrumbItem, BreadcrumbPage } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
 import {
@@ -26,6 +19,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { type CurriculumOutline, parseCurriculumOutline } from "~/data/types";
+import { apiClient } from "~/lib/apiClient";
+import type { BreadcrumbHandle } from "~/lib/breadcrumbs";
+import { type GradientCover, GradientCoverSchema } from "~/lib/gradient";
+import { getCurriculumLinks } from "~/lib/routes";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 export type DraftLoaderData = {
   draft: {

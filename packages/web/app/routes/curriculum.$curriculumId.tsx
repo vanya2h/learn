@@ -1,17 +1,17 @@
 import { Trans } from "@lingui/react/macro";
 import { isRouteErrorResponse, Link, useParams } from "react-router";
-import { CurriculumView } from "../../src/components/CurriculumView";
-import { getCurriculum } from "../../src/data/curriculum";
-import { useAllCurriculums } from "../../src/hooks/useAllCurriculums";
-import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
-import { getLocaleFromRequest } from "../../src/lib/i18n";
-import { getHomeRoute } from "../../src/lib/routes";
-import { auth } from "../../src/server/auth";
-import { db } from "../../src/server/db";
 import type { Route } from "./+types/curriculum.$curriculumId";
 
+import { CurriculumView } from "~/components/CurriculumView";
 import { BreadcrumbItem, BreadcrumbPage } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
+import { getCurriculum } from "~/data/curriculum";
+import { useAllCurriculums } from "~/hooks/useAllCurriculums";
+import type { BreadcrumbHandle } from "~/lib/breadcrumbs";
+import { getLocaleFromRequest } from "~/lib/i18n";
+import { getHomeRoute } from "~/lib/routes";
+import { auth } from "~/server/auth";
+import { db } from "~/server/db";
 
 export function meta({ data }: Route.MetaArgs): Route.MetaDescriptors {
   const name = data?.curriculumName;

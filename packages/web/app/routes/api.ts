@@ -1,5 +1,6 @@
-import { app } from "../../src/server/app";
 import type { Route } from "./+types/api";
+
+import { app } from "~/server/app";
 
 export async function loader({ request }: Route.LoaderArgs) {
   return app.fetch(request);
