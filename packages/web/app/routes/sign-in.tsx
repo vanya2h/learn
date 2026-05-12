@@ -14,10 +14,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 
 export function meta(): Route.MetaDescriptors {
-  return [
-    { title: "Sign In — Learning Tracker" },
-    { name: "description", content: "Sign in to your Learning Tracker account." },
-  ];
+  return [{ title: "Sign In — Sheafu" }, { name: "description", content: "Sign in to your Sheafu account." }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -67,7 +64,7 @@ export default function SignIn() {
     <AuthLayout>
       <div className="text-center">
         <h1 className="text-3xl font-semibold text-foreground">
-          <Trans>Learning Tracker</Trans>
+          <Trans>Sheafu</Trans>
         </h1>
         <p className="mt-2 text-muted-foreground">
           <Trans>Sign in to your account</Trans>

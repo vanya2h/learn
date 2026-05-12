@@ -24,7 +24,7 @@ import { cn } from "~/lib/utils";
 
 export function meta(): Route.MetaDescriptors {
   return [
-    { title: "New Program — Learning Tracker" },
+    { title: "New Program — Sheafu" },
     { name: "description", content: "Build a custom learning curriculum powered by AI." },
   ];
 }

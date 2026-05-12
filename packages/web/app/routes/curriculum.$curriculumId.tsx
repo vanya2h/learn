@@ -16,7 +16,7 @@ import { Button } from "~/components/ui/button";
 export function meta({ data }: Route.MetaArgs): Route.MetaDescriptors {
   const name = data?.curriculumName;
   return [
-    { title: name ? `${name} — Learning Tracker` : "Curriculum — Learning Tracker" },
+    { title: name ? `${name} — Sheafu` : "Curriculum — Sheafu" },
     {
       name: "description",
       content: name

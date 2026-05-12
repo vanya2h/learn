@@ -13,7 +13,7 @@ export function Footer() {
       <Inset className="py-3 flex flex-col gap-3 sm:flex-row sm:justify-between text-sm text-muted-foreground">
         <div className="flex items-center gap-4 min-w-0 justify-between sm:justify-start">
           <span className="whitespace-nowrap">
-            <Trans>© {currentYear} Learning Tracker</Trans>
+            <Trans>© {currentYear} Sheafu</Trans>
           </span>
           <span className="whitespace-nowrap">
             <Trans>Beta</Trans>

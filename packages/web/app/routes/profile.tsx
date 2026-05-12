@@ -52,10 +52,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
 
 export function meta(): Route.MetaDescriptors {
-  return [
-    { title: "Profile — Learning Tracker" },
-    { name: "description", content: "Your CV-derived learning profile." },
-  ];
+  return [{ title: "Profile — Sheafu" }, { name: "description", content: "Your CV-derived learning profile." }];
 }
 
 function extractErrorMessage(err: unknown): string | null {

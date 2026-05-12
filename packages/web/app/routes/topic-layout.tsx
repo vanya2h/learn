@@ -56,7 +56,7 @@ const PHASE_TO_PATH = {
 export function meta({ loaderData }: Route.MetaArgs): Route.MetaDescriptors {
   const title = loaderData?.task?.title;
   return [
-    { title: title ? `${title} — Learning Tracker` : "Topic — Learning Tracker" },
+    { title: title ? `${title} — Sheafu` : "Topic — Sheafu" },
     {
       name: "description",
       content: title

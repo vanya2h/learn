@@ -1,4 +1,4 @@
-# AGENTS.md — ML Learning Tracker
+# AGENTS.md — Sheafu
 
 ## Goal
 

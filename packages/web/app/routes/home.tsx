@@ -7,7 +7,7 @@ import type { Route } from "./+types/home";
 
 export function meta(): Route.MetaDescriptors {
   return [
-    { title: "Dashboard — Learning Tracker" },
+    { title: "Dashboard — Sheafu" },
     { name: "description", content: "Track your learning progress and manage your curriculum." },
   ];
 }
