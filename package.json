@@ -7,9 +7,13 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@vanya2h/eslint-config": "^0.4.0",
     "@vanya2h/prettier-config": "0.5.0-rc.0",
     "@vanya2h/typescript-config": "^0.4.0",
