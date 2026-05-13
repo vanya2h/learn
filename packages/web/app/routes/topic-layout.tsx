@@ -1,25 +1,25 @@
 import { Trans } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { Link, Outlet, redirect, useLoaderData, useNavigate, useParams, useRouteLoaderData } from "react-router";
-import { ProgramCover } from "../../src/components/ProgramCover";
-import { TopicActionBarSlotContext } from "../../src/components/TopicActionBar";
-import { TopicHeader } from "../../src/components/TopicHeader";
-import { TopicSidebar, type TopicSidebarItem } from "../../src/components/TopicSidebar";
-import { listCurriculums } from "../../src/data/curriculum";
-import type { CurriculumDef } from "../../src/data/types";
-import { parseCurriculumDef } from "../../src/data/types";
-import { useProgress } from "../../src/hooks/useProgress";
-import { useTopicSession } from "../../src/hooks/useTopicSession";
-import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
-import { getLocaleFromRequest } from "../../src/lib/i18n";
-import { highestPhase, parseTopicSessionState, PHASE_ORDER } from "../../src/lib/phase";
-import { getCurriculumLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic-layout";
 
 import { GridBackground } from "~/components/GridBg";
+import { ProgramCover } from "~/components/ProgramCover";
+import { TopicActionBarSlotContext } from "~/components/TopicActionBar";
+import { TopicHeader } from "~/components/TopicHeader";
+import { TopicSidebar, type TopicSidebarItem } from "~/components/TopicSidebar";
 import { BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from "~/components/ui/breadcrumb";
+import { listCurriculums } from "~/data/curriculum";
+import type { CurriculumDef } from "~/data/types";
+import { parseCurriculumDef } from "~/data/types";
+import { useProgress } from "~/hooks/useProgress";
+import { useTopicSession } from "~/hooks/useTopicSession";
+import type { BreadcrumbHandle } from "~/lib/breadcrumbs";
+import { getLocaleFromRequest } from "~/lib/i18n";
+import { highestPhase, parseTopicSessionState, PHASE_ORDER } from "~/lib/phase";
+import { getCurriculumLinks } from "~/lib/routes";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 type PhaseKey = (typeof PHASE_ORDER)[number];
 
@@ -56,7 +56,7 @@ const PHASE_TO_PATH = {
 export function meta({ loaderData }: Route.MetaArgs): Route.MetaDescriptors {
   const title = loaderData?.task?.title;
   return [
-    { title: title ? `${title} — Learning Tracker` : "Topic — Learning Tracker" },
+    { title: title ? `${title} — Sheafu` : "Topic — Sheafu" },
     {
       name: "description",
       content: title

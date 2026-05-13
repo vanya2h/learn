@@ -2,29 +2,29 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { parseResponse } from "hono/client";
 import { useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
-import { InputStep, type InputStepValues } from "../../src/components/CurriculumBuilder/InputStep";
-import { GridBackground } from "../../src/components/GridBg";
-import { PageBody } from "../../src/components/layout/PageBody";
-import { PageContent } from "../../src/components/layout/PageContent";
-import { ProgramCover } from "../../src/components/ProgramCover";
-import { apiClient } from "../../src/lib/apiClient";
-import type { BreadcrumbHandle } from "../../src/lib/breadcrumbs";
-import { getApiErrorMessage } from "../../src/lib/errors";
-import { generateGradient, type GradientCover, GradientCoverSchema } from "../../src/lib/gradient";
-import { getCurriculumLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/curriculum.new";
 
 import { Card } from "~/components/Card";
+import { InputStep, type InputStepValues } from "~/components/CurriculumBuilder/InputStep";
+import { GridBackground } from "~/components/GridBg";
 import { BigColumn } from "~/components/layout/BigColumn";
+import { PageBody } from "~/components/layout/PageBody";
+import { PageContent } from "~/components/layout/PageContent";
+import { ProgramCover } from "~/components/ProgramCover";
 import { BreadcrumbItem, BreadcrumbPage } from "~/components/ui/breadcrumb";
 import { Button } from "~/components/ui/button";
+import { apiClient } from "~/lib/apiClient";
+import type { BreadcrumbHandle } from "~/lib/breadcrumbs";
+import { getApiErrorMessage } from "~/lib/errors";
+import { generateGradient, type GradientCover, GradientCoverSchema } from "~/lib/gradient";
+import { getCurriculumLinks } from "~/lib/routes";
 import { cn } from "~/lib/utils";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 export function meta(): Route.MetaDescriptors {
   return [
-    { title: "New Program — Learning Tracker" },
+    { title: "New Program — Sheafu" },
     { name: "description", content: "Build a custom learning curriculum powered by AI." },
   ];
 }

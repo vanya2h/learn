@@ -14,23 +14,16 @@ import type { UserProfile } from "@prisma/client-generated";
 import { DetailedError, parseResponse } from "hono/client";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useNavigate, useRevalidator } from "react-router";
-import { GridBackground } from "../../src/components/GridBg";
-import { PageBody } from "../../src/components/layout/PageBody";
-import { PageContent } from "../../src/components/layout/PageContent";
-import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
-import { Markdown } from "../../src/components/Markdown";
-import { ProgramCover } from "../../src/components/ProgramCover";
-import { useTheme } from "../../src/hooks/useTheme";
-import { apiClient } from "../../src/lib/apiClient";
-import { GRADIENT_PRESETS } from "../../src/lib/gradient";
-import { getHomeRoute } from "../../src/lib/routes";
-import { auth } from "../../src/server/auth";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/profile";
 
 import { Card } from "~/components/Card";
 import { DashedBorder } from "~/components/DashedBorder";
+import { GridBackground } from "~/components/GridBg";
+import { PageBody } from "~/components/layout/PageBody";
+import { PageContent } from "~/components/layout/PageContent";
+import { ReadingColumn } from "~/components/layout/ReadingColumn";
+import { Markdown } from "~/components/Markdown";
+import { ProgramCover } from "~/components/ProgramCover";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -49,13 +42,17 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Spinner } from "~/components/ui/spinner";
 import { Textarea } from "~/components/ui/textarea";
+import { useTheme } from "~/hooks/useTheme";
+import { apiClient } from "~/lib/apiClient";
+import { GRADIENT_PRESETS } from "~/lib/gradient";
+import { getHomeRoute } from "~/lib/routes";
 import { cn } from "~/lib/utils";
+import { auth } from "~/server/auth";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 export function meta(): Route.MetaDescriptors {
-  return [
-    { title: "Profile — Learning Tracker" },
-    { name: "description", content: "Your CV-derived learning profile." },
-  ];
+  return [{ title: "Profile — Sheafu" }, { name: "description", content: "Your CV-derived learning profile." }];
 }
 
 function extractErrorMessage(err: unknown): string | null {

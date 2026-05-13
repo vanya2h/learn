@@ -1,8 +1,9 @@
 import { redirect } from "react-router";
-import { highestPhase, parseTopicSessionState, PHASE_ROUTES } from "../../src/lib/phase";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/topic.index";
+
+import { highestPhase, parseTopicSessionState, PHASE_ROUTES } from "~/lib/phase";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);

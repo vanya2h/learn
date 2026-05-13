@@ -5,25 +5,25 @@ import { parseResponse } from "hono/client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { redirect, useNavigate, useParams, useRevalidator, useRouteLoaderData } from "react-router";
 import { map, shareReplay, startWith, tap } from "rxjs";
-import { BuilderActionBar } from "../../src/components/CurriculumBuilder/BuilderActionBar";
-import { SelectableCard } from "../../src/components/CurriculumBuilder/SelectableCard";
-import { PageBody } from "../../src/components/layout/PageBody";
-import { PageContent } from "../../src/components/layout/PageContent";
-import { ReadingColumn } from "../../src/components/layout/ReadingColumn";
-import { type OutlinePhase, parsePhase, type Phase, type Task } from "../../src/data/types";
-import { apiClient } from "../../src/lib/apiClient";
-import { getApiErrorMessage } from "../../src/lib/errors";
-import { parseJSON } from "../../src/lib/json";
-import { createLlmStream } from "../../src/lib/llmStream";
-import { getCurriculumLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/curriculum.draft.phases";
 import type { DraftLoaderData } from "./curriculum.draft";
 
 import { Card } from "~/components/Card";
+import { BuilderActionBar } from "~/components/CurriculumBuilder/BuilderActionBar";
+import { SelectableCard } from "~/components/CurriculumBuilder/SelectableCard";
+import { PageBody } from "~/components/layout/PageBody";
+import { PageContent } from "~/components/layout/PageContent";
+import { ReadingColumn } from "~/components/layout/ReadingColumn";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
+import { type OutlinePhase, parsePhase, type Phase, type Task } from "~/data/types";
+import { apiClient } from "~/lib/apiClient";
+import { getApiErrorMessage } from "~/lib/errors";
+import { parseJSON } from "~/lib/json";
+import { createLlmStream } from "~/lib/llmStream";
+import { getCurriculumLinks } from "~/lib/routes";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 import { useLocale } from "~app/hooks/useLocale";
 
 export async function loader({ request, params }: Route.LoaderArgs) {

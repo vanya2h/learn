@@ -1,15 +1,15 @@
 import { Trans } from "@lingui/react/macro";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
-import { PageBody } from "../../src/components/layout/PageBody";
-import { PageContent } from "../../src/components/layout/PageContent";
-import { getCurriculumLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/curriculum.draft.finish";
 
 import { Card } from "~/components/Card";
+import { PageBody } from "~/components/layout/PageBody";
+import { PageContent } from "~/components/layout/PageContent";
 import { ReadingColumn } from "~/components/layout/ReadingColumn";
 import { Button } from "~/components/ui/button";
+import { getCurriculumLinks } from "~/lib/routes";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);

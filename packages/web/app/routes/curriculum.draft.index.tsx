@@ -1,9 +1,10 @@
 import { redirect } from "react-router";
-import { parseCurriculumOutline } from "../../src/data/types";
-import { getCurriculumLinks } from "../../src/lib/routes";
-import { db } from "../../src/server/db";
-import { requireSession } from "../../src/server/session";
 import type { Route } from "./+types/curriculum.draft.index";
+
+import { parseCurriculumOutline } from "~/data/types";
+import { getCurriculumLinks } from "~/lib/routes";
+import { db } from "~/server/db";
+import { requireSession } from "~/server/session";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const session = await requireSession(request);

@@ -3,21 +3,18 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useForm } from "react-hook-form";
 import { Link, redirect, useLoaderData, useNavigate } from "react-router";
 import { z } from "zod";
-import { AuthLayout } from "../../src/components/AuthLayout";
-import { authClient } from "../../src/lib/authClient";
-import { safeRedirectPath } from "../../src/lib/redirect";
-import { getAuthLinks, getProfileRoute } from "../../src/lib/routes";
-import { auth } from "../../src/server/auth";
 import type { Route } from "./+types/sign-up";
 
+import { AuthLayout } from "~/components/AuthLayout";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { authClient } from "~/lib/authClient";
+import { safeRedirectPath } from "~/lib/redirect";
+import { getAuthLinks, getProfileRoute } from "~/lib/routes";
+import { auth } from "~/server/auth";
 
 export function meta(): Route.MetaDescriptors {
-  return [
-    { title: "Sign Up — Learning Tracker" },
-    { name: "description", content: "Create your Learning Tracker account." },
-  ];
+  return [{ title: "Sign Up — Sheafu" }, { name: "description", content: "Create your Sheafu account." }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -69,7 +66,7 @@ export default function SignUp() {
     <AuthLayout>
       <div className="text-center">
         <h1 className="text-3xl font-semibold text-foreground">
-          <Trans>Learning Tracker</Trans>
+          <Trans>Sheafu</Trans>
         </h1>
         <p className="mt-2 text-muted-foreground">
           <Trans>Create your account</Trans>
@@ -95,7 +92,7 @@ export default function SignUp() {
             {...register("name")}
             aria-invalid={!!errors.name}
             aria-describedby={errors.name ? "name-error" : undefined}
-            placeholder={t`Ivan K.`}
+            placeholder={t`John Doe`}
           />
           {errors.name && (
             <p id="name-error" role="alert" className="text-xs text-red-600 dark:text-red-400">

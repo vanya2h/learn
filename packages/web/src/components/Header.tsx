@@ -92,7 +92,7 @@ export function Header() {
                 to={getHomeRoute()}
                 className="text-foreground hover:opacity-75 transition-opacity whitespace-nowrap"
               >
-                <Trans>Learning Tracker</Trans>
+                <Trans>Sheafu</Trans>
               </Link>
             </h1>
           </div>

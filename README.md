@@ -1,4 +1,4 @@
-# Dashboard
+# Sheafu.com
 
 Open-source curriculum and study tracker. Defines learning paths, walks through topics step-by-step (assess → study → hands-on → write-up → feedback), and tracks daily progress as an activity heatmap.
 

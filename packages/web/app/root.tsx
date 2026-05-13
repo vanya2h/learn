@@ -1,15 +1,16 @@
 import { I18nProvider } from "@lingui/react";
 import { useEffect } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
-import { RateLimitModal } from "../src/components/RateLimitModal";
-import type { Complexity } from "../src/data/types";
-import { parseCurriculumDef } from "../src/data/types";
-import { activateLocale, getLocaleFromRequest, i18n } from "../src/lib/i18n";
-import { highestPhase, parseTopicSessionState } from "../src/lib/phase";
-import { auth } from "../src/server/auth";
-import { db } from "../src/server/db";
 import type { Route } from "./+types/root";
-import "../src/index.css";
+import "~/index.css";
+
+import { RateLimitModal } from "~/components/RateLimitModal";
+import type { Complexity } from "~/data/types";
+import { parseCurriculumDef } from "~/data/types";
+import { activateLocale, getLocaleFromRequest, i18n } from "~/lib/i18n";
+import { highestPhase, parseTopicSessionState } from "~/lib/phase";
+import { auth } from "~/server/auth";
+import { db } from "~/server/db";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const locale = getLocaleFromRequest(request);

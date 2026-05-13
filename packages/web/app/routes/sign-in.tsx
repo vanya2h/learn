@@ -3,21 +3,18 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useForm } from "react-hook-form";
 import { Link, redirect, useLoaderData, useNavigate } from "react-router";
 import { z } from "zod";
-import { AuthLayout } from "../../src/components/AuthLayout";
-import { authClient } from "../../src/lib/authClient";
-import { safeRedirectPath } from "../../src/lib/redirect";
-import { getAuthLinks } from "../../src/lib/routes";
-import { auth } from "../../src/server/auth";
 import type { Route } from "./+types/sign-in";
 
+import { AuthLayout } from "~/components/AuthLayout";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { authClient } from "~/lib/authClient";
+import { safeRedirectPath } from "~/lib/redirect";
+import { getAuthLinks } from "~/lib/routes";
+import { auth } from "~/server/auth";
 
 export function meta(): Route.MetaDescriptors {
-  return [
-    { title: "Sign In — Learning Tracker" },
-    { name: "description", content: "Sign in to your Learning Tracker account." },
-  ];
+  return [{ title: "Sign In — Sheafu" }, { name: "description", content: "Sign in to your Sheafu account." }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -67,7 +64,7 @@ export default function SignIn() {
     <AuthLayout>
       <div className="text-center">
         <h1 className="text-3xl font-semibold text-foreground">
-          <Trans>Learning Tracker</Trans>
+          <Trans>Sheafu</Trans>
         </h1>
         <p className="mt-2 text-muted-foreground">
           <Trans>Sign in to your account</Trans>
