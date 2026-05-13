@@ -92,7 +92,7 @@ export default function SignUp() {
             {...register("name")}
             aria-invalid={!!errors.name}
             aria-describedby={errors.name ? "name-error" : undefined}
-            placeholder={t`Ivan K.`}
+            placeholder={t`John Doe`}
           />
           {errors.name && (
             <p id="name-error" role="alert" className="text-xs text-red-600 dark:text-red-400">

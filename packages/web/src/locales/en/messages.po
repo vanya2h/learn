@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/CurriculumBuilder.tsx:326
-#~ msgid "{0} phases · {totalTasks} tasks · ~{totalHours}h total"
-#~ msgstr "{0} phases · {totalTasks} tasks · ~{totalHours}h total"
-
 #: src/components/CurriculumBuilder/methods/UrlMethod.tsx:56
 msgid "* Some sites block direct access. If this fails, save as PDF and use the upload option instead."
 msgstr "* Some sites block direct access. If this fails, save as PDF and use the upload option instead."
@@ -26,25 +22,8 @@ msgid "* The file stays on your device until you click Generate."
 msgstr "* The file stays on your device until you click Generate."
 
 #: src/components/Footer.tsx:16
-msgid "© {currentYear} Learning Tracker"
-msgstr "© {currentYear} Learning Tracker"
-
-#: app/routes/topic-layout.tsx:94
-#~ msgid "← Back"
-#~ msgstr "← Back"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:157
-#~ msgid "← Choose another method"
-#~ msgstr "← Choose another method"
-
-#: src/components/CurriculumBuilder/OutlineReviewStep.tsx:30
-#: src/components/CurriculumBuilder/PhaseStep.tsx:57
-#~ msgid "← Start over"
-#~ msgstr "← Start over"
-
-#: src/components/Dashboard.tsx:165
-#~ msgid "+ Create new program"
-#~ msgstr "+ Create new program"
+msgid "© {currentYear} Sheafu"
+msgstr "© {currentYear} Sheafu"
 
 #: app/routes/curriculum.draft.finish.tsx:40
 msgid "<0>{name}</0> is published and ready to study."
@@ -66,37 +45,17 @@ msgstr "02 · Linear route"
 msgid "2-3 key phases · easy reading & practice"
 msgstr "2-3 key phases · easy reading & practice"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:93
-#~ msgid "2–3 key phases · easy reading & practice"
-#~ msgstr "2–3 key phases · easy reading & practice"
-
 #: src/components/CurriculumBuilder/InputStep.tsx:159
 msgid "3-6 phases · balanced reading & practice"
 msgstr "3-6 phases · balanced reading & practice"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:94
-#~ msgid "3–6 phases · balanced reading & practice"
-#~ msgstr "3–6 phases · balanced reading & practice"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:160
 msgid "5-9 phases · full depth with open-ended builds"
 msgstr "5-9 phases · full depth with open-ended builds"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:95
-#~ msgid "5–9 phases · full depth with open-ended builds"
-#~ msgstr "5–9 phases · full depth with open-ended builds"
-
-#: src/components/Dashboard.tsx:23
-#~ msgid "A day of deep work done is a day you can defend."
-#~ msgstr "A day of deep work done is a day you can defend."
-
 #: src/components/CurriculumBuilder/methods/PdfMethod.tsx:23
 msgid "A saved job description from your computer."
 msgstr "A saved job description from your computer."
-
-#: app/routes/profile.tsx:494
-#~ msgid "Add"
-#~ msgstr "Add"
 
 #: src/components/Curriculum.tsx:120
 msgid "All done"
@@ -106,7 +65,7 @@ msgstr "All done"
 msgid "All Sections"
 msgstr "All Sections"
 
-#: app/routes/sign-up.tsx:155
+#: app/routes/sign-up.tsx:152
 msgid "Already have an account? <0>Sign in</0>"
 msgstr "Already have an account? <0>Sign in</0>"
 
@@ -131,17 +90,9 @@ msgstr "Assess"
 msgid "Assessing"
 msgstr "Assessing"
 
-#: app/routes/topic.gaps.tsx:82
-#~ msgid "Assessment complete"
-#~ msgstr "Assessment complete"
-
 #: src/components/TaskRow.tsx:21
 msgid "Assessment done"
 msgstr "Assessment done"
-
-#: app/routes/topic.complete.tsx:28
-#~ msgid "Back to curriculum"
-#~ msgstr "Back to curriculum"
 
 #: app/routes/curriculum.$curriculumId.tsx:73
 msgid "Back to home"
@@ -152,28 +103,16 @@ msgid "Beta"
 msgstr "Beta"
 
 #: app/routes/curriculum.draft.tsx:192
-#: app/routes/profile.tsx:350
-#: app/routes/profile.tsx:396
-#: app/routes/profile.tsx:440
+#: app/routes/profile.tsx:347
+#: app/routes/profile.tsx:393
+#: app/routes/profile.tsx:437
 #: src/components/TopicHeader.tsx:41
 msgid "Cancel"
 msgstr "Cancel"
 
-#: src/components/TopicSidebar.tsx:17
-#~ msgid "Choice"
-#~ msgstr "Choice"
-
-#: app/routes/profile.tsx:444
+#: app/routes/profile.tsx:441
 msgid "Choose new PDF"
 msgstr "Choose new PDF"
-
-#: src/components/CurriculumBuilder/PhaseStep.tsx:80
-#~ msgid "Click any task to deselect it and exclude it from the program."
-#~ msgstr "Click any task to deselect it and exclude it from the program."
-
-#: src/components/CurriculumBuilder/InputStep.tsx:140
-#~ msgid "Click to choose a PDF file"
-#~ msgstr "Click to choose a PDF file"
 
 #: app/routes/topic-layout.tsx:33
 #: app/routes/topic-layout.tsx:43
@@ -182,17 +121,13 @@ msgstr "Choose new PDF"
 msgid "Complete"
 msgstr "Complete"
 
-#: app/routes/topic.write-up.tsx:125
-#~ msgid "Complete →"
-#~ msgstr "Complete →"
-
 #: app/routes/topic.complete.tsx:40
 #: src/components/Curriculum.tsx:186
 #: src/components/TaskRow.tsx:84
 msgid "Continue"
 msgstr "Continue"
 
-#: app/routes/profile.tsx:368
+#: app/routes/profile.tsx:365
 msgid "Continue with this profile"
 msgstr "Continue with this profile"
 
@@ -200,35 +135,23 @@ msgstr "Continue with this profile"
 msgid "Couldn't extract text from this PDF — try another file."
 msgstr "Couldn't extract text from this PDF — try another file."
 
-#: src/components/CurriculumBuilder/useCurriculumBuilder.ts:148
-#~ msgid "Couldn't parse the curriculum outline — try regenerating"
-#~ msgstr "Couldn't parse the curriculum outline — try regenerating"
-
-#: src/components/CurriculumBuilder/useCurriculumBuilder.ts:211
-#~ msgid "Couldn't parse the generated phase — try regenerating"
-#~ msgstr "Couldn't parse the generated phase — try regenerating"
-
 #: app/routes/topic.study.tsx:439
 msgid "Couldn't prepare your study material."
 msgstr "Couldn't prepare your study material."
 
-#: app/routes/sign-up.tsx:150
+#: app/routes/sign-up.tsx:147
 msgid "Create account"
 msgstr "Create account"
-
-#: src/components/CurriculumBuilder/index.tsx:40
-#~ msgid "Create new program"
-#~ msgstr "Create new program"
 
 #: src/components/ProgramCard.tsx:76
 msgid "Create personal program"
 msgstr "Create personal program"
 
-#: app/routes/sign-up.tsx:75
+#: app/routes/sign-up.tsx:72
 msgid "Create your account"
 msgstr "Create your account"
 
-#: app/routes/sign-up.tsx:150
+#: app/routes/sign-up.tsx:147
 msgid "Creating account…"
 msgstr "Creating account…"
 
@@ -240,34 +163,18 @@ msgstr "Curriculum not found"
 msgid "Curriculums, assessments, and explanations all calibrate to what you already know."
 msgstr "Curriculums, assessments, and explanations all calibrate to what you already know."
 
-#: app/routes/profile.tsx:348
-#~ msgid "Danger zone"
-#~ msgstr "Danger zone"
-
 #: src/components/CurriculumBuilder/InputStep.tsx:160
 msgid "Deep"
 msgstr "Deep"
 
-#: app/routes/profile.tsx:356
-#~ msgid "Delete"
-#~ msgstr "Delete"
-
-#: app/routes/profile.tsx:331
+#: app/routes/profile.tsx:328
 msgid "Delete CV"
 msgstr "Delete CV"
 
-#: app/routes/profile.tsx:378
-#: app/routes/profile.tsx:400
+#: app/routes/profile.tsx:375
+#: app/routes/profile.tsx:397
 msgid "Delete profile"
 msgstr "Delete profile"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:101
-#~ msgid "Depth"
-#~ msgstr "Depth"
-
-#: src/components/CurriculumBuilder/OutlineReviewStep.tsx:37
-#~ msgid "Deselect any phases you don't need:"
-#~ msgstr "Deselect any phases you don't need:"
 
 #: src/components/ProgramCard.tsx:77
 msgid "Design your own path. Pick a topic, set the depth, and start building skills."
@@ -282,14 +189,6 @@ msgstr "Discard"
 msgid "Discard this draft?"
 msgstr "Discard this draft?"
 
-#: src/components/Dashboard.tsx:19
-#~ msgid "Discomfort is the price of admission to a meaningful career."
-#~ msgstr "Discomfort is the price of admission to a meaningful career."
-
-#: src/components/CurriculumBuilder/PhaseStep.tsx:105
-#~ msgid "done"
-#~ msgstr "done"
-
 #: app/routes/curriculum.draft.tsx:175
 msgid "Draft"
 msgstr "Draft"
@@ -302,28 +201,20 @@ msgstr "Drafts in progress"
 msgid "Drop or browse"
 msgstr "Drop or browse"
 
-#: app/routes/profile.tsx:197
+#: app/routes/profile.tsx:194
 msgid "Drop your CV here, or click to browse"
 msgstr "Drop your CV here, or click to browse"
-
-#: app/routes/profile.tsx:489
-#~ msgid "e.g. Senior Frontend Engineer"
-#~ msgstr "e.g. Senior Frontend Engineer"
 
 #: src/components/CurriculumBuilder/InputStep.tsx:158
 msgid "Easy"
 msgstr "Easy"
 
-#: app/routes/profile.tsx:305
-#~ msgid "Edit"
-#~ msgstr "Edit"
-
-#: app/routes/profile.tsx:322
+#: app/routes/profile.tsx:319
 msgid "Edit profile"
 msgstr "Edit profile"
 
-#: app/routes/sign-in.tsx:86
-#: app/routes/sign-up.tsx:109
+#: app/routes/sign-in.tsx:83
+#: app/routes/sign-up.tsx:106
 msgid "Email"
 msgstr "Email"
 
@@ -333,11 +224,7 @@ msgstr "Email"
 msgid "Evaluating your answers…"
 msgstr "Evaluating your answers…"
 
-#: src/components/Dashboard.tsx:17
-#~ msgid "Every hour of focused work today is an hour your future self doesn't have to dread."
-#~ msgstr "Every hour of focused work today is an hour your future self doesn't have to dread."
-
-#: app/routes/sign-up.tsx:60
+#: app/routes/sign-up.tsx:57
 msgid "Failed to create account"
 msgstr "Failed to create account"
 
@@ -345,26 +232,10 @@ msgstr "Failed to create account"
 msgid "Failed to evaluate answers."
 msgstr "Failed to evaluate answers."
 
-#: src/components/CurriculumBuilder/useCurriculumBuilder.ts:125
-#~ msgid "Failed to extract job posting"
-#~ msgstr "Failed to extract job posting"
-
-#: src/components/CurriculumBuilder.tsx:79
-#~ msgid "Failed to generate curriculum"
-#~ msgstr "Failed to generate curriculum"
-
 #: app/routes/topic.feedback.tsx:140
 #: app/routes/topic.write-up.tsx:184
 msgid "Failed to generate feedback."
 msgstr "Failed to generate feedback."
-
-#: src/components/CurriculumBuilder/useCurriculumBuilder.ts:160
-#~ msgid "Failed to generate outline"
-#~ msgstr "Failed to generate outline"
-
-#: src/components/CurriculumBuilder/useCurriculumBuilder.ts:220
-#~ msgid "Failed to generate phase"
-#~ msgstr "Failed to generate phase"
 
 #: app/routes/topic.assess.tsx:168
 msgid "Failed to generate questions."
@@ -373,10 +244,6 @@ msgstr "Failed to generate questions."
 #: app/routes/topic.hands-on.tsx:168
 msgid "Failed to generate solution."
 msgstr "Failed to generate solution."
-
-#: src/components/CurriculumBuilder/useCurriculumBuilder.ts:289
-#~ msgid "Failed to save"
-#~ msgstr "Failed to save"
 
 #: app/routes/curriculum.new.tsx:122
 msgid "Failed to start a new program"
@@ -414,43 +281,18 @@ msgstr "gaps"
 msgid "Gaps"
 msgstr "Gaps"
 
-#: app/routes/topic.gaps.tsx:89
-#~ msgid "Gaps to cover"
-#~ msgstr "Gaps to cover"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:107
-#: src/components/CurriculumBuilder/InputStep.tsx:146
-#~ msgid "Generate"
-#~ msgstr "Generate"
-
 #: src/components/CurriculumBuilder/InputStep.tsx:137
 msgid "Generate program →"
 msgstr "Generate program →"
-
-#: src/components/CurriculumBuilder.tsx:71
-#~ msgid "Generated curriculum has an invalid shape — try regenerating"
-#~ msgstr "Generated curriculum has an invalid shape — try regenerating"
-
-#: src/components/CurriculumBuilder.tsx:152
-#~ msgid "Generating curriculum..."
-#~ msgstr "Generating curriculum..."
 
 #: app/routes/curriculum.draft.outline.tsx:209
 #: app/routes/curriculum.draft.outline.tsx:218
 msgid "Generating outline…"
 msgstr "Generating outline…"
 
-#: src/components/CurriculumBuilder/PhaseStep.tsx:70
-#~ msgid "Generating phase..."
-#~ msgstr "Generating phase..."
-
 #: app/routes/curriculum.draft.phases.tsx:274
 msgid "Generating phase…"
 msgstr "Generating phase…"
-
-#: src/components/CurriculumBuilder.tsx:45
-#~ msgid "Generation failed"
-#~ msgstr "Generation failed"
 
 #: src/components/RateLimitModal.tsx:73
 msgid "Got it, I'll wait"
@@ -461,7 +303,7 @@ msgid "Have a file?"
 msgstr "Have a file?"
 
 #. placeholder {0}: user.name
-#: app/routes/profile.tsx:144
+#: app/routes/profile.tsx:141
 msgid "Hello, {0}"
 msgstr "Hello, {0}"
 
@@ -481,10 +323,6 @@ msgstr "Hide solution"
 msgid "Hint"
 msgstr "Hint"
 
-#: app/routes/topic.hands-on.tsx:100
-#~ msgid "Hint: {0}"
-#~ msgstr "Hint: {0}"
-
 #: app/routes/topic.choice.tsx:20
 msgid "How do you want to start?"
 msgstr "How do you want to start?"
@@ -493,50 +331,27 @@ msgstr "How do you want to start?"
 msgid "Identifying gaps…"
 msgstr "Identifying gaps…"
 
-#: src/components/Dashboard.tsx:15
-#~ msgid "If you can't explain it cleanly in writing, you don't understand it."
-#~ msgstr "If you can't explain it cleanly in writing, you don't understand it."
-
-#: app/routes/sign-in.tsx:58
+#: app/routes/sign-in.tsx:55
 msgid "Invalid email or password"
 msgstr "Invalid email or password"
 
-#: app/routes/sign-up.tsx:98
-msgid "Ivan K."
-msgstr "Ivan K."
-
-#: src/components/CurriculumBuilder/BuilderSidebar.tsx:13
-#~ msgid "Job posting"
-#~ msgstr "Job posting"
+#: app/routes/sign-up.tsx:95
+msgid "John Doe"
+msgstr "John Doe"
 
 #: src/components/Dashboard.tsx:129
 msgid "Learn Everything"
 msgstr "Learn Everything"
 
-#: app/routes/sign-in.tsx:70
-#: app/routes/sign-up.tsx:72
-#: src/components/Header.tsx:95
-msgid "Learning Tracker"
-msgstr "Learning Tracker"
-
 #: src/components/CurriculumBuilder/InputStep.tsx:159
 msgid "Medium"
 msgstr "Medium"
-
-#: app/routes/sign-in.tsx:54
-#: app/routes/sign-up.tsx:55
-#~ msgid "ML Learning"
-#~ msgstr "ML Learning"
-
-#: app/routes/topic.feedback.tsx:99
-#~ msgid "Move to reflection →"
-#~ msgstr "Move to reflection →"
 
 #: src/components/Header.tsx:117
 msgid "My Programs"
 msgstr "My Programs"
 
-#: app/routes/sign-up.tsx:88
+#: app/routes/sign-up.tsx:85
 msgid "Name"
 msgstr "Name"
 
@@ -554,46 +369,22 @@ msgstr "New program"
 msgid "New Program"
 msgstr "New Program"
 
-#: src/components/CurriculumBuilder/PhaseStep.tsx:118
-#~ msgid "next"
-#~ msgstr "next"
-
 #: app/routes/curriculum.draft.phases.tsx:386
 #: app/routes/topic.study.tsx:402
 msgid "Next"
 msgstr "Next"
 
-#: src/components/Dashboard.tsx:49
-#~ msgid "Next quote"
-#~ msgstr "Next quote"
-
-#: app/routes/sign-in.tsx:132
+#: app/routes/sign-in.tsx:129
 msgid "No account? <0>Sign up</0>"
 msgstr "No account? <0>Sign up</0>"
-
-#: src/components/CurriculumBuilder.tsx:57
-#~ msgid "No response body"
-#~ msgstr "No response body"
 
 #: app/routes/topic.gaps.tsx:232
 msgid "No significant gaps detected — the material will go deep on advanced nuances."
 msgstr "No significant gaps detected — the material will go deep on advanced nuances."
 
-#: app/routes/profile.tsx:461
-#~ msgid "No target roles yet — add ones you're aiming for."
-#~ msgstr "No target roles yet — add ones you're aiming for."
-
 #: app/routes/curriculum.draft.finish.tsx:47
 msgid "Open Program"
 msgstr "Open Program"
-
-#: src/components/CurriculumBuilder.tsx:349
-#~ msgid "Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')..."
-#~ msgstr "Optional: describe what to change (e.g. 'add more system design tasks', 'remove the algorithms phase')..."
-
-#: src/components/CurriculumBuilder/PhaseStep.tsx:101
-#~ msgid "Optional: describe what to change before regenerating..."
-#~ msgstr "Optional: describe what to change before regenerating..."
 
 #: app/routes/curriculum.draft.outline.tsx:97
 #: src/components/CurriculumBuilder/BuilderSidebar.tsx:16
@@ -603,10 +394,6 @@ msgstr "Outline"
 #: app/routes/curriculum.new.tsx:166
 msgid "Outline pending"
 msgstr "Outline pending"
-
-#: app/routes/topic.study.tsx:208
-#~ msgid "Part {0} of {1}"
-#~ msgstr "Part {0} of {1}"
 
 #. placeholder {0}: partIdx + 1
 #: app/routes/topic.study.tsx:321
@@ -641,8 +428,8 @@ msgstr "Partial"
 msgid "partially known"
 msgstr "partially known"
 
-#: app/routes/sign-in.tsx:107
-#: app/routes/sign-up.tsx:130
+#: app/routes/sign-in.tsx:104
+#: app/routes/sign-up.tsx:127
 msgid "Password"
 msgstr "Password"
 
@@ -650,23 +437,11 @@ msgstr "Password"
 msgid "Paste a job posting URL"
 msgstr "Paste a job posting URL"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:47
-#~ msgid "Paste a URL"
-#~ msgstr "Paste a URL"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:104
-#~ msgid "paste a URL or pick a PDF above to choose"
-#~ msgstr "paste a URL or pick a PDF above to choose"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:89
-#~ msgid "Paste job posting URL..."
-#~ msgstr "Paste job posting URL..."
-
 #: src/components/CurriculumBuilder/methods/UrlMethod.tsx:47
 msgid "Paste job URL here.."
 msgstr "Paste job URL here.."
 
-#: app/routes/profile.tsx:200
+#: app/routes/profile.tsx:197
 msgid "PDF only · max 10 pages of text"
 msgstr "PDF only · max 10 pages of text"
 
@@ -687,12 +462,8 @@ msgstr "Phases"
 msgid "Phases pending"
 msgstr "Phases pending"
 
-#: src/components/CurriculumBuilder/InputStep.tsx:61
-#~ msgid "Pick a saved PDF of the job description from your computer"
-#~ msgstr "Pick a saved PDF of the job description from your computer"
-
-#: app/routes/profile.tsx:116
-#: app/routes/profile.tsx:288
+#: app/routes/profile.tsx:113
+#: app/routes/profile.tsx:285
 msgid "Please upload a PDF."
 msgstr "Please upload a PDF."
 
@@ -707,40 +478,24 @@ msgstr "Practice"
 msgid "Preparing assessment questions…"
 msgstr "Preparing assessment questions…"
 
-#: app/routes/topic.study.tsx:220
-#~ msgid "Preparing study material…"
-#~ msgstr "Preparing study material…"
-
 #: app/routes/topic.study.tsx:418
 msgid "Preparing your study material…"
 msgstr "Preparing your study material…"
-
-#: app/routes/profile.tsx:302
-#~ msgid "Preview"
-#~ msgstr "Preview"
-
-#: src/components/CurriculumBuilder/PhaseStep.tsx:94
-#~ msgid "previous"
-#~ msgstr "previous"
 
 #: app/routes/curriculum.draft.phases.tsx:377
 #: app/routes/topic.study.tsx:393
 msgid "Previous"
 msgstr "Previous"
 
-#: src/components/Dashboard.tsx:39
-#~ msgid "Previous quote"
-#~ msgstr "Previous quote"
-
 #: src/components/Header.tsx:136
 msgid "Profile"
 msgstr "Profile"
 
-#: app/routes/profile.tsx:316
+#: app/routes/profile.tsx:313
 msgid "Profile actions"
 msgstr "Profile actions"
 
-#: app/routes/profile.tsx:346
+#: app/routes/profile.tsx:343
 msgid "Profile markdown"
 msgstr "Profile markdown"
 
@@ -769,20 +524,16 @@ msgstr "Quick Assessment"
 msgid "Quick assessment first"
 msgstr "Quick assessment first"
 
-#: app/routes/profile.tsx:326
-#: app/routes/profile.tsx:410
+#: app/routes/profile.tsx:323
+#: app/routes/profile.tsx:407
 msgid "Re-upload CV"
 msgstr "Re-upload CV"
 
-#: src/components/CurriculumBuilder/BuilderContent.tsx:57
-#~ msgid "Reading job posting…"
-#~ msgstr "Reading job posting…"
-
-#: app/routes/profile.tsx:189
+#: app/routes/profile.tsx:186
 msgid "Reading your CV and extracting your profile…"
 msgstr "Reading your CV and extracting your profile…"
 
-#: app/routes/profile.tsx:365
+#: app/routes/profile.tsx:362
 msgid "Ready to start learning?"
 msgstr "Ready to start learning?"
 
@@ -808,14 +559,6 @@ msgstr "Regenerate"
 msgid "remaining"
 msgstr "remaining"
 
-#: app/routes/profile.tsx:471
-#~ msgid "Remove {role}"
-#~ msgstr "Remove {role}"
-
-#: app/routes/profile.tsx:351
-#~ msgid "Removes your profile permanently. Curriculums won't be tailored until you re-upload."
-#~ msgstr "Removes your profile permanently. Curriculums won't be tailored until you re-upload."
-
 #: src/components/RateLimitModal.tsx:62
 msgid "Resets in {minutesRemaining}m {secondsRemaining}s"
 msgstr "Resets in {minutesRemaining}m {secondsRemaining}s"
@@ -839,23 +582,11 @@ msgstr "Reviewing gaps"
 msgid "Revisit any section below to review what you learned."
 msgstr "Revisit any section below to review what you learned."
 
-#: src/components/CurriculumBuilder/BuilderSidebar.tsx:16
-#~ msgid "Save"
-#~ msgstr "Save"
-
-#: app/routes/profile.tsx:354
+#: app/routes/profile.tsx:351
 msgid "Save changes"
 msgstr "Save changes"
 
-#: src/components/CurriculumBuilder/PhaseStep.tsx:108
-#~ msgid "Save program"
-#~ msgstr "Save program"
-
-#: src/components/CurriculumBuilder/index.tsx:134
-#~ msgid "Saving..."
-#~ msgstr "Saving..."
-
-#: app/routes/profile.tsx:494
+#: app/routes/profile.tsx:491
 msgid "See all"
 msgstr "See all"
 
@@ -868,24 +599,26 @@ msgstr "See solution"
 msgid "Send feedback"
 msgstr "Send feedback"
 
-#: src/components/Dashboard.tsx:21
-#~ msgid "Ship something small today. Momentum is built, not found."
-#~ msgstr "Ship something small today. Momentum is built, not found."
+#: app/routes/sign-in.tsx:67
+#: app/routes/sign-up.tsx:69
+#: src/components/Header.tsx:95
+msgid "Sheafu"
+msgstr "Sheafu"
 
 #: app/routes/topic.hands-on.tsx:114
 msgid "Show hint"
 msgstr "Show hint"
 
-#: app/routes/profile.tsx:502
+#: app/routes/profile.tsx:499
 msgid "Show less"
 msgstr "Show less"
 
-#: app/routes/sign-in.tsx:127
+#: app/routes/sign-in.tsx:124
 #: src/components/Header.tsx:150
 msgid "Sign in"
 msgstr "Sign in"
 
-#: app/routes/sign-in.tsx:73
+#: app/routes/sign-in.tsx:70
 msgid "Sign in to your account"
 msgstr "Sign in to your account"
 
@@ -893,7 +626,7 @@ msgstr "Sign in to your account"
 msgid "Sign out"
 msgstr "Sign out"
 
-#: app/routes/sign-in.tsx:127
+#: app/routes/sign-in.tsx:124
 msgid "Signing in…"
 msgstr "Signing in…"
 
@@ -901,7 +634,7 @@ msgstr "Signing in…"
 msgid "Skills"
 msgstr "Skills"
 
-#: app/routes/profile.tsx:230
+#: app/routes/profile.tsx:227
 msgid "Skip for now"
 msgstr "Skip for now"
 
@@ -910,17 +643,13 @@ msgstr "Skip for now"
 msgid "Solution"
 msgstr "Solution"
 
-#: src/components/CurriculumBuilder.tsx:250
-#~ msgid "Some sites render their content with JavaScript and cannot be read this way. If generation fails, save the page as a PDF in your browser and use the PDF upload option instead."
-#~ msgstr "Some sites render their content with JavaScript and cannot be read this way. If generation fails, save the page as a PDF in your browser and use the PDF upload option instead."
-
 #: app/routes/curriculum.$curriculumId.tsx:61
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
-#: app/routes/profile.tsx:125
-#: app/routes/profile.tsx:280
-#: app/routes/profile.tsx:298
+#: app/routes/profile.tsx:122
+#: app/routes/profile.tsx:277
+#: app/routes/profile.tsx:295
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
@@ -964,17 +693,9 @@ msgstr "Study"
 msgid "Submit answers"
 msgstr "Submit answers"
 
-#: app/routes/topic.assess.tsx:130
-#~ msgid "Submit answers →"
-#~ msgstr "Submit answers →"
-
 #: app/routes/topic.hands-on.tsx:193
 msgid "Submit for feedback"
 msgstr "Submit for feedback"
-
-#: app/routes/topic.hands-on.tsx:136
-#~ msgid "Submit for feedback →"
-#~ msgstr "Submit for feedback →"
 
 #: app/routes/topic.write-up.tsx:100
 #: app/routes/topic.write-up.tsx:224
@@ -984,10 +705,6 @@ msgstr "Submit reflection"
 #: app/routes/topic.choice.tsx:23
 msgid "Take a quick test to surface gaps and personalize the material, or dive straight in from the beginning."
 msgstr "Take a quick test to surface gaps and personalize the material, or dive straight in from the beginning."
-
-#: app/routes/profile.tsx:338
-#~ msgid "Target roles"
-#~ msgstr "Target roles"
 
 #. placeholder {0}: i + 1
 #: app/routes/topic.hands-on.tsx:89
@@ -1004,19 +721,7 @@ msgstr "Text input"
 msgid "The draft and any generated content will be permanently deleted."
 msgstr "The draft and any generated content will be permanently deleted."
 
-#: src/components/Dashboard.tsx:16
-#~ msgid "The expert in anything was once a beginner who refused to quit."
-#~ msgstr "The expert in anything was once a beginner who refused to quit."
-
-#: src/components/Dashboard.tsx:20
-#~ msgid "The gap between where you are and where you want to be is closed one rep at a time."
-#~ msgstr "The gap between where you are and where you want to be is closed one rep at a time."
-
-#: app/routes/profile.tsx:368
-#~ msgid "This permanently deletes your profile, including the markdown and target roles. Curriculums and assessments will no longer be tailored to your background until you upload a new CV. This can't be undone."
-#~ msgstr "This permanently deletes your profile, including the markdown and target roles. Curriculums and assessments will no longer be tailored to your background until you upload a new CV. This can't be undone."
-
-#: app/routes/profile.tsx:381
+#: app/routes/profile.tsx:378
 msgid "This permanently deletes your profile. Curriculums and assessments will no longer be tailored to your background until you upload a new CV. This can't be undone."
 msgstr "This permanently deletes your profile. Curriculums and assessments will no longer be tailored to your background until you upload a new CV. This can't be undone."
 
@@ -1035,10 +740,6 @@ msgstr "Tokens restored — you can try again."
 #: src/components/RateLimitModal.tsx:49
 msgid "Tokens used this hour"
 msgstr "Tokens used this hour"
-
-#: app/routes/topic.complete.tsx:19
-#~ msgid "Topic Complete"
-#~ msgstr "Topic Complete"
 
 #: app/routes/topic.complete.tsx:26
 msgid "Topic Complete!"
@@ -1078,25 +779,17 @@ msgstr "Upload a PDF"
 msgid "Upload your CV for a tailored experience."
 msgstr "Upload your CV for a tailored experience."
 
-#: app/routes/profile.tsx:147
+#: app/routes/profile.tsx:144
 msgid "Upload your CV so we can tailor every curriculum, assessment, and explanation to what you already know — and what you actually want to do next."
 msgstr "Upload your CV so we can tailor every curriculum, assessment, and explanation to what you already know — and what you actually want to do next."
 
-#: app/routes/profile.tsx:401
-#~ msgid "Uploading a new CV will replace your current profile, including any manual edits you've made to the markdown or target roles. This can't be undone."
-#~ msgstr "Uploading a new CV will replace your current profile, including any manual edits you've made to the markdown or target roles. This can't be undone."
-
-#: app/routes/profile.tsx:413
+#: app/routes/profile.tsx:410
 msgid "Uploading a new CV will replace your current profile, including any manual edits. This can't be undone."
 msgstr "Uploading a new CV will replace your current profile, including any manual edits. This can't be undone."
 
 #: src/components/RateLimitModal.tsx:38
 msgid "Usage limit reached"
 msgstr "Usage limit reached"
-
-#: src/components/CurriculumBuilder/InputStep.tsx:50
-#~ msgid "Use a link to the job posting on its company or job-board page"
-#~ msgstr "Use a link to the job posting on its company or job-board page"
 
 #: src/components/CurriculumBuilder/methods/UrlMethod.tsx:27
 msgid "We read the role, company, and required skills, then draft a personal program in seconds."
@@ -1111,14 +804,6 @@ msgstr "Write your reflection in your own words…"
 #: src/components/Curriculum.tsx:221
 msgid "Write-up"
 msgstr "Write-up"
-
-#: src/components/Dashboard.tsx:24
-#~ msgid "You are not behind. You are exactly where your effort has put you — and effort is still yours to give."
-#~ msgstr "You are not behind. You are exactly where your effort has put you — and effort is still yours to give."
-
-#: src/components/Dashboard.tsx:18
-#~ msgid "You don't rise to the level of your goals — you fall to the level of your systems."
-#~ msgstr "You don't rise to the level of your goals — you fall to the level of your systems."
 
 #: src/components/Curriculum.tsx:124
 msgid "You finished every topic"
@@ -1136,8 +821,8 @@ msgstr "You've hit your hourly LLM usage limit. Try again later."
 msgid "You've used your hourly LLM token allowance."
 msgstr "You've used your hourly LLM token allowance."
 
-#: app/routes/sign-in.tsx:96
-#: app/routes/sign-up.tsx:119
+#: app/routes/sign-in.tsx:93
+#: app/routes/sign-up.tsx:116
 msgid "you@example.com"
 msgstr "you@example.com"
 
@@ -1153,18 +838,10 @@ msgstr "Your answer…"
 msgid "Your current progress on this topic will be reset."
 msgstr "Your current progress on this topic will be reset."
 
-#: app/routes/profile.tsx:218
+#: app/routes/profile.tsx:215
 msgid "Your CV is sent to Anthropic to extract a profile. We don't store the PDF or its raw text — only the structured profile shown below."
 msgstr "Your CV is sent to Anthropic to extract a profile. We don't store the PDF or its raw text — only the structured profile shown below."
 
-#: app/routes/profile.tsx:311
+#: app/routes/profile.tsx:308
 msgid "Your Profile"
 msgstr "Your Profile"
-
-#: app/routes/topic.write-up.tsx:108
-#~ msgid "Your reflection:"
-#~ msgstr "Your reflection:"
-
-#: src/components/Dashboard.tsx:22
-#~ msgid "Your skills compound like interest. The earlier you invest, the richer you become."
-#~ msgstr "Your skills compound like interest. The earlier you invest, the richer you become."
