@@ -21,7 +21,7 @@ msgstr "* Some sites block direct access. If this fails, save as PDF and use the
 msgid "* The file stays on your device until you click Generate."
 msgstr "* The file stays on your device until you click Generate."
 
-#: src/components/Footer.tsx:16
+#: src/components/Footer.tsx:18
 msgid "© {currentYear} Sheafu"
 msgstr "© {currentYear} Sheafu"
 
@@ -65,7 +65,7 @@ msgstr "All done"
 msgid "All Sections"
 msgstr "All Sections"
 
-#: app/routes/sign-up.tsx:152
+#: app/routes/sign-up.tsx:154
 msgid "Already have an account? <0>Sign in</0>"
 msgstr "Already have an account? <0>Sign in</0>"
 
@@ -98,7 +98,7 @@ msgstr "Assessment done"
 msgid "Back to home"
 msgstr "Back to home"
 
-#: src/components/Footer.tsx:19
+#: src/components/Footer.tsx:21
 msgid "Beta"
 msgstr "Beta"
 
@@ -139,7 +139,7 @@ msgstr "Couldn't extract text from this PDF — try another file."
 msgid "Couldn't prepare your study material."
 msgstr "Couldn't prepare your study material."
 
-#: app/routes/sign-up.tsx:147
+#: app/routes/sign-up.tsx:149
 msgid "Create account"
 msgstr "Create account"
 
@@ -147,11 +147,11 @@ msgstr "Create account"
 msgid "Create personal program"
 msgstr "Create personal program"
 
-#: app/routes/sign-up.tsx:72
+#: app/routes/sign-up.tsx:74
 msgid "Create your account"
 msgstr "Create your account"
 
-#: app/routes/sign-up.tsx:147
+#: app/routes/sign-up.tsx:149
 msgid "Creating account…"
 msgstr "Creating account…"
 
@@ -213,8 +213,8 @@ msgstr "Easy"
 msgid "Edit profile"
 msgstr "Edit profile"
 
-#: app/routes/sign-in.tsx:83
-#: app/routes/sign-up.tsx:106
+#: app/routes/sign-in.tsx:85
+#: app/routes/sign-up.tsx:108
 msgid "Email"
 msgstr "Email"
 
@@ -224,7 +224,7 @@ msgstr "Email"
 msgid "Evaluating your answers…"
 msgstr "Evaluating your answers…"
 
-#: app/routes/sign-up.tsx:57
+#: app/routes/sign-up.tsx:58
 msgid "Failed to create account"
 msgstr "Failed to create account"
 
@@ -331,11 +331,11 @@ msgstr "How do you want to start?"
 msgid "Identifying gaps…"
 msgstr "Identifying gaps…"
 
-#: app/routes/sign-in.tsx:55
+#: app/routes/sign-in.tsx:56
 msgid "Invalid email or password"
 msgstr "Invalid email or password"
 
-#: app/routes/sign-up.tsx:95
+#: app/routes/sign-up.tsx:97
 msgid "John Doe"
 msgstr "John Doe"
 
@@ -347,11 +347,11 @@ msgstr "Learn Everything"
 msgid "Medium"
 msgstr "Medium"
 
-#: src/components/Header.tsx:117
+#: src/components/Header.tsx:120
 msgid "My Programs"
 msgstr "My Programs"
 
-#: app/routes/sign-up.tsx:85
+#: app/routes/sign-up.tsx:87
 msgid "Name"
 msgstr "Name"
 
@@ -361,7 +361,7 @@ msgstr "New"
 
 #: app/routes/curriculum.draft.tsx:128
 #: app/routes/curriculum.new.tsx:36
-#: src/components/Header.tsx:117
+#: src/components/Header.tsx:120
 msgid "New program"
 msgstr "New program"
 
@@ -374,7 +374,7 @@ msgstr "New Program"
 msgid "Next"
 msgstr "Next"
 
-#: app/routes/sign-in.tsx:129
+#: app/routes/sign-in.tsx:131
 msgid "No account? <0>Sign up</0>"
 msgstr "No account? <0>Sign up</0>"
 
@@ -428,8 +428,8 @@ msgstr "Partial"
 msgid "partially known"
 msgstr "partially known"
 
-#: app/routes/sign-in.tsx:104
-#: app/routes/sign-up.tsx:127
+#: app/routes/sign-in.tsx:106
+#: app/routes/sign-up.tsx:129
 msgid "Password"
 msgstr "Password"
 
@@ -487,7 +487,7 @@ msgstr "Preparing your study material…"
 msgid "Previous"
 msgstr "Previous"
 
-#: src/components/Header.tsx:136
+#: src/components/Header.tsx:139
 msgid "Profile"
 msgstr "Profile"
 
@@ -595,13 +595,13 @@ msgstr "See all"
 msgid "See solution"
 msgstr "See solution"
 
-#: src/components/Footer.tsx:41
+#: src/components/Footer.tsx:43
 msgid "Send feedback"
 msgstr "Send feedback"
 
-#: app/routes/sign-in.tsx:67
-#: app/routes/sign-up.tsx:69
-#: src/components/Header.tsx:95
+#: app/routes/sign-in.tsx:69
+#: app/routes/sign-up.tsx:71
+#: src/components/Header.tsx:98
 msgid "Sheafu"
 msgstr "Sheafu"
 
@@ -613,20 +613,20 @@ msgstr "Show hint"
 msgid "Show less"
 msgstr "Show less"
 
-#: app/routes/sign-in.tsx:124
-#: src/components/Header.tsx:150
+#: app/routes/sign-in.tsx:126
+#: src/components/Header.tsx:153
 msgid "Sign in"
 msgstr "Sign in"
 
-#: app/routes/sign-in.tsx:70
+#: app/routes/sign-in.tsx:72
 msgid "Sign in to your account"
 msgstr "Sign in to your account"
 
-#: src/components/Header.tsx:144
+#: src/components/Header.tsx:147
 msgid "Sign out"
 msgstr "Sign out"
 
-#: app/routes/sign-in.tsx:124
+#: app/routes/sign-in.tsx:126
 msgid "Signing in…"
 msgstr "Signing in…"
 
@@ -729,7 +729,7 @@ msgstr "This permanently deletes your profile. Curriculums and assessments will 
 msgid "This program doesn't exist or you don't have access. Browse available programs from the home page."
 msgstr "This program doesn't exist or you don't have access. Browse available programs from the home page."
 
-#: src/components/Header.tsx:140
+#: src/components/Header.tsx:143
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
@@ -821,8 +821,8 @@ msgstr "You've hit your hourly LLM usage limit. Try again later."
 msgid "You've used your hourly LLM token allowance."
 msgstr "You've used your hourly LLM token allowance."
 
-#: app/routes/sign-in.tsx:93
-#: app/routes/sign-up.tsx:116
+#: app/routes/sign-in.tsx:95
+#: app/routes/sign-up.tsx:118
 msgid "you@example.com"
 msgstr "you@example.com"
 
